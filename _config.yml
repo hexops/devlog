@@ -8,7 +8,7 @@ permalink: /:year/:title
 paginate_path: /posts/:num
 paginate: 5
 
-title: Hexops devlog
+title: Hexops' devlog
 description: Hexops' developer log
 jekyll-archives:
   enabled:
