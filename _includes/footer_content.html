@@ -2,9 +2,10 @@
 {% if site.feed and site.feed.path %}
   {% assign feed_path = site.feed.path %}
 {% endif %}
-&copy; {{ site.author }} 2021 Hexops - Subscribe via <a href="{{ feed_path | absolute_url }}">RSS</a>
+&copy; {{ site.author }} 2021 Hexops</a>
 
-<a alt="RSS Follow" href="https://devlog.hexops.com/feed.xml"><img src="https://shields.io/badge/RSS-follow-green?logo=RSS"></a>
+<br>
+<a alt="RSS Follow" href="{{ feed_path | absolute_url }}""><img src="https://shields.io/badge/RSS-follow-green?logo=RSS"></a>
 <a alt="License: CC BY 4.0" href="https://creativecommons.org/licenses/by/4.0"><img src="https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg"></a>
-
+<br>
 <a href="https://hexops.com"><img height="50px" alt="Hexops logo" src="https://raw.githubusercontent.com/hexops/media/main/logo.svg"></a>
