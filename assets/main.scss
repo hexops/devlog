@@ -46,10 +46,17 @@ $on-laptop: 800px;
 @import "whiteglass";
 
 .site-header {
-    font-family: Orbitron;
     font-weight: bold;
 }
 
-.site-footer {
+.site-header, .post-header, .site-footer {
     font-family: Orbitron;
+}
+
+.post-content h1, 
+.post-content h2, 
+.post-content h3, 
+.post-content h4, 
+.post-content h5 {
+    font-family: monospace;
 }
