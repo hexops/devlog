@@ -1,10 +1,11 @@
-<a href="https://hexops.com"><img align="right" alt="Hexops logo" src="https://raw.githubusercontent.com/hexops/media/main/readme.svg"></a>
-
-# Postgres Trigram search learnings
+---
+layout: post
+title: "Postgres Trigram search learnings"
+categories: search, trigrams
+author: "Stephen Gutekanst"
+---
 
 In this article I talk about learnings I have from trying to use pg_trgm as the backend for a search engine, Tridex, which aims to be a competitor to Google's [Zoekt](https://github.com/google/zoekt) ("Fast trigram based code search")
-
-<small align="right">By Stephen Gutekanst, Jan 26, 2021</small>
 
 ## Background
 
