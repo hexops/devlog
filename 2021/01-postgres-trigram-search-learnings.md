@@ -82,9 +82,3 @@ I believe with this approach you could achieve scales/performance similar to Goo
 In Tridex (the search engine I am working on), we're planning on exploring this avenue by replacing Postgres and pg_trgm with a custom trigram index based on xor-filters, and will likely write it in Zig. I only realized the opportunity here in a late-night conversation with a coworker who has an affinity for bloom filters, so perhaps I am misguided and this will turn up no fruit.
 
 Follow this devlog for updates.
-
----
-
-[![RSS Follow](https://shields.io/badge/RSS-follow-green?logo=RSS)](https://github.com/hexops/devlog/commits/main.atom) [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
-
-<a href="https://hexops.com"><img height="50px" alt="Hexops logo" src="https://raw.githubusercontent.com/hexops/media/main/logo_whitebg.svg"></a>

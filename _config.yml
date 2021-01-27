@@ -4,8 +4,8 @@ plugins:
   - jekyll-paginate
   - jekyll-sitemap
 
-permalink: /:year/:month/:title/
-paginate_path: /posts/:num/
+permalink: /:year/:title
+paginate_path: /posts/:num
 paginate: 5
 
 jekyll-archives:
@@ -14,5 +14,5 @@ jekyll-archives:
     - tags
   layout: category_archives
   permalinks:
-    category: /categories/:name/
-    tag: /tags/:name/
+    category: /categories/:name
+    tag: /tags/:name
