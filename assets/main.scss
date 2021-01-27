@@ -45,6 +45,10 @@ $on-laptop: 800px;
 // Import partials from the `whiteglass` theme.
 @import "whiteglass";
 
+.site-title {
+    text-decoration: none;
+}
+
 .site-header {
     font-weight: bold;
 }
