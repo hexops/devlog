@@ -180,6 +180,7 @@ In total, we executed 19,936 search queries against the index. We chose queries 
 
 <details>
 <summary>Detailed breakdown</summary>
+<div markdown="1">
 
 | Query                                 | Result Limit     | Times executed |
 |---------------------------------------|------------------|----------------|
@@ -220,6 +221,7 @@ In total, we executed 19,936 search queries against the index. We chose queries 
 | `d97f1d3ff91543[e-f]49.8b07517548877` | 1000             | 100            |
 | `d97f1d3ff91543[e-f]49.8b07517548877` | unlimited        | 2              |
 
+</div>
 </details>
 
 ## Query performance
@@ -337,6 +339,7 @@ Detailed comparisons are available below for those interested:
 
 <details>
 <summary>Queries with `LIMIT 10`</summary>
+<div markdown="1">
 
 | Time bucket | Percentage of queries (before) | Percentage of queries (after splitting) |
 |-------------|--------------------------------|-----------------------------------------|
@@ -354,10 +357,12 @@ Detailed comparisons are available below for those interested:
 | 50000ms | 100.00% (9004 of 9004) | 100.00% (100 of 100) |
 | 60000ms | 100.00% (9004 of 9004) | 100.00% (100 of 100) |
 
+</div>
 </details>
 
 <details>
 <summary>Queries with `LIMIT 100`</summary>
+<div markdown="1">
 
 | Time bucket | Percentage of queries (before) | Percentage of queries (after splitting) |
 |-------------|--------------------------------|-----------------------------------------|
@@ -375,10 +380,12 @@ Detailed comparisons are available below for those interested:
 | 50000ms | 100.00% (10000 of 10000) | 100.00% (100 of 100) |
 | 60000ms | 100.00% (10000 of 10000) | 100.00% (100 of 100) |
 
+</div>
 </details>
 
 <details>
 <summary>Queries with `LIMIT 1000`</summary>
+<div markdown="1">
 
 | Time bucket | Percentage of queries (before) | Percentage of queries (after splitting) |
 |-------------|--------------------------------|-----------------------------------------|
@@ -396,10 +403,12 @@ Detailed comparisons are available below for those interested:
 | 50000ms | 99.00% (903 of 904) | 100.00% (100 of 100) |
 | 60000ms | 100.00% (904 of 904) | 100.00% (100 of 100) |
 
+</div>
 </details>
 
 <details>
 <summary>Queries with no limit`</summary>
+<div markdown="1">
 
 | Time bucket | Percentage of queries (before) | Percentage of queries (after splitting) |
 |-------------|--------------------------------|-----------------------------------------|
@@ -417,6 +426,7 @@ Detailed comparisons are available below for those interested:
 | 50000ms | 0% (0 of 28) | 18.00% (9 of 50) |
 | 60000ms | 0% (0 of 28) | 18.00% (9 of 50) |
 
+</div>
 </details>
 
 ## Conclusions
