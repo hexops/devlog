@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Postgres regex search over 10,000 GitHub repositories"
+title: "Postgres regex search over 10,000 GitHub repositories (using only a Macbook)"
 categories: search, trigrams
 author: "Stephen Gutekanst"
 ---
