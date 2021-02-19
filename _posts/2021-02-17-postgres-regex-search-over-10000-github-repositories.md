@@ -5,11 +5,11 @@ categories: search, trigrams
 author: "Stephen Gutekanst"
 ---
 
-In this article, we share empirical measurements from our experiments in using Postgres to index and search over 10,000 top GitHub repositories using `pg_tgrm` on only a Macbook.
+In this article, we share empirical measurements from our experiments in using Postgres to index and search over 10,000 top GitHub repositories using `pg_trgm` on only a Macbook.
 
 This is a follow up to ["Postgres Trigram search learnings"](https://devlog.hexops.com/2021/postgres-trigram-search-learnings), in which we shared several learnings and beliefs about trying to use Postgres Trigram indexes as an alterative to Google's [Zoekt](https://github.com/google/zoekt) ("Fast trigram based code search").
 
-We share our results, as well as [the exact steps we performed, scripts, and lists of the top 20,000 repositories by stars/language on GitHub](https://github.com/hexops/pgtgrm_emperical_measurements) so you can reproduce the results yourself should you desire.
+We share our results, as well as [the exact steps we performed, scripts, and lists of the top 20,000 repositories by stars/language on GitHub](https://github.com/hexops/pgtrgm_emperical_measurements) so you can reproduce the results yourself should you desire.
 
 ## TL;DR
 
@@ -36,7 +36,7 @@ During test execution, few other Mac applications were in use such that effectiv
 
 ## Corpus
 
-We scraped [lists of the top 1,000 repositories from the GitHub search API](https://github.com/hexops/pgtgrm_emperical_measurements/tree/main/top_repos) ranked by stars for each of the following languages (~20.5k repositories in total):
+We scraped [lists of the top 1,000 repositories from the GitHub search API](https://github.com/hexops/pgtrgm_emperical_measurements/tree/main/top_repos) ranked by stars for each of the following languages (~20.5k repositories in total):
 
 * C++, C#, CSS, Go, HTML, Java, JavaScript, MatLab, ObjC, Perl, PHP, Python, Ruby, Rust, Shell, Solidity, Swift, TypeScript, VB .NET, and Zig.
 
@@ -51,7 +51,7 @@ We found the amount of disk space required by `git clone --depth 1` on these rep
 
 ## Database insertion
 
-We [concurrently inserted](https://github.com/hexops/pgtgrm_emperical_measurements/blob/main/cmd/corpusindex/main.go) the entire corpus into Postgres, with the following DB schema:
+We [concurrently inserted](https://github.com/hexops/pgtrgm_emperical_measurements/blob/main/cmd/corpusindex/main.go) the entire corpus into Postgres, with the following DB schema:
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
@@ -72,7 +72,7 @@ We tried three separate times to index the dataset using the following GIN Trigr
 CREATE INDEX IF NOT EXISTS files_contents_trgm_idx ON files USING GIN (contents gin_trgm_ops);
 ```
 
-* **In the first attempt, we hit an OOM after 11 hours and 34 minutes.** This was due to a rapid spike in memory usage at the very end of indexing. We used a [fairly aggressive](https://github.com/hexops/pgtgrm_emperical_measurements#configuration-attempt-1-indexing-failure-oom) Postgres configuration with a very large max WAL size, so it was not entirely unexpected.
+* **In the first attempt, we hit an OOM after 11 hours and 34 minutes.** This was due to a rapid spike in memory usage at the very end of indexing. We used a [fairly aggressive](https://github.com/hexops/pgtrgm_emperical_measurements#configuration-attempt-1-indexing-failure-oom) Postgres configuration with a very large max WAL size, so it was not entirely unexpected.
 * **In the second attempt, we ran out of SSD disk space after ~27 hours**. Notable is that the disk space largely grew towards the end of indexing, similar to when we faced an OOM - it was not a gradual increase over time. For this attempt, we used the excellent [pgtune](https://pgtune.leopard.in.ua/#/) tool to reduce our first Postgres configuration as follows:
 
 ```
@@ -266,7 +266,7 @@ Notable insights from this are:
 * CPU usage does not exceed 138%, until the spike at the end.
 * Memory usage does not exceed 42 MiB, until the spike at the end.
 
-We suspect `pg_tgrm` is single-threaded within the scope of a single table, but with [table data partitioning](https://www.postgresql.org/docs/10/ddl-partitioning.html) (or splitting data into multiple tables with subsets of the data), we suspect better parallelism could be achieved.
+We suspect `pg_trgm` is single-threaded within the scope of a single table, but with [table data partitioning](https://www.postgresql.org/docs/10/ddl-partitioning.html) (or splitting data into multiple tables with subsets of the data), we suspect better parallelism could be achieved.
 
 ## Investigating slow queries
 
@@ -275,11 +275,11 @@ If we plot the number of index rechecks (X axis) vs. execution time (Y axis), we
 <img width="1036" alt="image" src="https://user-images.githubusercontent.com/3173176/107849660-fc0cb280-6db9-11eb-9c10-cb7e74366ab7.png">
 
 
-And if we look at [the `EXPLAIN ANALYZE` output for one of these queries](https://github.com/hexops/pgtgrm_emperical_measurements/blob/main/query_logs/query-run-3.log#L3-L24) we can also confirm `Parallel Bitmap Heap Scan` is slow due to `Rows Removed by Index Recheck`.
+And if we look at [the `EXPLAIN ANALYZE` output for one of these queries](https://github.com/hexops/pgtrgm_emperical_measurements/blob/main/query_logs/query-run-3.log#L3-L24) we can also confirm `Parallel Bitmap Heap Scan` is slow due to `Rows Removed by Index Recheck`.
 
 ## Table splitting
 
-Splitting up the search index into multiple smaller tables seems like an obvious approach to getting `pg_tgrm` to use multiple CPU cores. We tried this by taking the same exact data set and splitting it into 200 tables, and found numerous benefits:
+Splitting up the search index into multiple smaller tables seems like an obvious approach to getting `pg_trgm` to use multiple CPU cores. We tried this by taking the same exact data set and splitting it into 200 tables, and found numerous benefits:
 
 ### Benefit 1: Incremental indexing
 
@@ -436,10 +436,10 @@ We think the following learnings are most important:
 * `.git` directories, even with `--depth=1` clones, account for 30% of a repositories size on disk (at least in top 10,000 GitHub repositories.)
 * Files > 1 MiB (often binaries) account for another 51% of the data size on disk of repositories.
 * On only a Macbook Pro, it is possible to get Postgres Trigram regex search over 10,000 repositories to run most reasonable queries in under 5s - and certainly much faster with more hardware.
-* `pg_tgrm` performs single-threaded indexing and querying, unless you split your data up into multiple tables.
+* `pg_trgm` performs single-threaded indexing and querying, unless you split your data up into multiple tables.
 * By default, a Postgres `text` colum will be compressed by Postgres on disk out of the box - resulting in a 23% reduction in size (with the files we inserted.)
-* `pg_tgrm` GIN indexes take around 26% the size of your data on disk. So if indexing 1 GiB of raw text, expect Postgres to store that text in around ~827 MiB plus 279 MiB for the GIN trigram index.
-* Splitting your data into multiple tables if using `pg_tgrm` is an obvious win, as it allows for paralle indexing which can be the difference between 4h vs 22h. It also reduces the risk of an indexing failure after 22h due to e.g. lack of memory and uses much less peak memory overall.
+* `pg_trgm` GIN indexes take around 26% the size of your data on disk. So if indexing 1 GiB of raw text, expect Postgres to store that text in around ~827 MiB plus 279 MiB for the GIN trigram index.
+* Splitting your data into multiple tables if using `pg_trgm` is an obvious win, as it allows for paralle indexing which can be the difference between 4h vs 22h. It also reduces the risk of an indexing failure after 22h due to e.g. lack of memory and uses much less peak memory overall.
 
 If you are looking for fast regexp or code search today, consider:
 
