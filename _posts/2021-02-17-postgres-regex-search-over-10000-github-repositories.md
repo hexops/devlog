@@ -122,6 +122,8 @@ Disk reads/writes during indexing averaged about ~250 MB/s for reads (blue) and 
 
 <img width="599" alt="image" src="https://user-images.githubusercontent.com/3173176/106507903-ec6f9e80-6488-11eb-88a8-78e5b7aacfd6.png">
 
+<small>Addition made Feb 20, 2021:</small> We ran tests using native Postgres as well (instead of in Docker with a bind mount) and found better indexing and query performance, more on this below.
+
 ## Indexing performance: Disk space
 
 The database contains 9,720,910 files totalling 82.07 GiB:
@@ -429,6 +431,82 @@ Detailed comparisons are available below for those interested:
 </div>
 </details>
 
+## Postgres-in-Docker vs. native Postgres
+
+<small>Addition made Feb 20, 2021</small>
+
+In our original article we did not clarify the performance impacts of running Postgres inside of Docker with a volume bind mount. This was raised as a potential source of IO performance difference to us by [Thorsten Ball](https://twitter.com/thorstenball).
+
+We ran all tests above with Postgres in Docker, using a volume bind mount (the osxfs driver, not the experimental FUSE gRPC driver.)
+
+We additionally ran the same table-splitting benchmarks on a native Postgres server ([reproduction steps here](https://github.com/hexops/pgtrgm_emperical_measurements#native-postgres-tests)) and found the following key changes:
+
+### CPU usage & memory usage: approximately the same
+
+CPU and memory usage was approximately the same as in our Docker Postgres tests.
+
+We anticipated this would be the case as the Macbook does have VT-x virtualization enabled (default on all i7/i9 Macbooks, and confirmed through `sysctl kern.hv_support`)
+
+### Indexing speed was ~88% faster
+
+Running the statements to split up the large table into multiple smaller ones, i.e.:
+
+```sql
+CREATE TABLE files_000 AS SELECT * FROM files WHERE id > 0 AND id < 50000;
+CREATE TABLE files_001 AS SELECT * FROM files WHERE id > 50000 AND id < 100000;
+...
+```
+
+Was much faster in native Postgres, taking about 2-8s for each table instead of 20-40s previously, and taking only 15m in total instead of 2h before.
+
+Parallel creation of the Trigram indexes using e.g.:
+
+```sql
+CREATE INDEX IF NOT EXISTS files_000_contents_trgm_idx ON files USING GIN (contents gin_trgm_ops);
+```
+
+Was also much faster, taking only 23m compared to ~3h with Docker.
+
+### Query performance is 12-99% faster, depending on query
+
+We re-ran the same 350 queries as in our earlier table-splitting benchmark, and found the following substantial improvements:
+
+1. Queries that were previously very slow noticed a ~12% improvement. This is likely due to IO operations needed when interfacing with the 200 separate tables.
+2. Queries that were previously in the middle-ground noticed meager ~5% improvements.
+3. Queries that were previously fairly fast (likely searching only over a one or two tables before returning) noticed substantial 16-99% improvements.
+
+
+
+<details>
+<summary>Exhaustive comparison details (negative change is good)</summary>
+<div markdown="1">
+
+| Change | Time bucket | Queries under bucket **before** | Queries under bucket **after** |
+|--------|-------------|---------------------------------|--------------------------------|
+| 0%     | 500s        | 350 of 350                      | 350 of 350                     |
+| -12%   | 100s        | 309 of 350                      | 350 of 350                     |
+| -12%   | 50s         | 309 of 350                      | 350 of 350                     |
+| -12%   | 40s         | 308 of 350                      | 350 of 350                     |
+| -12%   | 30s         | 308 of 350                      | 349 of 350                     |
+| -7%    | 25s         | 307 of 350                      | 330 of 350                     |
+| -7%    | 25s         | 307 of 350                      | 330 of 350                     |
+| -8%    | 20s         | 302 of 350                      | 330 of 350                     |
+| -8%    | 20s         | 302 of 350                      | 330 of 350                     |
+| -5%    | 10s         | 297 of 350                      | 311 of 350                     |
+| -26%   | 5s          | 237 of 350                      | 319 of 350                     |
+| -7%    | 2500ms      | 224 of 350                      | 240 of 350                     |
+| -9%    | 2000ms      | 219 of 350                      | 240 of 350                     |
+| -9%    | 1500ms      | 219 of 350                      | 240 of 350                     |
+| -16%   | 1000ms      | 200 of 350                      | 237 of 350                     |
+| -14%   | 750ms       | 190 of 350                      | 221 of 350                     |
+| -23%   | 500ms       | 170 of 350                      | 220 of 350                     |
+| -59%   | 250ms       | 88 of 350                       | 217 of 350                     |
+| -99%   | 100ms       | 1 of 350                        | 168 of 350                     |
+| -99%   | 50ms        | 1 of 350                        | 168 of 350                     |
+
+</div>
+</details>
+
 ## Conclusions
 
 We think the following learnings are most important:
@@ -440,6 +518,7 @@ We think the following learnings are most important:
 * By default, a Postgres `text` colum will be compressed by Postgres on disk out of the box - resulting in a 23% reduction in size (with the files we inserted.)
 * `pg_trgm` GIN indexes take around 26% the size of your data on disk. So if indexing 1 GiB of raw text, expect Postgres to store that text in around ~827 MiB plus 279 MiB for the GIN trigram index.
 * Splitting your data into multiple tables if using `pg_trgm` is an obvious win, as it allows for paralle indexing which can be the difference between 4h vs 22h. It also reduces the risk of an indexing failure after 22h due to e.g. lack of memory and uses much less peak memory overall.
+* Docker bind mounts (not volumes) are quite slow outside of Linux host environments (there are many other articles on this subject.)
 
 If you are looking for fast regexp or code search today, consider:
 
