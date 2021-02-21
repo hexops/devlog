@@ -118,11 +118,11 @@ Our third attempt similarly saw an average of 150-200%, but with a brief spike t
 
 ## Indexing performance: Disk IO
 
-Disk reads/writes during indexing averaged about ~250 MB/s for reads (blue) and writes (red). In-software tests show the same Macbook able to achieve read/write speeds of ~860 MB/s with <5% affect on CPU utilization (so disk IO was never a limiting factor in our tests.)
-
-<img width="599" alt="image" src="https://user-images.githubusercontent.com/3173176/106507903-ec6f9e80-6488-11eb-88a8-78e5b7aacfd6.png">
+Disk reads/writes during indexing averaged about ~250 MB/s for reads (blue) and writes (red). Native in-software tests show the same Macbook able to achieve read/write speeds of ~860 MB/s with <5% affect on CPU utilization.
 
 <small>Addition made Feb 20, 2021:</small> We ran tests using native Postgres as well (instead of in Docker with a bind mount) and found better indexing and query performance, more on this below.
+
+<img width="599" alt="image" src="https://user-images.githubusercontent.com/3173176/106507903-ec6f9e80-6488-11eb-88a8-78e5b7aacfd6.png">
 
 ## Indexing performance: Disk space
 
