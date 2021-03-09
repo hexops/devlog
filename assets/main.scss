@@ -45,7 +45,7 @@ $on-laptop: 800px;
 // Import partials from the `whiteglass` theme.
 @import "whiteglass";
 
-.site-title a {
+.site-title a, .site-title a:hover, .site-title a:visited {
     text-decoration: none;
 }
 
