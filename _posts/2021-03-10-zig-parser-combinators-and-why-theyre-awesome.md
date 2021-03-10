@@ -178,7 +178,7 @@ Our error type might start out looking something like this:
 ```zig
 pub const Error = error{
     EndOfStream,
-} || ;
+} || std.mem.Allocator.Error;
 ```
 
 `error{...}` describes [a set of potential errors](https://ziglang.org/documentation/master/#Error-Set-Type) and `|| std.mem.Allocator.Error` merely says to _merge_ the allocator type's error set with ours - so our potential set of errors includes _ours and theirs_.
