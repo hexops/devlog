@@ -21,7 +21,7 @@ In this article we will be exploring what [parser combinators](https://en.wikipe
     - [What actually is a "Reader"?](#what-actually-is-a-reader)
     - [A Parser that parses a literal string](#a-parser-that-parses-a-literal-string)
     - [Passing parameters to a parser implementation](#passing-parameters-to-a-parser-implementation)
-    - [Understanding Zig's wild/confusing `@fieldParentPtr`](#understanding-zigs-wild-confusing-fieldparentptr)
+    - [Understanding Zig's wild/confusing `@fieldParentPtr`](#understanding-zigs-wildconfusing-fieldparentptr)
     - [Implementing the rest of `parse`](#implementing-the-rest-of-parse)
 - [Our first _parser combinator_](#our-first-parser-combinator)
 - [Using our OneOf parser combinator](#using-our-oneof-parser-combinator)
