@@ -524,4 +524,6 @@ I am sorry for not giving you a full (or even partial) regex engine :) I am stil
 
 You can find a copy of the final code with _parsers_ and _parser combinators_ [here](https://gist.github.com/slimsag/db2dd2c49aa038e23b654120e70c9b00). Just `zig init-exe` and plop them into your `src/` directory.
 
+You may also want to check out [Mecha](https://github.com/Hejsil/mecha), a parser combinator library for Zig.
+
 If anything was unclear or confusing, I'm happy to help: shoot me an email stephen@hexops.com or leave a comment on Hacker News / Reddit and I'll follow up.
