@@ -82,9 +82,11 @@ We can use the same combinatorial principle here to introduce a new _parser gene
 
 ## A note about traditional regex engines
 
-Popular regex engines are implemented using DFA (Deterministic Finite Automatons) or NFA (Nondeterministic Finite Automatons), which is described in great detail in [Russ Cox's article here](https://swtch.com/~rsc/regexp/regexp1.html) or using Henry Spencer's virtual machine approach, also described in great detail on [Russ Cox's website](https://swtch.com/~rsc/regexp/regexp2.html).
+<small>_Revised Mar 10, 2021_ to clarify a misunderstanding I had about about the difference between DFA and NFA regex engines. Thanks [@burntsushi](https://news.ycombinator.com/item?id=26419048) for helping me to learn!</small>
 
-It's worth noting that combinatorial parsing / generating parsers at runtime is very much an _uncommon_ method of implementing a regular expression engine. This is _somewhat_ close to what [Comby](https://comby.dev) does in practice, although we use a runtime parser generator instead of parser parser combinators.
+Production grade regex engines are either _finite automata based_ or _backtracking based_, and are described in great detail in [Russ Cox's article here](https://swtch.com/~rsc/regexp/regexp1.html) and [his second article here](https://swtch.com/~rsc/regexp/regexp2.html) covering the virtual-machine approach commonly used in regex engines.
+
+It's worth noting that combinatorial parsing and generating parsers at runtime is very much an _uncommon_ method of implementing a regular expression engine. This is _somewhat_ close to what [Comby](https://comby.dev) does in practice, although we use a runtime parser generator instead of parser parser combinators.
 
 One could argue this makes what we're parsing not strictly _regular expressions_, although as Larry Wall (author of the Perl programming language) [writes](https://raku.org/archive/doc/design/apo/A05.html), neither are the modern "regexp" pattern matchers you are likely used to:
 
