@@ -1,4 +1,4 @@
-theme: jekyll-whiteglass
+remote_theme: hexops/whiteglass
 plugins:
   - jekyll-archives
   - jekyll-paginate
