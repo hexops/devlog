@@ -127,7 +127,7 @@ pub fn Parser(comptime Value: type, comptime Reader: type) type {
 
 ### Zig generics are provided via type parameters 
 
-```Zig
+```zig
 pub fn Parser(comptime Value: type, comptime Reader: type) type {
     return struct {
         ...
@@ -357,15 +357,16 @@ Hopefully you can start to see the link here: `parser` is a pointer to _our stru
 
 Our full `parse` method will look like this:
 
-```
+```zig
 // If a value is returned, it is up to the caller to free it.
 fn parse(parser: *Parser([]u8, Reader), allocator: *Allocator, src: *Reader) callconv(.Inline) Error!?[]u8 {
     const self = @fieldParentPtr(Self, "parser", parser);
     const buf = try allocator.alloc(u8, self.want.len);
+    errdefer allocator.free(buf);
     const read = try src.reader().readAll(buf);
     if (read < self.want.len or !std.mem.eql(u8, buf, self.want)) {
         try src.seekableStream().seekBy(-@intCast(i64, read));
-        allocator.free(buf);
+        allocator.free(buf); // parsing failed
         return null;
     }
     return buf;
@@ -376,7 +377,7 @@ There are a few notable things here:
 
 * We're trying to return a string from our `parse` function, i.e. the value it emits is a string (instead of an AST node).
 * The `want` string we _got_ inside of our `init` method is agreed to only be valid while `parse` will still be called. We've decided to create a contract that all of our `Parser` implementations will either not hold onto memory given by others - or if they do, only do so until `parse` returns. Hence, we need to allocate a new string in our method.
-* Normally we could use `defer` ("run at end of function") or `errdefer` ("run if an error is returned"), but since we've chosen to reserve the _none optional_ `null` as "we didn't parse anything" we need to manually free. A `nulldefer` and `somedefer` could be nice, maybe?
+* Normally we could rely solely on `defer` ("run at end of function") or `errdefer` ("run if an error is returned"), but since we've chosen to reserve the _none optional_ `null` as "we didn't parse anything" we need to manually free if we `return null;`. A `nulldefer` and `somedefer` could be nice, maybe?
 
 Putting it all together, you'll get something like this: [GitHub gist](https://gist.github.com/slimsag/8f098a13177b4bc008a7741505819f90).
 
