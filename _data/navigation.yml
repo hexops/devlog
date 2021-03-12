@@ -2,6 +2,8 @@
 # pages in order as they should show up.
 main:
   - title: "About"
-    url: /about
+    url: /about/
+  - title: "Archives"
+    url: /archives/
   - title: "GitHub"
     url: https://github.com/hexops

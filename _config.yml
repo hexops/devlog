@@ -1,8 +1,9 @@
-theme: jekyll-whiteglass
+remote_theme: hexops/whiteglass
 plugins:
   - jekyll-archives
   - jekyll-paginate
   - jekyll-sitemap
+  - jekyll-remote-theme
 
 permalink: /:year/:title
 paginate_path: /posts/:num
@@ -16,7 +17,7 @@ jekyll-archives:
     - tags
   layout: category_archives
   permalinks:
-    category: /categories/:name
-    tag: /tags/:name
+    category: /categories/:name/
+    tag: /tags/:name/
 twitter_image: https://raw.githubusercontent.com/hexops/website/master/media/png/square_logo.png
 facebook_image: https://raw.githubusercontent.com/hexops/website/master/media/png/square_logo.png
