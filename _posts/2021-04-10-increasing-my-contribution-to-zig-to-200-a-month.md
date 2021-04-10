@@ -3,8 +3,10 @@ layout: post
 title: "Increasing my contribution to Zig to $200/mo"
 categories: zig
 author: "Stephen Gutekanst"
-twitter_image: https://user-images.githubusercontent.com/3173176/114259396-7ef95600-9982-11eb-9e32-3b8edff3e67f.png
-facebook_image: https://user-images.githubusercontent.com/3173176/114259396-7ef95600-9982-11eb-9e32-3b8edff3e67f.png
+twitter:
+  image: https://user-images.githubusercontent.com/3173176/114259396-7ef95600-9982-11eb-9e32-3b8edff3e67f.png
+facebook:
+  image: https://user-images.githubusercontent.com/3173176/114259396-7ef95600-9982-11eb-9e32-3b8edff3e67f.png
 ---
 
 Today, I increased my monthly donation to Zig to $200 a month. Before Zig, I have not contributed financially to any open source project.
