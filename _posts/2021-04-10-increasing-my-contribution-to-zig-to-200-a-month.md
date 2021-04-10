@@ -23,7 +23,7 @@ Before I can explain why I am so extremely excited about the [Zig](https://zigla
 
 ## I grew up playing Linux games like Mania Drive
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/7YFicbaXHw0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="720" height="480" src="https://www.youtube.com/embed/7YFicbaXHw0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 Mania Drive was an open-source clone of the popular Trackmania series. Me and my siblings in our early teens  easily spent hundreds, if not thousands, of hours in Mania Drive.
 
