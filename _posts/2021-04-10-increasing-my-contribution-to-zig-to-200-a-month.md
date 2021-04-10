@@ -31,7 +31,7 @@ In retrospect it has quite bad graphics, physics, game-play mechanics, etc. But 
 
 Obsession over this game led to even more modding: the discovery of [Blender](https://www.blender.org) meant we could create even more custom maps than in the limited tile-based map editor. Although the Blender UI was pretty rough back then:
 
-![image](https://user-images.githubusercontent.com/3173176/114266230-073f2180-99aa-11eb-9196-5c546fe71fb8.png)
+<img class="color" src="https://user-images.githubusercontent.com/3173176/114266230-073f2180-99aa-11eb-9196-5c546fe71fb8.png">
 
 ## It wasn't long before I found that the Mania Drive game engine was open-source.
 
@@ -40,7 +40,7 @@ Obsession over this game led to even more modding: the discovery of [Blender](ht
 * It supported scripting through PHP! I had used PHP a lot with LAMP stacks, so the idea that I could script the engine in PHP was _mind blowing to now 14-year old me._
 * 2 years later, I got an iPod touch and the Raydium developers had just posted a demo video showing the engine running on the iPhone. 16 year old me thought this was _literally_ the coolest thing ever, albeit immensely disappointed I did not have a Mac to build it for my iPod:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/wcPfxr9BgA4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="720" height="480" src="https://www.youtube.com/embed/wcPfxr9BgA4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## I was so infatuated with this game engine, I convinced my dad's coworkers to pay me to build them a virtual meeting world
 
@@ -48,7 +48,7 @@ My dad was running one of his many startups at the time - it had some momentum b
 
 Unfortunately for them, they spent most of their focus on business operations than actually getting a product out the door. Lucky for me, however, this meant they had came across Sun's [Project Wonderland](https://en.wikipedia.org/wiki/Open_Wonderland) - the delightfully terrible 3D virtual workplace of the future (or so Sun thought, before they had to sell to Oracle.) It was _terrible,_ barely a good demo:
 
-![image](https://user-images.githubusercontent.com/3173176/114258853-625b1f00-997e-11eb-959d-15a2cdafae9c.png)
+<img class="color" src="https://user-images.githubusercontent.com/3173176/114258853-625b1f00-997e-11eb-959d-15a2cdafae9c.png">
 
 It required something like 32 CPUs and 64G of memory to run the server for just 8 players - no small feat back in 2010! The client was laggy, there were virtual whiteboards you could draw on but everything was slow. Even its VOIP feature was glitchy - although quite novel at the time. It was all around _a terrible experience._
 
@@ -70,9 +70,9 @@ It was around this time that I began to really get into Python: it was simple, s
 
 Panda3D was the game engine Disney used to create Toontown Online and Pirates of the Carribean Online:
 
-![image](https://user-images.githubusercontent.com/3173176/114259007-b31f4780-997f-11eb-9741-db4507dd820f.png)
+<img class="color" src="https://user-images.githubusercontent.com/3173176/114259007-b31f4780-997f-11eb-9741-db4507dd820f.png">
 
-![image](https://user-images.githubusercontent.com/3173176/114259061-0db8a380-9980-11eb-8991-1f8443388cc3.png)
+<img class="color" src="https://user-images.githubusercontent.com/3173176/114259061-0db8a380-9980-11eb-8991-1f8443388cc3.png">
 
 It was written in C++, with automatic binding generation for Python. In fact, many portions of the engine were written in _just_ Python and not usable from C++ at all. [They revamped their website site recently, so I guess it's still around.](https://www.panda3d.org)
 
@@ -82,15 +82,15 @@ Discovering Panda3D opened new doors for me. At around 16-17 years old now, I wa
 
 Pretty soon, I had actual games in the works. I was starting to learn about why draw order matters - and how I had no understanding of mip-mapping:
 
-![image](https://user-images.githubusercontent.com/3173176/114259274-8e2bd400-9981-11eb-905d-cd675c582f5b.png)
+<img class="color" src="https://user-images.githubusercontent.com/3173176/114259274-8e2bd400-9981-11eb-905d-cd675c582f5b.png">
 
-![image](https://user-images.githubusercontent.com/3173176/114259299-bb788200-9981-11eb-97df-ad00c29a54c2.png)
+<img class="color" src="https://user-images.githubusercontent.com/3173176/114259299-bb788200-9981-11eb-97df-ad00c29a54c2.png">
 
 ## I began to prevail
 
 At this point I had several, actually working games - I was proud of what I was working on, had multiplayer functionality hooked up to a MySQL database even.
 
-![image](https://user-images.githubusercontent.com/3173176/114259396-7ef95600-9982-11eb-9e32-3b8edff3e67f.png)
+<img class="color" src="https://user-images.githubusercontent.com/3173176/114259396-7ef95600-9982-11eb-9e32-3b8edff3e67f.png">
 
 ## But my limited knowledge hit me again
 
@@ -132,7 +132,7 @@ There was _so much_ that I learned during this time, about software engineering,
 
 I learned an _immense_ amount, but I had nothing to show for it aside from [a funny looking website](https://azul3d.org) and some quite poor screenshots (to the dismay of every person I told.)
 
-![image](https://user-images.githubusercontent.com/3173176/114266918-f42e5080-99ad-11eb-8cff-f9376f3bf0bb.png)
+<img class="color" src="https://user-images.githubusercontent.com/3173176/114266918-f42e5080-99ad-11eb-8cff-f9376f3bf0bb.png">
 
 ## My game engine appeared on Hacker News (2014)
 
@@ -169,7 +169,7 @@ It was around this time that I was basically deciding: _what would I do for a li
 
 Luckily, someone in the Go community (whom I'd never talked to before) reached out to me and asked "hey, what are you doing?" - I told them I was in school, and left out the part where I was a college student living with parents, scraping by, and likely going grocery-store-part-time-job seeking soon.
 
-<img width="818" alt="image" src="https://user-images.githubusercontent.com/3173176/114268396-b1707680-99b5-11eb-9038-c0b8d919b44f.png">
+<img class="color" src="https://user-images.githubusercontent.com/3173176/114268396-b1707680-99b5-11eb-9038-c0b8d919b44f.png">
 
 I didn't come from a background that would lead me to believe I could make a living programming in Go, to the contrary my parents often warned me I couldn't and that I would need to go into Cisco network infrastructure instead.
 
@@ -210,7 +210,7 @@ I do not subscribe to this belief - and believe that most game developers _have 
 
 You, dear reader, do not understand _just how far the bar for game development has been lowered._
 
-[![image](https://user-images.githubusercontent.com/3173176/114283707-f6b99600-99ff-11eb-82f8-5fd2e2139636.png)](https://www.youtube.com/watch?v=Nj8gt_92c-M)
+<a href="https://www.youtube.com/watch?v=Nj8gt_92c-M"><img class="color" src="https://user-images.githubusercontent.com/3173176/114283707-f6b99600-99ff-11eb-82f8-5fd2e2139636.png"></a>
 
 Putting together a game in Unity is so beyond ridiculously easy today with Unity that it is incredible, the game engine is truly the new Adobe Flash equivalent.
 
@@ -248,7 +248,7 @@ A lot of people have a _terrible_ experience from school where they were taught 
 
 I believe that in general, writing your game in a different language than the engine (Unity's C#/C++ core model, Panda3D's Python/C++ core model, and yes - perhaps even Unreal's [Blueprints](https://blueprintsfromhell.tumblr.com/)/C++ core model - which I admit is the better of the three)
 
-[![image](https://user-images.githubusercontent.com/3173176/114284178-025a8c00-9a03-11eb-8b22-3f7cd6324b31.png)](https://blueprintsfromhell.tumblr.com/)
+<a href="https://blueprintsfromhell.tumblr.com"><img class="color" src="https://user-images.githubusercontent.com/3173176/114284178-025a8c00-9a03-11eb-8b22-3f7cd6324b31.png"></a>
 
 Pictured: The Unreal character controller blueprint for a game called [Diacrisis](https://store.steampowered.com/app/1037260/Diacrisis/).
 
@@ -300,7 +300,7 @@ I continued to look for this mythical "better C" - and one name that kept arisin
 
 I didn't pay much attention to it, until I shared it with my brother for the 3rd time:
 
-<img width="830" alt="image" src="https://user-images.githubusercontent.com/3173176/114257988-6be18880-9978-11eb-98e9-68027361bc1c.png">
+<img class="color" src="https://user-images.githubusercontent.com/3173176/114257988-6be18880-9978-11eb-98e9-68027361bc1c.png">
 
 > "...I already shared this with you?"
 >
