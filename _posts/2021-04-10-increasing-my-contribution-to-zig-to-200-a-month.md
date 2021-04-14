@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Increasing my contribution to Zig to $200/mo"
+title: "My game development journey & why I'm increasing my contribution to Zig to $200/mo"
 categories: zig
 author: "Stephen Gutekanst"
 twitter:
