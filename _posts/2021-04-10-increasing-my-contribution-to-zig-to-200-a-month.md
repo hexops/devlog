@@ -276,13 +276,21 @@ It didn't work. "I'm just not smart enough to use this language" I often thought
 
 ### Could the V language be it?
 
-When I heard about [the V programming language](https://news.ycombinator.com/item?id=25511073), it seemed right on the spot.
+**UPDATE:** The V language author [reached out over Twitter](https://twitter.com/v_language/status/1382171515924447234?s=20) and it would seem my memory was faulty about what happened here, this was due to a misunderstanding almost 100% on my side and I have falsely mis-characterized the V community here as being less friendly then they were in practice, and I am deeply sorry for that.
 
-I immediately jumped into the community to chat with the author, despite the controversy surrounding it - and tried to get more info about it, how he was thinking of the language, etc.
+I believe my criticisms below about the controversy surrounding the project and the secretive nature _when it launched_ are still valid, and were ultimately major factors in why I chose to not further consider it.
 
-I asked if there were plans to support raw multi-line string literals, like Go. I was struck by a firm 'No. Go doesn't have raw string literals either." - it was the unfriendly community I came across, the controversy surrounding it, and the _secretive nature of the project_ ("I have this, but I'm not going to share it yet") that made me lose faith in its promise.
+At the same time, **I want to point out that V does not look the same as when it launched - and anybody who like me left due to those issues may do well [to reconsider it today](https://vlang.io/) as the project and details surrounding it appear to have changed substantially.**
 
-This wasn't a language whose community I could join and contribute to.
+What this section originally said was:
+
+> When I heard about [the V programming language](https://news.ycombinator.com/item?id=25511073), it seemed right on the spot.
+>
+> I immediately jumped into the community to chat with the author, despite the controversy surrounding it - and tried to get more info about it, how he was thinking of the language, etc.
+>
+> I asked if there were plans to support raw multi-line string literals, like Go. I was struck by a firm 'No. Go doesn't have raw string literals either." - it was the unfriendly community I came across, the controversy surrounding it, and the _secretive nature of the project_ ("I have this, but I'm not going to share it yet") that made me lose faith in its promise.
+>
+> This wasn't a language whose community I could join and contribute to.
 
 ### Could I build it?
 
