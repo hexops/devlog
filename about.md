@@ -15,7 +15,7 @@ And more.
 
 ### Open analytics data
 
-Additionally, we believe analytics should always be anonymous, aggregated, open and public - otherwise it's spying.
+Analytics should always be 100% anonymous, aggregated, open and public - otherwise it's spying.
 
 You can view this website's analytics at [opendata.hexops.com](https://opendata.hexops.com/devlog.hexops.com).
 
