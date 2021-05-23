@@ -266,9 +266,9 @@ I even convinced us to adopt Rust at Sourcegraph in some form, our syntax highli
 
 But maintaining it has been _brutal_. We mostly have Go developers there, and despite a strong desire from many of them to learn Rust really none of them have been able to successfully dive into the codebase and get started.
 
-Rust's learning curve is _steep_. Steeper than C++, and definitely steeper than C (despite its many, massive flaws.)
+Rust's learning curve is _steep_. Steeper than C++ in my view, and definitely steeper than C (despite its many, massive flaws.)
 
-I spent upwards of 6 months on-and-off trying to become proficient at writing Rust code, and I never really became productive: regularly stumbling across complex issues in downstream dependencies (often used by everyone, but maintained by no one - perhaps [rust-lang-nursery](https://github.com/rust-lang-nursery) should be rephrased to rust-lang-graveyard.)
+I spent upwards of 6 months on-and-off trying to become proficient at writing Rust code, and I never really became productive: regularly stumbling across complex issues in downstream dependencies (often used by everyone, but maintained by no one in the rust-lang-nursery.)
 
 **I _love_ the idea of Rust. I love what it promises. And I kept going back to it on-and-off for over 6 months _because I truly wanted to be able to be productive in it._**
 

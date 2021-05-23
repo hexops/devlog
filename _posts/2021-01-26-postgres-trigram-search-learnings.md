@@ -76,7 +76,7 @@ Ultimately.. Once you add in deployment pains, configuration tuning, trigram ind
 
 A more fruitful direction may be to explore effectively the same architecture (i.e. roll-your-own-search-engine), but replacing pg_trgm and Postgres entirely with a custom ngram index built on top of the bloom-filter successor which is more L3-cache-friendly, [xor filters](https://lemire.me/blog/2019/12/19/xor-filters-faster-and-smaller-than-bloom-filters/).
 
-I believe with this approach you could achieve scales/performance similar to Google, Bing, etc. while providing full regex search and more. This idea is not completely unfounded, it has been [suggested for indexing in ripgrep, for example](https://github.com/BurntSushi/ripgrep/issues/1518) (although I don't think they've noticed its opportunity yet and [appear to be going with an inverted trigram index similar to Zoekt](https://github.com/BurntSushi/ripgrep/issues/1497) instead.)
+I believe with this approach you could achieve scales/performance similar to Google, Bing, etc. while providing full regex search and more. This idea is not completely unfounded, it has been [suggested for indexing in ripgrep, for example](https://github.com/BurntSushi/ripgrep/issues/1518) (although [it appears they'll be going with an inverted trigram index similar to Zoekt](https://github.com/BurntSushi/ripgrep/issues/1497) instead.)
 
 ## Closing thoughts
 

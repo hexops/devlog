@@ -303,10 +303,6 @@ Unlike C, `[]const u8` being a slice means it is _a pointer to the string in mem
 * `[]const u8` (unmodifiable string, most common)
 * `[]u8` (modifiable string)
 
-You can consider these similar to Rust's `String` struct, immutable `&str`, and mutable `&mut str` if[[1](https://www.ameyalokare.com/rust/2017/10/12/rust-str-vs-String.html)] you[[2](https://stackoverflow.com/questions/24158114/what-are-the-differences-between-rusts-string-and-str)] like[[3]](https://www.reddit.com/r/rust/comments/2bpenl/confused_by_the_purpose_of_str_and_string/), but note Rust's `String` would actually be a _growable vector of bytes_ internally which would be represented as an `std.ArrayList(u8)` in Zig.
-
-As the Rust book says, ["Strings are not so simple [...] Let’s switch to something a bit less complex"](https://doc.rust-lang.org/book/ch08-02-strings.html#strings-are-not-so-simple) /shade/
-
 ### Understanding Zig's wild/confusing `@fieldParentPtr`
 
 We're finally ready to actually have our `Literal` parser _parse_ something! We just need to implement our `parse` method:
