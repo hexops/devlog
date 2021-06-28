@@ -39,7 +39,7 @@ words.sort();
 
 The preferred alphabetical sorting would be `[ "Ähnlich", "Äpfel", "Bären", "Käfer", "küssen" ]` - `Array.sort` doesn't do that.
 
-That is because it is sorting lexicographically by byte values in the strong, and not taking into account locales.
+That is because it is sorting lexicographically by byte values in the string, and not taking into account locales.
 
 ## Twitter's emoji problem - or when Unicode locale-aware sorting Really Matters™
 
