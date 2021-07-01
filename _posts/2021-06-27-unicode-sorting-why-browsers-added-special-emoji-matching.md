@@ -121,9 +121,7 @@ println!("{:?}", vec);
 // ["Bären", "Käfer", "küssen", "Ähnlich", "Äpfel"]
 ```
 
-Locale-aware sorting in Rust is provided [by ICU4C bindings by Google, google/rust_icu](https://github.com/google/rust_icu). 
-
-Perhaps notable, there have been a number of [vulnerabilities in the ICU4C library](https://github.com/rust-lang/rust/issues/14656#issuecomment-45164318) and there is an attempt to implement internationalization in pure Rust as a safer alternative, [open-i18n/rust-unic](https://github.com/open-i18n/rust-unic) but the project appears semi abandoned (README says "We expect to have the 1.0 version released in 2018", most recent commit is from 2020 with no 1.0 version in sight) - and locale-aware sorting [is an open issue](https://github.com/open-i18n/rust-unic/issues/177).
+Locale-aware sorting in Rust is provided [by ICU4C bindings by Google, google/rust_icu](https://github.com/google/rust_icu) (note however, there have been a number of [vulnerabilities in the ICU4C library](https://github.com/rust-lang/rust/issues/14656#issuecomment-45164318)) and there is ongoing work to implement internationalization in pure Rust as a safer alternative: [unicode-org/icu4x](https://github.com/unicode-org/icu4x).
 
 ### Swift's default is not locale aware, but unicode support is notable
 
