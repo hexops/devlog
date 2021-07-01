@@ -4,6 +4,6 @@ main:
   - title: "About"
     url: /about
   - title: "Archives"
-    url: /archives/
+    url: /archives
   - title: "GitHub"
     url: https://github.com/hexops
