@@ -7,6 +7,10 @@ author: "Stephen Gutekanst"
 
 Startups trying to embrace open source today readily adopt Contributor License Agreements (CLAs) as mandatory requirements for contributing. This is not in the spirit of OSS, and you should use a Developer Certificates of Origin (DCO) instead.
 
+## Update: 2021-07-01 5:46pm MST
+
+A professional lawyer I look up to has [rebuked this article and stated it contains worrisome amounts of misinformation](https://lobste.rs/s/lvmb5i/clas_are_not_for_open_source_use_developer#c_n2k3zd). I encourage reading that thread, and also [the article he has written](https://writing.kemitchell.com/2018/01/06/CLAs-Are-Not-a-Sham.html) instead.
+
 ## Why do we need either? An imaginary tale of emulators
 
 Let's say you work on a Playstation emulator. Someone who finds your work interesting begins sending you contributions on GitHub.
