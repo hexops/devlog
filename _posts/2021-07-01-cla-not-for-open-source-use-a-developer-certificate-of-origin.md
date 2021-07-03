@@ -3,7 +3,6 @@ layout: post
 title: "CLAs are not for open source, use a Developer Certificate of Origin"
 categories: licenses, foss
 author: "Stephen Gutekanst"
-published: false
 ---
 
 Startups trying to embrace open source today readily adopt Contributor License Agreements (CLAs) as mandatory requirements for contributing. This is not in the spirit of OSS, and you should use a Developer Certificates of Origin (DCO) instead.
