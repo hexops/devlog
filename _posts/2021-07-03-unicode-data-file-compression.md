@@ -119,7 +119,7 @@ pub fn compressTo(self: *DecompFile, writer: anytype) !void {
 
 ### Differential encoding state machine
 
-To handle the compression, I started out _really_ simple. First I encoded just a binary version of the data with no compression. The most important thing was to get to a point where I could start testing some theories about what would compress the data really well, and validate that it was in fact being lovelessly compressed/decompressed without issues via tests:
+To handle the compression, I started out _really_ simple. First I encoded just a binary version of the data with no compression. The most important thing was to get to a point where I could start testing some theories about what would compress the data really well, and validate that it was in fact being losslessly compressed/decompressed without issues via tests:
 
 ```zig
 test "compression_is_lossless" {
