@@ -70,8 +70,6 @@ $on-laptop: 900px;
     }
 }
 
-
-
 // Define defaults for each variable.
 $base-font-family: Bitter, "Apple SD Gothic Neo", "Noto Sans", "Source Han Sans", "Noto Sans CJK JP", "Source Han Sans JP", "Noto Sans CJK KR", "Source Han Sans KR", NanumBarunGothic, AppleGothic, "Malgun Gothic", Dotum, sans-serif !default;
 $monospace-font-family: Monaco, Menlo, Consolas, "Courier New", DotumChe, monospace !default;
@@ -307,7 +305,25 @@ $on-laptop:        800px !default;
      padding-left: 0;
    }
  }
- 
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  white-space: nowrap;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+th, td {
+  border: 1px solid $grey-color-light;
+  padding: .5rem;
+  margin: 0;
+}
+@media (prefers-color-scheme: dark) {
+  th, td {
+    border: 1px solid #474747;
+  }
+}
+
  
  
  /**
