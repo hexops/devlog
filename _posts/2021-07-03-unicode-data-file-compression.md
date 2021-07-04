@@ -89,7 +89,7 @@ Still, there are obvious patterns one can see in the way these values change.
 
 ### Go implementation
 
-I did a quick hacky Go implementation of differential encoding on these files to see how well that would work. The results where pretty good, and already beat just `gzip -9` compression of the files:
+I did a quick hacky Go implementation of differential encoding on these files to see how well that would work. The results were pretty good, and already beat just `gzip -9` compression of the files:
 
 | File                           | Original | Original + `gzip -9` | My compression | My compression + `gzip -9` |
 |---------------------|---------|---------------------|------------------|------------------------------|
