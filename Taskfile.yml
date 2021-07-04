@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  default:
+    desc: "build and serve"
+    cmds:
+      - task: build
+      - task: serve
+  build:
+    desc: "build"
+    cmds:
+      - bundle install
+  serve:
+    desc: "serve"
+    cmds:
+      - bundle exec jekyll serve
+
