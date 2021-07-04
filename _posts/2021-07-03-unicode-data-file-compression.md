@@ -7,6 +7,23 @@ author: "Stephen Gutekanst"
 
 A little story about how writing a domain-specific compression algorithm in a few days can sometimes yield big benefits, why it's sometimes worth giving it a shot, and how to tell when you should try. Note: this is about Unicode spec data files, not general purpose text compression.
 
+- [Background](#background)
+- [Problem](#problem)
+- [Investigation](#investigation)
+  - [Binary encoding?](#binary-encoding)
+  - [Differential encoding/compression?](#differential-encodingcompression)
+  - [Go implementation](#go-implementation)
+- [Zig implementation](#zig-implementation)
+  - [Differential encoding state machine](#differential-encoding-state-machine)
+  - [A stream of op codes](#a-stream-of-op-codes)
+  - [Iteratively finding the most lucrative opcodes](#iteratively-finding-the-most-lucrative-opcodes)
+  - [A stream of opcodes for a state machine: a natural progression from a binary format?](#a-stream-of-opcodes-for-a-state-machine-a-natural-progression-from-a-binary-format)
+- [Results? Better than gzip/brotli; and even better _with_ them!](#results-better-than-gzipbrotli-and-even-better-with-them)
+  - [Why test with gzip/brotli but not others?](#why-test-with-gzipbrotli-but-not-others)
+  - [How complex is the implementation?](#how-complex-is-the-implementation)
+- [Notable mention](#notable-mention)
+- [Conclusion](#conclusion)
+
 ## Background
 
 Two weeks ago, I began using [Ziglyph](https://github.com/jecolon/ziglyph) ("Unicode processing with Zig, and a UTF-8 string type: Zigstr.") - an awesome library by [@jecolon](https://github.com/jecolon), for grapheme cluster sorting in [Zorex, an omnipotent regexp engine](https://github.com/hexops/zorex).
@@ -34,11 +51,11 @@ Curious how much further we could go, I kept squinting at the data files (warnin
 - http://www.unicode.org/Public/UCA/latest/allkeys.txt
 - http://www.unicode.org/Public/UNIDATA/UnicodeData.txt
 
-## Binary encoding?
+### Binary encoding?
 
 My first thoughts were that a binary encoding would likely reduce the size a lot. I pulled in some help from Hobbyist reverse engineer [@Andoryuuta](https://github.com/Andoryuuta) and he got started on a binary encoding for UnicodeData.txt based on the spec. With that, he was able to reduce the original 1.9M allkeys.txt file down to 250K (125K gzipped) - quite a win.
 
-## Differential encoding/compression?
+### Differential encoding/compression?
 
 My secondary thought was that, scrolling through these data files it was obvious most entries were derived from prior entries. Many entries were long runs of data where the next entry had the same value, plus a small increment. For example, at the start of the `allkeys.txt` file:
 
@@ -70,7 +87,7 @@ FF9A  ; [.4304.0020.0012] # HALFWIDTH KATAKANA LETTER RE
 
 Still, there are obvious patterns one can see in the way these values change.
 
-## Go implementation
+### Go implementation
 
 I did a quick hacky Go implementation of differential encoding on these files to see how well that would work. The results where pretty good, and already beat just `gzip -9` compression of the files:
 
@@ -189,7 +206,7 @@ Once I had narrowed down to a larger group of opcodes that more specifically rep
 
 It being a stream of opcodes was quite nice, because it allowed me to determine how much space was being consumed by a given opcode in sum and target further reducing the size of opcodes that took up the most space. It also made it really easy to find opcodes that I though _might_ help, but in practice turned out to not be that frequent. Just print them, pipe to `sort|uniq -c|sort -r` to count them - and remove the lowest hanging fruit.
 
-#### A stream of opcodes for a state machine: a natural progression from a binary format?
+### A stream of opcodes for a state machine: a natural progression from a binary format?
 
 I chose an opcode stream for a reason: so that I could encode some complex logic in the form of a state machine. This came in handy for the `allkeys.txt` file in specific, as it allowed me to introduce _incrementors_ into the mix which would _increment register values by a chosen amount each iteration (value "emission")_.
 
@@ -228,7 +245,7 @@ Suddenly, instead of encoding 32 key entries (32 * 3 key values * 21 bits) I am 
 
 Overall, this gave me a very nice, natural-feeling progression from a "raw binary format" to something a bit more specific - a bit more _compressed._
 
-### Results? Better than gzip/brotli; and even better _with_ them!
+## Results? Better than gzip/brotli; and even better _with_ them!
 
 For lack of better words, I'll call my compression algorithm here Unicode Data Differential Compression, since it's differential and specifically for the Unicode data table files - or UDDC for short.
 
@@ -262,7 +279,7 @@ The final implementation for both files is only a few hundred lines (excluding b
 
 I have not measured produced machine code size yet, but suspect it is relatively negligible compared to the gains.
 
-### Notable mention
+## Notable mention
 
 I should mention that the Unicode spec, as [@jecolon](https://github.com/jecolon) pointed out to me, does suggest ways to reduce sort key lengths and implement Run-length Compression:
 
