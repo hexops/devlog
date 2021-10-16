@@ -23,7 +23,7 @@ Sometimes coding drops to around 80h/week if I feel I need more sleep, time for 
 
 My days are pretty fluid, I don't maintain a strict calendar - but an average week does pretty much look identical to the following. (click to expand)
 
-[![my calendar](https://user-images.githubusercontent.com/3173176/137576033-f7fa007c-db94-4b1c-9d9d-05440da118d7.png)](https://user-images.githubusercontent.com/3173176/137576033-f7fa007c-db94-4b1c-9d9d-05440da118d7.png)
+<a href="https://user-images.githubusercontent.com/3173176/137576033-f7fa007c-db94-4b1c-9d9d-05440da118d7.png"><img alt="my calendar" class="color" src="https://user-images.githubusercontent.com/3173176/137576033-f7fa007c-db94-4b1c-9d9d-05440da118d7.png"></a>
 
 * Green is open-source coding in Zig
 * Red is time spent at day job
@@ -40,7 +40,7 @@ It wasn't until 1.5 years later that I actually felt comfortable even talking ab
 
 I've been [coding for nearly 10 years professionally](http://slimsag.com/), turning 28 soon. The older I get, the more I seem to enjoy this. It was never an instantaneous shift, but rather a gradual one:
 
-[![How my coding has increased to an insane amount over time](https://user-images.githubusercontent.com/3173176/137580436-e79a7b21-8aca-4b66-9895-808b8ffa2d38.png)](https://user-images.githubusercontent.com/3173176/137580436-e79a7b21-8aca-4b66-9895-808b8ffa2d38.png)
+<a href="https://user-images.githubusercontent.com/3173176/137580436-e79a7b21-8aca-4b66-9895-808b8ffa2d38.png"><img alt="How my coding has increased to an insane amount over time" class="color" src="https://user-images.githubusercontent.com/3173176/137580436-e79a7b21-8aca-4b66-9895-808b8ffa2d38.png"></a>
 
 I've worked at [the same startup](https://sourcegraph.com) for the past ~7 years - and I've certainly experienced early-stage startup lifestyle - with all the crunch that comes with that.
 
@@ -52,7 +52,7 @@ I hear this from people who often bring me other _grumbling messages of distaste
 
 I think you've just misunderstand, though.
 
-![Normal people vs. me: kids/family/fun vs. coding](https://user-images.githubusercontent.com/3173176/137581300-987f4272-79f0-444c-a0e3-007474cb1f5b.png)
+<a href="https://user-images.githubusercontent.com/3173176/137581300-987f4272-79f0-444c-a0e3-007474cb1f5b.png"><img alt="Normal people vs. me: kids/family/fun vs. coding" class="color" src="https://user-images.githubusercontent.com/3173176/137581300-987f4272-79f0-444c-a0e3-007474cb1f5b.png"></a>
 
 If you have children or a significant other, think how much time you spend with them. Do you get burnt out from it? I'd be willing to bet that you take breaks from time to time, but I think most would say no.
 
@@ -64,7 +64,7 @@ This is analogous to how I feel: If I was working 100h/week at my day job, I wou
 
 _Working on the right problem to take advantage of your current metal state_ is how you make true progress. Or, at least, that's how I see it:
 
-![image](https://user-images.githubusercontent.com/3173176/137578255-ab0087e7-f552-44e5-987a-4cfdc2caef8f.png)
+<a href="https://user-images.githubusercontent.com/3173176/137578255-ab0087e7-f552-44e5-987a-4cfdc2caef8f.png"><img alt="What I work on depending on mental state" class="color" src="https://user-images.githubusercontent.com/3173176/137578255-ab0087e7-f552-44e5-987a-4cfdc2caef8f.png"></a>
 
 But "how one could have so many projects lined up, enough to make switching between them always an option?" that's because I have some lofty life goals (or an addiction to trying to attain the unattainable, I'll let you choose.)
 
@@ -101,7 +101,7 @@ I regret nothing. If I die this way, I'd go out happy.
 
 It's completely 100% OK if at this point you're just feeling a bit like:
 
-<img alt="Well I don't like that" height="250px" src="https://user-images.githubusercontent.com/3173176/137579019-f8313501-5024-48db-83e6-2abe30c78337.png"></img>
+<a href="https://user-images.githubusercontent.com/3173176/137579019-f8313501-5024-48db-83e6-2abe30c78337.png"><img height="250px" alt="Well I don't like that" class="color" src="https://user-images.githubusercontent.com/3173176/137579019-f8313501-5024-48db-83e6-2abe30c78337.png"></a>
 
 I know this lifestyle isn't for everyone. It's not for you.
 
