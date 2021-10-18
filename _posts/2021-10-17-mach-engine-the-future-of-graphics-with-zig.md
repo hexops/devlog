@@ -3,13 +3,17 @@ layout: post
 title: "Mach Engine: The future of graphics (with Zig)"
 categories: zig, gamedev, graphics
 author: "Stephen Gutekanst"
+twitter:
+  image: https://user-images.githubusercontent.com/3173176/137651926-3734c3b2-4875-47de-b42f-0ece854756f7.png
+facebook:
+  image: https://user-images.githubusercontent.com/3173176/137651926-3734c3b2-4875-47de-b42f-0ece854756f7.png
 ---
 
 In the coming months, we'll begin to have truly cross-platform low-level graphics, with the ability to cross compile GPU-accelerated applications written in Zig from any OS and deploy to desktop, mobile, and (in the future) web.
 
 ## Mach engine
 
-![](https://raw.githubusercontent.com/hexops/media/main/mach/logo_tagline_whitebg.svg)
+<img class="color" alt="Mach: Game engine & graphics toolkit for the future" src="https://user-images.githubusercontent.com/3173176/137651926-3734c3b2-4875-47de-b42f-0ece854756f7.png"></img>
 
 I've been working on [Mach Engine](https://github.com/hexops/mach) for about 4 months now, although it as a project is many years in the making, and I believe in the next 4-6 we'll have completion of the first key milestone: truly cross platform graphics and seamless cross compilation.
 
@@ -17,7 +21,7 @@ I've been working on [Mach Engine](https://github.com/hexops/mach) for about 4 m
 
 Today, I share only the first milestone: Mach engine core. I've been working on this for around 1 year now, and we're close (maybe 4-6 months away) from completion:
 
-![image](https://user-images.githubusercontent.com/3173176/137649720-072ff7fe-323d-49c6-ae88-51344e04e3e5.png)
+<a href="https://user-images.githubusercontent.com/3173176/137649720-072ff7fe-323d-49c6-ae88-51344e04e3e5.png"><img alt="Zero fuss installation, out of the box cross compilation, and a truly cross-platform graphics API" class="color" src="https://user-images.githubusercontent.com/3173176/137649720-072ff7fe-323d-49c6-ae88-51344e04e3e5.png"></img></a>
 
 ## Zero fuss installation & cross compilation
 
@@ -34,7 +38,7 @@ We're able to achieve this thanks to two things:
 
 Imagine a low-level, little to no overhead graphics API that unifies DirectX, Metal, Vulkan, and OpenGL (if no others are available):
 
-![image](https://user-images.githubusercontent.com/3173176/137646296-72ba698e-c710-4daf-aa75-222f8d717d00.png)
+<a href="https://user-images.githubusercontent.com/3173176/137646296-72ba698e-c710-4daf-aa75-222f8d717d00.png"><img alt="Simple, low-level unified graphics API mapping to DirectX 12, Metal, Vulkan, and OpenGL" class="color" src="https://user-images.githubusercontent.com/3173176/137646296-72ba698e-c710-4daf-aa75-222f8d717d00.png"></img></a>
 
 _This isn't anything new:_ all modern engines provide this, Godot has been working towards this for _years_ (and still is), and there exist abstraction layers for Vulkan over most of these APIs as well.
 
@@ -42,7 +46,7 @@ _This isn't anything new:_ all modern engines provide this, Godot has been worki
 
 **An API is only as good as the momentum behind it.** What modern API can target the largest array of platforms with the most vendor backing?
 
-![image](https://user-images.githubusercontent.com/3173176/137647361-3340e33a-9b2f-4c0d-aba5-6bb99ffd1cd8.png)
+<a href="https://user-images.githubusercontent.com/3173176/137647361-3340e33a-9b2f-4c0d-aba5-6bb99ffd1cd8.png"><img alt="Google to Vulkan, Microsoft to DirectX, Apple to Metal, AMD and NVidia to everything." class="color" src="https://user-images.githubusercontent.com/3173176/137647361-3340e33a-9b2f-4c0d-aba5-6bb99ffd1cd8.png"></img></a>
 
 * **Microsoft sees DirectX as the future, not Vulkan.** (DirectX 13 is coming by the end of 2022.)
 * **Apple sees Metal as the future, not Vulkan.** OpenGL and OpenCL are deprecated, and private legal arguments with Khoronos make it unlikely we'll ever see OpenGL or Vulkan on Apple hardware ever again.
@@ -51,7 +55,7 @@ _This isn't anything new:_ all modern engines provide this, Godot has been worki
 
 ### One API that Apple, Microsoft, and Google can all agree on
 
-![image](https://user-images.githubusercontent.com/3173176/137647342-abf2bde6-a8bb-4276-b072-95c279c5d92f.png)
+<a href="https://user-images.githubusercontent.com/3173176/137647342-abf2bde6-a8bb-4276-b072-95c279c5d92f.png"><img alt="Mozilla, Google, Microsoft, Apple, and Intel all to WebGPU" class="color" src="https://user-images.githubusercontent.com/3173176/137647342-abf2bde6-a8bb-4276-b072-95c279c5d92f.png"></img></a>
 
 Outside the bounds of traditional graphics APIs there exists an attempt to provide a unified API across all platforms, [WebGPU](https://en.wikipedia.org/wiki/WebGPU) (not to be confused with the much older _WebGL_).
 
@@ -61,7 +65,7 @@ The name _WebGPU_ might lead you to believe that this is only for browsers, and 
 
 ### Apple & Google's role is what makes WebGPU unique, and why we chose it
 
-![image](https://user-images.githubusercontent.com/3173176/137648560-e15820d7-6427-4ebd-95bb-c7c9f026477a.png)
+<a href="https://user-images.githubusercontent.com/3173176/137648560-e15820d7-6427-4ebd-95bb-c7c9f026477a.png"><img alt="Khronos group out of the piture in the future" class="color" src="https://user-images.githubusercontent.com/3173176/137648560-e15820d7-6427-4ebd-95bb-c7c9f026477a.png"></img></a>
 
 What is new about WebGPU in my view is the vendors playing key roles in its development, and the fact that it grew outside the Khronos Group.
 
@@ -107,7 +111,7 @@ According to some, Nvidia and AMD tend to develop new features with Microsoft as
 
 Today, we have cross-compilation of GLFW on all desktop OSs working out of the box with nothing more than `zig` and `git`:
 
-![](https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png)
+<a href="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png"><img alt="Cross compilation from Mac, Linux, and Windows to eachother on all major architectures." class="color" src="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png"></img></a>
 
 This involved:
 
@@ -124,9 +128,9 @@ I'm happy to report that a fair amount of progress on this front has been made.
 
 Here is Google's WebGPU implementation, Dawn, compiled using `zig`:
 
-![](https://user-images.githubusercontent.com/3173176/137650403-290c6a94-7ee4-44be-8ed0-94f96adcde4e.png)
+<a href="https://user-images.githubusercontent.com/3173176/137650403-290c6a94-7ee4-44be-8ed0-94f96adcde4e.png"><img alt="A red triangle in a black window titled 'Dawn Window', the" class="color" src="https://user-images.githubusercontent.com/3173176/137650403-290c6a94-7ee4-44be-8ed0-94f96adcde4e.png"></img></a>
 
-![image](https://user-images.githubusercontent.com/3173176/137650621-f304f20b-5f74-4a3d-956d-7feb3838351d.png)
+<a href="https://user-images.githubusercontent.com/3173176/137650621-f304f20b-5f74-4a3d-956d-7feb3838351d.png"><img alt="A Zig code file, hello_triangle.zig showing Dawn and WebGPU API usage in Zig" class="color" src="https://user-images.githubusercontent.com/3173176/137650621-f304f20b-5f74-4a3d-956d-7feb3838351d.png"></img></a>
 
 This includes:
 
