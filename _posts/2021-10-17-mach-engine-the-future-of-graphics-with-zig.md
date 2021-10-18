@@ -15,7 +15,7 @@ In the coming months, we'll begin to have truly cross-platform low-level graphic
 
 <img class="color" alt="Mach: Game engine & graphics toolkit for the future" src="https://user-images.githubusercontent.com/3173176/137651926-3734c3b2-4875-47de-b42f-0ece854756f7.png">
 
-I've been working on [Mach Engine](https://github.com/hexops/mach) for about 4 months now, although it as a project is many years in the making, and I believe in the next 4-6 we'll have completion of the first key milestone: truly cross platform graphics and seamless cross compilation.
+I've been working on [Mach Engine](https://github.com/hexops/mach) for about 4 months now, although it as a project is many years in the making, and I believe in the next 4-6 months we'll have completion of the first key milestone: truly cross platform graphics and seamless cross compilation.
 
 ## Vision
 
@@ -76,34 +76,41 @@ Although abstraction layers over modern graphics APIs are nothing new - as Apple
 <details>
 <summary>Is WebGPU "native enough"? Yes</summary>
 
-For browsers, WebGPU will require sandboxing and validation layers. But in native uses, this can all be turned off, and the WebGPU developers are clearly thinking about this use case:
+<p>For browsers, WebGPU will require sandboxing and validation layers. But in native uses, this can all be turned off, and the WebGPU developers are clearly thinking about this use case:</p>
 
-* Google's implementation of WebGPU, [Dawn](https://dawn.googlesource.com/dawn), can be configured to effectively turn off all browser sandboxing / validation that could harm performance due to its client/server architecture.
-* Mozilla / gfx-rs Rust engineers have published articles such as ["The point of WebGPU on native"](http://kvark.github.io/web/gpu/native/2020/05/03/point-of-webgpu-native.html).
+<ul>
+<li>Google's implementation of WebGPU, <a href="https://dawn.googlesource.com/dawn">Dawn</a>, can be configured to effectively turn off all browser sandboxing / validation that could harm performance due to its client/server architecture.</li>
 
-As for the quality of implementations, we could compare the amount of resources going into e.g. Google's WebGPU implementation vs. the amount of resources going into Unity/Unreal/MoltenVK/other graphics abstraction layers - but I suspect they're _about equal_.
+<li>Mozilla / gfx-rs Rust engineers have published articles such as <a href="http://kvark.github.io/web/gpu/native/2020/05/03/point-of-webgpu-native.html">"The point of WebGPU on native"</a>.</li>
+</ul>
+
+<p>As for the quality of implementations, we could compare the amount of resources going into e.g. Google's WebGPU implementation vs. the amount of resources going into Unity/Unreal/MoltenVK/other graphics abstraction layers - but I suspect they're <em>about equal</em>.</p>
 
 </details>
 
 <details>
 <summary>Will WebGPU be implemented on GPUs natively? Maybe someday</summary>
 
-Not anytime soon. We get some insight into this [via @kvark](https://github.com/gpuweb/gpuweb/issues/847#issuecomment-642883924), a WebGPU developer:
+<p>Not anytime soon. We get some insight into this <a href="https://github.com/gpuweb/gpuweb/issues/847#issuecomment-642883924">via @kvark</a>, a WebGPU developer:</p>
 
-> [...] We are not in Khronos, and therefore we have limited participation from IHVs (only Intel and Apple are active). WebGPU was never designed to be implemented by the drivers. I mean, it would totally be rad, in the context of how usable WebGPU [can be on native](http://kvark.github.io/web/gpu/native/2020/05/03/point-of-webgpu-native.html), but it couldn't be the requirement from the start.
+<blockquote>
+  <p>[...] We are not in Khronos, and therefore we have limited participation from IHVs (only Intel and Apple are active). WebGPU was never designed to be implemented by the drivers. I mean, it would totally be rad, in the context of how usable WebGPU <a href="http://kvark.github.io/web/gpu/native/2020/05/03/point-of-webgpu-native.html">can be on native</a>, but it couldn't be the requirement from the start.</p>
+</blockquote>
 
-But as WebGPU usage grows or even becomes prodominate due to it being the most powerful API in browsers, and as Microsoft, Google, and Apple continue to develop their own hardware - I think it's not unreasonable to think that it's possible some day WebGPU will be an even more direct 1:1 mapping between a cross-platform API and low-level APIs, more direct than Vulkan abstraction layers such as MoltenVK (which is required to get Vulkan working on top of MacOS's Metal API) - with the potential that some vendor starts asking "what would a GPU native WebGPU implementation look like?"
+<p>But as WebGPU usage grows or even becomes prodominate due to it being the most powerful API in browsers, and as Microsoft, Google, and Apple continue to develop their own hardware - I think it's not unreasonable to think that it's possible some day WebGPU will be an even more direct 1:1 mapping between a cross-platform API and low-level APIs, more direct than Vulkan abstraction layers such as MoltenVK (which is required to get Vulkan working on top of MacOS's Metal API) - with the potential that some vendor starts asking "what would a GPU native WebGPU implementation look like?"</p>
 
 </details>
 
 <details>
 <summary>Momentum of WebGPU vs. Vulkan</summary>
 
-To [quote](https://news.ycombinator.com/item?id=23090432) [Dzmitry Malyshau / kvark](http://kvark.github.io/about/), a Mozilla engineer working on gfx-rs and WebGPU:
+<p>To <a href="https://news.ycombinator.com/item?id=23090432">quote</a> <a href="http://kvark.github.io/about/">Dzmitry Malyshau / kvark</a>, a Mozilla engineer working on gfx-rs and WebGPU:</p>
 
-> At some point, it comes down to the amount of momentum behind the API. In case of WebGPU, we have strong support from Intel and Apple, which are hardware vendors, as well as Google, who can influence mobile hardware vendors. We are making the specification and have resources to appropriately test it and develop the necessary workarounds. It's the quantity to quality transition that sometimes just needs to cross a certain threshold in order to succeed.
+<blockquote>
+  <p>At some point, it comes down to the amount of momentum behind the API. In case of WebGPU, we have strong support from Intel and Apple, which are hardware vendors, as well as Google, who can influence mobile hardware vendors. We are making the specification and have resources to appropriately test it and develop the necessary workarounds. It's the quantity to quality transition that sometimes just needs to cross a certain threshold in order to succeed.</p>
+</blockquote>
 
-According to some, Nvidia and AMD tend to develop new features with Microsoft as part of DirectX. Only then are they "ported" back to Vulkan and OpenGL. I think that says a lot.
+<p>According to some, Nvidia and AMD tend to develop new features with Microsoft as part of DirectX. Only then are they "ported" back to Vulkan and OpenGL. I think that says a lot.</p>
 
 </details>
 
