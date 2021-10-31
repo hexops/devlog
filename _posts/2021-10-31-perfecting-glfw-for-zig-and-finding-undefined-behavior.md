@@ -25,7 +25,7 @@ Just `zig` and `git`, that's the idea. The GLFW C code is compiled with `zig`, a
 
 No installing apt packages. No dealing with missing header errors. It should just work out-of-the-box, and for every platform:
 
-![](https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png)
+<a href="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png"><img alt="Mach engine platform support, including Windows, Linux, Mac and cross-compilation between them with Android/iOS coming soon." class="color" src="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png"></a>
 
 Today, this works for GLFW itself. Cross-compilation of _OpenGL and Vulkan apps_ is not yet fully functional. [We're working on it, though.](https://github.com/hexops/mach/issues/59)
 
@@ -52,7 +52,7 @@ GLFW traditionally passes errors to the user via a callback. This can make error
 
 We translated a [a Vulkan example to mach-glfw](https://github.com/hexops/mach-glfw-vulkan-example), which you can try for yourself today:
 
-![](https://user-images.githubusercontent.com/3173176/139573985-d862f35a-e78e-40c2-bc0c-9c4fb68d6ecd.png)
+<a href="https://user-images.githubusercontent.com/3173176/139573985-d862f35a-e78e-40c2-bc0c-9c4fb68d6ecd.png"><img alt="mach-glfw and vulkan-zig libraries working together to produce a triangle." class="color" src="https://user-images.githubusercontent.com/3173176/139573985-d862f35a-e78e-40c2-bc0c-9c4fb68d6ecd.png"></a>
 
 After porting it, we found that the example was crashing with a `NoWindowContext` error. Strange?
 
@@ -90,7 +90,7 @@ That's odd? `Illegal instruction at address 0x2cee09` - are we corrupting the st
 
 Running in `lldb` didn't help with shining any light on the problem, either:
 
-![](https://user-images.githubusercontent.com/3173176/139576146-775371fd-8003-46ba-aa30-8b81a2f22ce0.png)
+<a href="https://user-images.githubusercontent.com/3173176/139576146-775371fd-8003-46ba-aa30-8b81a2f22ce0.png"><img alt="lldb showing nothing particularly useful" class="color" src="https://user-images.githubusercontent.com/3173176/139576146-775371fd-8003-46ba-aa30-8b81a2f22ce0.png"></a>
 
 After poking around at the stack, checking all pointers and lengths were valid, etc. I was at a loss. The mach-glfw code _sure seemed valid_, and yet, this crash. I managed to track the crash down to the first iteration of a loop in GLFW's `x11_window.c`:
 
@@ -160,7 +160,7 @@ Process 6516 stopped
 
 Inspecting the binary in IDA Pro we were able to see that we were jumping into an `__asm { ud1 }` section (ud1 standing for "undefined instruction 1"):
 
-![image](https://user-images.githubusercontent.com/3173176/139594073-b2159e4c-6764-44b1-882d-802724f424e8.png)
+<a href="https://user-images.githubusercontent.com/3173176/139594073-b2159e4c-6764-44b1-882d-802724f424e8.png"><img alt="IDA Pro showing a jump to an undefined instruction 1" class="color" src="https://user-images.githubusercontent.com/3173176/139594073-b2159e4c-6764-44b1-882d-802724f424e8.png"></a>
 
 It turns out that clang's UBSan inserts these instructions as traps for when the compiler thinks there is undefined behavior occurring, such as if a pointer addition leads to an overflow. This is super interesting, but unfortunately doesn't always give a compiler error. We got lucky and found someone else who ran into this through Google:
 
@@ -198,7 +198,7 @@ What is happening here is that:
 
 Suddenly, it all makes sense. And [if we load an equal snippet of code into Godbolt](https://godbolt.org/z/ddq75WsYK) we can see what is happening when we compile without UBSan / the `-fsanitize=undefined` flag:
 
-![image](https://user-images.githubusercontent.com/3173176/139594650-eff35347-3f32-42e5-bc60-da2a1dceb1e1.png)
+<a href="https://user-images.githubusercontent.com/3173176/139594650-eff35347-3f32-42e5-bc60-da2a1dceb1e1.png"><img alt="Compilation with godbolt with UBSan turned off shows movement into 32-bit EAX register" class="color" src="https://user-images.githubusercontent.com/3173176/139594650-eff35347-3f32-42e5-bc60-da2a1dceb1e1.png"></a>
 
 Without UBsan, clang merely uses the 32-bit EAX register as an optimization. It loads the 8-bit number into the 32-bit register, and then performs the left shift. Although the shift exceeds 8 bits, it _does not get truncated to zero_ - instead it is effectively as if the number was converted to a `long` (32 bits) prior to the left-shift operation.
 
