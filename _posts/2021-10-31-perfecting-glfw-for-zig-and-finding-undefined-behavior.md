@@ -194,8 +194,8 @@ void _glfwSetWindowIconX11(_GLFWwindow* window, int count, const GLFWimage* imag
 What is happening here is that:
 
 * `images[i].pixels[j * 4 + 0]` is returning an `unsigned char` (8 bits)
-* ~It is then being shifted left by `<< 16` bits. !!! That's further than an 8-bit number can be shifted left by! So that's UB!~
-  * EDIT: Actually, it turns out that's note exactly right, it's the `<< 24` that's the cause of the UB, thanks [@Maato](https://github.com/Maato) for [pointing this out and explaining in better detail](https://github.com/glfw/glfw/pull/1986#issuecomment-955784179).
+* ~~It is then being shifted left by `<< 16` bits. !!! That's further than an 8-bit number can be shifted left by, so that's UB~~
+  * EDIT: Actually, it turns out that's note exactly right, it's the `<< 24` that's the cause of the UB, thanks [@Maato](https://github.com/Maato) for [pointing this out and explaining in better detail than I could](https://github.com/glfw/glfw/pull/1986#issuecomment-955784179).
 
 Suddenly, it all makes sense. And [if we load an equal snippet of code into Godbolt](https://godbolt.org/z/ddq75WsYK) we can see what is happening when we compile without UBSan / the `-fsanitize=undefined` flag:
 
