@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Perfecting GLFW for Zig, and finding lurking undefined behavior that went unnoticed for 6+ years"
-categories: zig, gamedev, glfw
+categories: mach, zig, gamedev, glfw
 author: "Stephen Gutekanst"
 twitter:
   image: https://user-images.githubusercontent.com/3173176/139573985-d862f35a-e78e-40c2-bc0c-9c4fb68d6ecd.png

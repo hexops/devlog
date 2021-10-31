@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Mach Engine: The future of graphics (with Zig)"
-categories: zig, gamedev, graphics
+categories: mach, zig, gamedev, graphics
 author: "Stephen Gutekanst"
 twitter:
   image: https://user-images.githubusercontent.com/3173176/137651926-3734c3b2-4875-47de-b42f-0ece854756f7.png
