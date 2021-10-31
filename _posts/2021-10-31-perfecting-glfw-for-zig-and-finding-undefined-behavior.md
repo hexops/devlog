@@ -204,7 +204,7 @@ Without UBsan, clang merely uses the 32-bit EAX register as an optimization. It 
 
 This explains why nobody has caught this UB in GLFW yet, too: it works by accident! Just because the compiler likes to use 32-bit registers in this context.
 
-And this change benefits all the languages out there using GLFW: `pull request coming soon!`
+And this change benefits all the languages out there using GLFW: [glfw/glfw#1986](https://github.com/glfw/glfw/pull/1986)
 
 ## Defaults are _critical_
 
