@@ -60,7 +60,7 @@ As it turns out, we had found [a small bug in the vulkan-zig example code](https
 
 ## Finding lurking undefined behavior in 6+ year old GLFW code
 
-One _particularly frustraing_ issue was tracking down why the last part of the GLFW API we needed to wrap for 100% coverage, the `glfwSetWindowIcon` function, was crashing:
+One _particularly frustrating_ issue was tracking down why the last part of the GLFW API we needed to wrap for 100% coverage, the `glfwSetWindowIcon` function, was crashing:
 
 ```
 Test [76/135] Window.test "setIcon"... Illegal instruction at address 0x2cee09
