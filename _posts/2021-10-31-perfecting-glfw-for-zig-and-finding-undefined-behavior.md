@@ -11,9 +11,9 @@ facebook:
 
 **Today, I am announcing [mach-glfw](https://github.com/hexops/mach-glfw): Ziggified GLFW bindings with 100% API coverage, zero-fuss installation, cross compilation, and more.**
 
-## Making Mach for everyone
+## Building Mach for everyone
 
-If the code I produce from all my hard work on [Mach engine](https://github.com/hexops/mach) only benefits people interested in using that engine, and not the broader Zig (and even gamedev) community I would consider that _a total failure_.
+If [Mach engine](https://github.com/hexops/mach) only benefits people interested in using that engine, and not the broader Zig (and even gamedev) community I would consider that _a total failure_.
 
 Whether you're interested in using all of Mach, just some of it with your own engine / project, or just the tools/ideas we develop in the future (with Unity, Unreal, etc.), _I truly aim to produce something that benefits you_.
 
