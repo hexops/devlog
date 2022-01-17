@@ -639,11 +639,11 @@ th, td {
     .cs    { color: #727272; font-weight: bold; font-style: italic } // Comment.Special
     .c, .cd { color: #727262; font-style: italic } // Comment, Comment.Doc
     .err   { color: #a61717; background-color: #e3d2d2 } // Error
-    .gd    { color: #000; background-color: #fdd } // Generic.Deleted
+    .gd    { color: #ccc; background-color: #ff000094 } // Generic.Deleted
     .ge    { color: #000; font-style: italic } // Generic.Emph
     .gr    { color: #a00 } // Generic.Error
     .gh    { color: #727272 } // Generic.Heading
-    .gi    { color: #000; background-color: #dfd } // Generic.Inserted
+    .gi    { color: #ccc; background-color: #00ff0052 } // Generic.Inserted
     .go    { color: #727272 } // Generic.Output
     .gp    { color: #555 } // Generic.Prompt
     .gs    { font-weight: bold } // Generic.Strong
@@ -698,16 +698,16 @@ th, td {
 @media (prefers-color-scheme: dark) {
     .highlighter-rouge .highlight {
         background-color: #252526;
-        .gd    { color: #c18004; background-color: #fdd } // Generic.Deleted
-        .ge    { color: #c18004; font-style: italic } // Generic.Emph
-        .kc    { color: #c18004; font-weight: bold } // Keyword.Constant
-        .kd    { color: #c18004; font-weight: bold } // Keyword.Declaration
-        .kn    { color: #c18004; font-weight: bold } // Keyword.Namespace
-        .kp    { color: #c18004; font-weight: bold } // Keyword.Pseudo
-        .kr    { color: #c18004; font-weight: bold } // Keyword.Reserved
-        .k, .kv { color: #c18004; font-weight: bold } // Keyword, Keyword.Variable
-        .ow    { color: #c18004; font-weight: bold } // Operator.Word
-        .o     { color: #c18004; font-weight: bold } // Operator
+        .gd    { color: #d2b98a; background-color: #972727 } // Generic.Deleted
+        .ge    { color: #d2b98a; font-style: italic } // Generic.Emph
+        .kc    { color: #d2b98a; font-weight: bold } // Keyword.Constant
+        .kd    { color: #d2b98a; font-weight: bold } // Keyword.Declaration
+        .kn    { color: #d2b98a; font-weight: bold } // Keyword.Namespace
+        .kp    { color: #d2b98a; font-weight: bold } // Keyword.Pseudo
+        .kr    { color: #d2b98a; font-weight: bold } // Keyword.Reserved
+        .k, .kv { color: #d2b98a; font-weight: bold } // Keyword, Keyword.Variable
+        .ow    { color: #d2b98a; font-weight: bold } // Operator.Word
+        .o     { color: #d2b98a; font-weight: bold } // Operator
         .ne    { color: #3e7ac8; font-weight: bold } // Name.Exception
         .nf    { color: #3e7ac8; font-weight: bold } // Name.Function
         .nl    { color: #3e7ac8; font-weight: bold } // Name.Label
