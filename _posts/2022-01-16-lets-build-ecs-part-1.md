@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Let's build an Entity Component System from scatch (part 1)"
+title: "Let's build an Entity Component System from scratch (part 1)"
 categories: gamedev, ecs, build-an-ecs
 author: "Stephen Gutekanst"
 twitter:
