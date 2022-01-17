@@ -3,6 +3,7 @@ layout: post
 title: "The f$%!ing terrifying parallels of tech and aerospace"
 categories: business, future
 author: "Stephen Gutekanst"
+hidden: true
 twitter:
   image: https://user-images.githubusercontent.com/3173176/142679656-38f3a45c-3552-46a0-af32-f05d40d8af52.png
 facebook:
@@ -10,6 +11,10 @@ facebook:
 ---
 
 In this article I draw parallels between the tech industry today, and the aerospace industry of the past 30 years. I'll explain why I'm so f$%!ing terrified of our future and give insight into a problem that I've for years thought is truly worth solving - despite me having no idea how to.
+
+## Article redacted
+
+I've hidden this article by default, I don't think it resonates with my audience very well and I'd like to keep this devlog more development-focused in the future. Also, an overwhelming majority of crypto shills have contacted me about this article saying they have the perfect solution and I just don't like that.
 
 # The f$%!ing terrifying parallels of tech and aerospace
 
