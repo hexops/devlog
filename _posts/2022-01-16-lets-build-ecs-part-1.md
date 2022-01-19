@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Let's build an Entity Component System from scratch (part 1)"
-categories: gamedev, ecs, build-an-ecs
+categories: mach, gamedev, ecs, build-an-ecs
 author: "Stephen Gutekanst"
 twitter:
   image: https://user-images.githubusercontent.com/3173176/149644281-df5a7846-eefb-4482-929b-2ac7243de7a2.png
