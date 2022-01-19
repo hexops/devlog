@@ -269,7 +269,7 @@ var blue_team_players: ArrayList(Player) = .{};
 Of course our `Player` could have a `team` field in it to represent the team, but there may be cases where storing _a separate list of entities_ like this is needed without pre-declaring it. If we want to do that, we could use a hashmap:
 
 ```zig
-var: runtime_archetypes: AutoHashMap([]const u8, *anyopaque).init(allocator);
+var runtime_archetypes = AutoHashMap([]const u8, *anyopaque).init(allocator);
 ```
 
 In this model, we could store the _archtype string name_ as the hashmap key (for example, the `@typeName(Player)` if we wanted, or maybe a custom name like `red`, `blue`, etc.). The value of the hashmap would need to be different types: an `ArrayList(Player)`, an `ArrayList(Monster)`, etc. and so we would store a type-erased `*anyopaque` (like a C `void*`) pointer. When we get a value out, we'll need to "know" what type of `ArrayList` to cast the pointer back to. It won't store that info for us.
