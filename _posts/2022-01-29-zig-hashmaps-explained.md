@@ -13,13 +13,13 @@ Here I will try to guide you into choosing the right hashmap type.
 
 You probably want:
 
-```
+```zig
 var my_hash_map = std.StringHashMap(V).init(allocator);
 ```
 
 Or if you do not have string keys, you can use an `Auto` hashmap instead:
 
-```
+```zig
 var my_hash_map = std.AutoHashMap(K, V).init(allocator);
 ```
 
@@ -33,11 +33,13 @@ You can then use these APIs:
 try my_hash_map.put(key, value);
 ```
 
-### Insert a value, only if not exist
+### Insert a value, assert entry does not already exist
 
 ```zig
 try my_hash_map.putNoClobber(key, value);
 ```
+
+Note `putNoClobber` may be renamed to something like `putAssumeNoEntry` in the near future: [ziglang/zig#10736](https://github.com/ziglang/zig/issues/10736)
 
 ### Get a value
 
@@ -56,6 +58,7 @@ if (value) |v| {
 var v = try my_hash_map.getOrPut(key);
 if (!v.found_existing) {
     // We inserted an entry, specify the new value
+    // This is a conditional in case creating the new value is expensive
     v.value_ptr.* = "my value";
 }
 
@@ -71,6 +74,18 @@ Zig hash map types start with the data type of the key:
 * `std.StringHashMap` - uses a good default hashing function for string keys
 * `std.AutoHashMap` - uses a good default hashing function for most data types
 * `std.HashMap` - the "bring your own hashing function" option
+
+Note: `AutoHashMap` does not support _slices_, such as `[]const u8` string slices, because that is a pointer to an array and it is ambiguous whether or not you intend to hash _the array elements_ or _the pointer itself_. You can use the generic `std.HashMap` for any slice type, you just have to provide your own hash functions.
+
+## Hashmaps are also sets
+
+A set in Zig is just a hashmap with a `void` value:
+
+```zig
+var my_hash_map = std.AutoHashMap(K, void).init(allocator);
+
+my_hash_map.put(key, {}); // `{}` is a value of type `void`
+```
 
 ## Advanced usages
 
@@ -107,8 +122,10 @@ Zig actually provides [_two hashmap implementations_](https://github.com/ziglang
 
 * Iterating over the hashmap is an order of magnitude faster (a contiguous array)
 * Insertion order is preserved.
-* Deletions perform a "swap removal" on the entries list.
 * You can index into the underlying data like an array if you like
+* Deletions can be performed one of two ways, mirroring the `ArrayList` API:
+  * `swapRemove`: swaps the target element with the last element in the list to remove it
+  * `orderedRemove`: removes target element by shifting all elements forward, maintaining current ordering
 
 ### Hashmap context
 
