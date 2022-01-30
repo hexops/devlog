@@ -146,3 +146,9 @@ The source code is very readable:
 
 * [`std.HashMap`](https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig)
 * [`std.ArrayHashMap`](https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig)
+
+### Help improve this page
+
+I wrote this article quickly because I needed to explain my choice of hashmaps in the ["Let's build an Entity Component System from scratch"](https://devlog.hexops.com/categories/build-an-ecs/) series and there was no better source of this info. I'm sure there are things that can be improved.
+
+[Feel free to send a PR!](https://github.com/hexops/devlog/blob/main/_posts/2022-01-29-zig-hashmaps-explained.md)
