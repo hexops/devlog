@@ -44,7 +44,7 @@ Note `putNoClobber` may be renamed to something like `putAssumeNoEntry` in the n
 ### Get a value
 
 ```zig
-var value = try my_hash_map.get(key);
+var value = my_hash_map.get(key);
 if (value) |v| {
     // got value "v"
 } else {
@@ -84,7 +84,7 @@ A set in Zig is just a hashmap with a `void` value:
 ```zig
 var my_hash_map = std.AutoHashMap(K, void).init(allocator);
 
-my_hash_map.put(key, {}); // `{}` is a value of type `void`
+try my_hash_map.put(key, {}); // `{}` is a value of type `void`
 ```
 
 ## Advanced usages
