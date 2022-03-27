@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  
+  
+  <title>Postgres Trigram search learnings</title>
+  <meta name="description" content="In this article I talk about learnings I have from trying to use pg_trgm as the backend for a search engine, Tridex, which aims to be a competitor to Google’s Zoekt (“Fast trigram based code search”)">
+  
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="/2021/postgres-trigram-search-learnings">
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="Hexops&#39; devlog" href="/feed.xml">
+
+  
+
+  
+  <meta property="og:title" content="Postgres Trigram search learnings">
+  <meta property="og:site_name" content="Hexops&#39; devlog">
+  <meta property="og:url" content="/2021/postgres-trigram-search-learnings">
+  <meta property="og:description" content="In this article I talk about learnings I have from trying to use pg_trgm as the backend for a search engine, Tridex, which aims to be a competitor to Google’s Zoekt (“Fast trigram based code search”)">
+  
+  
+    <meta property="og:image" content="https://raw.githubusercontent.com/hexops/website/master/media/png/square_logo.png">
+  
+  <meta name="twitter:card" content="summary">
+  
+  <meta name="twitter:title" content="Postgres Trigram search learnings">
+  <meta name="twitter:description" content="In this article I talk about learnings I have from trying to use pg_trgm as the backend for a search engine, Tridex, which aims to be a competitor to Google’s Zoekt (“Fast trigram based code search”)">
+  
+  
+    <meta name="twitter:image:src" content="https://raw.githubusercontent.com/hexops/website/master/media/png/square_logo.png">
+  
+
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+  
+
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+    <div class="wrapper">
+
+      <a class="site-title" href="/">
+        <img alt="Hexops" class="logo color" src="https://raw.githubusercontent.com/hexops/media/main/logo.svg" style="height: 30px;">' devlog
+      </a>
+      <link href="/assets/font/stylesheet.css?v2" rel="stylesheet">
+      <link rel="icon" sizes="any" type="image/svg+xml" href="https://raw.githubusercontent.com/hexops/website/master/media/svg/icon.svg">
+
+      <script async defer data-domain="devlog.hexops.com" src="https://devlog.hexops.com/assets/opendata.js"></script>
+
+      <nav class="site-nav">
+        
+          
+          <a class="page-link" href="/about">About</a>
+        
+          
+          <a class="page-link" href="/archives">Archives</a>
+        
+          
+          <a class="page-link" href="https://github.com/hexops">GitHub</a>
+        
+      </nav>
+  
+    </div>
+  
+  </header>
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    
+      <h1 class="post-title" itemprop="name headline">Postgres Trigram search learnings</h1>
+    
+    <p class="post-meta"><time datetime="2021-01-26T00:00:00+00:00" itemprop="datePublished">Jan 26, 2021</time> • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Stephen Gutekanst</span></span> •
+  
+    
+    
+      
+        <a href="/categories/search/">search,</a>,
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+      
+    
+      
+        <a href="/categories/trigrams/">trigrams</a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+
+
+
+</p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>In this article I talk about learnings I have from trying to use pg_trgm as the backend for a search engine, Tridex, which aims to be a competitor to Google’s <a href="https://github.com/google/zoekt">Zoekt</a> (“Fast trigram based code search”)</p>
+
+<h2 id="background">Background</h2>
+
+<p>I work @ <a href="https://sourcegraph.com">Sourcegraph</a>, which provides code search, code intelligence, and other developer tooling. (If you’re one of my Sourcegraph co-workers, hey! Hexops is the name of my GitHub organization for after-hours experiments and what I hope will one day in the distant future become a successful game development company.)</p>
+
+<p>Over the past ~8 months I have been exploring the intersection between game development and my work at Sourcegraph, and finding interesting overlap between the two. I have been working on a competitor to Google’s <a href="https://github.com/google/zoekt">zoekt</a> (“Fast trigram based code search”), which is one of the search backends used by Sourcegraph with a few goals in mind:</p>
+
+<ol>
+  <li>Produce a search backend I can use for Hexops, to provide search functionality for a user-voice type platform (think GitHub issues, but with duplicate issue removal and upvote/downvote capability), and other social-network type features in games I hope to one day create. i.e. not just code search</li>
+  <li>Learn more about search in hopes of being able to bring some of those learnings to Sourcegraph (I really want our commit/diff search to be indexed, and wish we could index more things in general.) It would also be cool to solve the ominous and difficult <a href="https://github.com/google/zoekt/issues/86">Zoekt memory usage problem</a> we have had at Sourcegraph for as long as I can remember.</li>
+  <li>Provide a foundation for more bleeding-edge “here’s a whacky idea” type experiments that are cool surrounding developer tools, but that are not necessarily guaranteed wins / anything I could reasonable pitch elsewhere.</li>
+</ol>
+
+<h2 id="indexing-every-character-is-different-than-regular-fts">Indexing every character is different than regular FTS</h2>
+
+<p>First, it’s important to note that my usage of pg_trgm is not the same as general FTS (Full Text Search) usage of pg_trgm in general. My usage (and the use case of code search) cares about every character being indexed, and being able to do regex searches - this is different than traditional FTS where only words matter.</p>
+
+<h2 id="pg_trgm-indexes-apply-to-all-data-in-that-column">pg_trgm indexes apply to all data in that column</h2>
+
+<p>This sounds obvious, but in practice has interesting/weird implications when trying to build a code search engine like Zoekt.</p>
+
+<p>For example, Zoekt builds indexes of repositories code in chunks (from what I understand) and then concurrently, in an unordered fashion, searches those repository code chunks (inverted trigram indexes). This plays a key role in the strategy of pagination that Zoekt implements: you can search over those chunks and give up searching further chunks after you’ve found enough results.</p>
+
+<p>With pg_trgm, a naive approach would be to have a <code class="language-plaintext highlighter-rouge">file_contents</code> column with a pg_trgm GIN index over it, and put every file from every repository into that column. But that index would apply to <em>all</em> file contents across every repository, so when you want to LIMIT search over that column you are searching over one giant trigram GIN index instead of many smaller ones. It’s faster if your aim is to search the entire index, but if your aim is “get enough results and then get out” it’s much slower, because you have to deal with the entire index instead of multiple smaller indexes. But, I have not tested this empirically - so take this statement with a grain or two of salt. It’s possible I am wrong here.</p>
+
+<p>There is an obvious way to counteract this effect, though: use one pg_trgm GIN index (i.e. a distinct table or column) per repository. You now have a distinct GIN trigram index per repository chunk. Of course, when there are thousands of repositories this introduces major complexity in schema management, query execution, etc. as you might imagine having thousands of tables/columns not exactly being great either.</p>
+
+<p>It is possible that Postgres’ <a href="https://www.postgresql.org/docs/10/ddl-partitioning.html">table data partitioning</a> could interoperate with pg_trgm nicely to solve this problem, but I didn’t explore this in-depth and found no information on the subject. Importantly, you would need to partition tables based on repository (or better, file-size-based chunks.) It is worth exploring this approach more.</p>
+
+<h2 id="naive-usage-of-pg_trgm-is-competitive">Naive usage of pg_trgm is competitive!</h2>
+
+<p>The good news is that even with the naive approach previously described, pg_trgm turns out to be approximately competitive with Zoekt, I assume due to it using a GIN index for trigram matching instead of an inverted index like Zoekt:</p>
+
+<p>I don’t have empirical measurements of this that I can share, you’ll just have to take my word for it, but approximately on a 2020 Macbook pro with several thousand source code repositories:</p>
+
+<ul>
+  <li>Query time performance is roughly the same for needle-in-the-haystack and haystack-full-of-needles queries over all repositories file contents.</li>
+  <li>Pagination can be quite slow towards the tail end of the table, each subset being fetched requires a full search of the index to find the results at the end of the table. A streaming approach rather than traditional SQL pagination would be ideal.</li>
+  <li>On-disk data size is quite small compared to Zoekt’s, Postgres trigram GIN indexes appear to be quite small and its on-by-default data compression works really well with text.</li>
+  <li>Postgres uses MUCH less memory than Zoekt. Like several orders of magnitude less.</li>
+</ul>
+
+<p>Interestingly, however, Postgres uses MUCH less memory. The choice of using an inverted trigram index in Zoekt, <a href="https://github.com/google/zoekt/issues/86">as I understand it</a>, is also one of the reasons that its memory usage is so large (among other things, like Go being fairly relaxed about returning memory to the OS.) I also suggest reading <a href="https://news.ycombinator.com/item?id=18584294">these Hacker News comments from 2018</a> and the linked article from Russ Cox about Google Code Search, from which Zoekt was ultimately born.</p>
+
+<h2 id="horizontally-scaling-pg_trgm-is-hard">Horizontally scaling pg_trgm is hard</h2>
+
+<p>Once your data no longer fits into a single machine / Postgres instance, things get tricky. How do you scale pg_trgm across multiple machines?</p>
+
+<p>Postgres <a href="https://www.postgresql.org/docs/current/high-availability.html">supports a nauseating amount of complex High Availability deployment options</a> for scaling horizontally, and ideally for a search engine you would want something like data partitioning where data is split across multiple hosts but also with the possibility of replication across multiple hosts (for the event a host goes down.)</p>
+
+<p>One of the options it supports is horizontal data partitioning through splitting tables into multiple smaller tables, and then using a foreign data wrapper (postgres_fdw) to execute queries that access all of those tables across the network. This is described in a bit more depth <a href="https://www.highgo.ca/2019/08/08/horizontal-scalability-with-sharding-in-postgresql-where-it-is-going-part-2-of-3/">in this blog post</a>. This could be a good approach, but I decided not to explore this option further.</p>
+
+<p>Ultimately I decided to go with a multiple-table approach, with each table representing a type of data (e.g. repository code) and performing horizontal sharding and scaling at the application layer outside of the DB entirely. I will explain why I took this approach in the next section.</p>
+
+<h2 id="deploying-and-tuning-postgres-configuration-is-hard">Deploying and tuning Postgres configuration is hard</h2>
+
+<p>In stark contrast to Zoekt, which uses a ridiculous amount of memory, with Postgres I was left with a different problem: I could not get it to use all available memory/CPU to perform search queries faster.</p>
+
+<p>Raising <code class="language-plaintext highlighter-rouge">shared_buffers = 128MB</code> (default <code class="language-plaintext highlighter-rouge">32MB</code>) helped a fair amount, but still a similar issue. Ultimately I believe the majority of query time is spent not on CPU latency, but rather a combination of RAM lookups / L3 cache misses and IO latency.</p>
+
+<p>Nonetheless, this introduced a new problem for me: I wanted this search engine to be as simple to deploy as possible, and the idea of having Postgres tuning being a requirement did not appeal to me. I have also seen in the field how many use Amazon RDS, which does not allow for tuning (and is often a several-years-outdated Postgres version anyway.)</p>
+
+<p>With all of this in mind, I ended up going with deploying Docker containers with my own Postgres binary and configuration built-in and managing Postgres on behalf of the user. This ended up being interesting for other reasons I won’t get into (think automatic zero-downtime upgrades from Postgres 12 -&gt; 13.)</p>
+
+<h2 id="ultra-large-scales">Ultra large scales</h2>
+
+<p>Although using pg_trgm is competitive (much better than?) Zoekt - it’s still not enough to be able to efficiently scale up to a massive scale such as Google. The index is still relatively large (in the hundreds of MB for thousands of repositories) well outside the bounds of CPU caches and that makes it kind of slow at truly large scales where the index grows near-linearly.</p>
+
+<p>Ultimately.. Once you add in deployment pains, configuration tuning, trigram index splitting, horizontal scaling, etc. it’s a lot less like using Postgres to build a search engine - and a lot more like using Postgres as a trigram index provider. It’s interesting, and works, but there may be better options.</p>
+
+<h2 id="future-exploration">Future exploration</h2>
+
+<p>A more fruitful direction may be to explore effectively the same architecture (i.e. roll-your-own-search-engine), but replacing pg_trgm and Postgres entirely with a custom ngram index built on top of the bloom-filter successor which is more L3-cache-friendly, <a href="https://lemire.me/blog/2019/12/19/xor-filters-faster-and-smaller-than-bloom-filters/">xor filters</a>.</p>
+
+<p>I believe with this approach you could achieve scales/performance similar to Google, Bing, etc. while providing full regex search and more. This idea is not completely unfounded, it has been <a href="https://github.com/BurntSushi/ripgrep/issues/1518">suggested for indexing in ripgrep, for example</a> (although <a href="https://github.com/BurntSushi/ripgrep/issues/1497">it appears they’ll be going with an inverted trigram index similar to Zoekt</a> instead.)</p>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>In Tridex (the search engine I am working on), we’re planning on exploring this avenue by replacing Postgres and pg_trgm with a custom trigram index based on xor-filters, and will likely write it in Zig. I only realized the opportunity here in a late-night conversation with a coworker who has an affinity for bloom filters, so perhaps I am misguided and this will turn up no fruit.</p>
+
+<p>Follow this devlog for updates.</p>
+
+  </div>
+
+  
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <p>
+      <a alt="Twitter" href="https://twitter.com/slimsag""><img src="https://shields.io/badge/Twitter-follow-blue?logo=Twitter" class="color"></a>
+&nbsp;
+<a alt="RSS Follow" href="/feed.xml""><img src="https://shields.io/badge/RSS-follow-green?logo=RSS" class="color"></a>
+&nbsp;
+<a alt="License: CC BY 4.0" href="https://creativecommons.org/licenses/by/4.0"><img src="https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg" class="color"></a>
+&nbsp;
+<a alt="Hexops on GitHub" href="https://github.com/hexops" class="github color" style="background-image: url(https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/github.svg);line-height: 1;padding-left: 1.5rem;background-repeat: no-repeat;padding-top: .25rem;"> GitHub</a>
+<br>
+<br>
+<a href="https://hexops.com"><img class="logo color" height="50px" alt="Hexops logo" src="https://raw.githubusercontent.com/hexops/media/main/logo.svg"></a>
+<br>
+
+
+&copy;  2021 Hexops
+<link rel="me" href="mailto:support@hexops.com">
+    </p>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
