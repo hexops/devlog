@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>glfw on Hexops' devlog</title><link>https://devlog.hexops.com/categories/glfw/</link><description>Recent content in glfw on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 31 Oct 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/glfw/feed.xml" rel="self" type="application/rss+xml"/><item><title>Perfecting GLFW for Zig, and finding lurking undefined behavior that went unnoticed for 6+ years</title><link>https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior/</link><pubDate>Sun, 31 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior/</guid><description>&lt;p>&lt;strong>Today, I am announcing &lt;a href="https://github.com/hexops/mach-glfw">mach-glfw&lt;/a>: Ziggified GLFW bindings with 100% API coverage, zero-fuss installation, cross compilation, and more.&lt;/strong>&lt;/p>
+&lt;h2 id="building-mach-for-everyone">Building Mach for everyone&lt;/h2>
+&lt;p>If &lt;a href="https://github.com/hexops/mach">Mach engine&lt;/a> only benefits people interested in using that engine, and not the broader Zig (and even gamedev) community I would consider that &lt;em>a total failure&lt;/em>.&lt;/p>
+&lt;p>Whether you&amp;rsquo;re interested in using all of Mach, just some of it with your own engine / project, or just the tools/ideas we develop in the future (with Unity, Unreal, etc.), &lt;em>I truly aim to produce something that benefits you&lt;/em>.&lt;/p>
+&lt;p>Mach is in super early stages, I&amp;rsquo;ve spent the last four months perfecting a Zig interface to GLFW, and making no-fuss installation and cross-compilation a reality. Today, you can benefit from that work too.&lt;/p>
+&lt;h2 id="building-glfw-for-every-platform">Building GLFW for every platform&lt;/h2>
+&lt;p>Just &lt;code>zig&lt;/code> and &lt;code>git&lt;/code>, that&amp;rsquo;s the idea. The GLFW C code is compiled with &lt;code>zig&lt;/code>, and the &lt;code>build.zig&lt;/code> file automatically uses &lt;code>git&lt;/code> to clone (a very minimal set of) system dependencies for you (X11 libraries, etc.)&lt;/p>
+&lt;p>No installing apt packages. No dealing with missing header errors. It should just work out-of-the-box, and for every platform:&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png">&lt;img alt="Mach engine platform support, including Windows, Linux, Mac and cross-compilation between them with Android/iOS coming soon." class="color" src="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png">&lt;/a>&lt;/p>
+&lt;p>Today, this works for GLFW itself. Cross-compilation of &lt;em>OpenGL and Vulkan apps&lt;/em> is not yet fully functional. &lt;a href="https://github.com/hexops/mach/issues/59">We&amp;rsquo;re working on it, though.&lt;/a>&lt;/p>
+&lt;h2 id="perfecting-glfw-for-zig">Perfecting GLFW for Zig&lt;/h2>
+&lt;p>Aside from platform support, mach-glfw now has:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>100% API coverage&lt;/strong> of GLFW v3.3.4. Every function, type, constant, etc. has been wrapped in a ziggified API.&lt;/li>
+&lt;li>&lt;strong>130+ tests&lt;/strong>, with CI testing Linux, Windows, Mac (x86 and M1/ARM) and cross-compilation between them.&lt;/li>
+&lt;/ul>
+&lt;p>You might be asking: &lt;em>why Zig bindings, when Zig can interface directly with C?&lt;/em> Ziggified bindings to GLFW get us:&lt;/p>
+&lt;ul>
+&lt;li>Errors as &lt;a href="https://ziglang.org/documentation/master/#Errors">zig errors&lt;/a> instead of via a callback function.&lt;/li>
+&lt;li>&lt;strong>Enums&lt;/strong>: always know what value a GLFW function can accept as everything is strictly typed. And use the nice Zig syntax to access enums, like &lt;code>window.getKey(.escape)&lt;/code> instead of &lt;code>c.glfwGetKey(window, c.GLFW_KEY_ESCAPE)&lt;/code>&lt;/li>
+&lt;li>Slices instead of C pointers and lengths.&lt;/li>
+&lt;li>&lt;a href="https://ziglang.org/documentation/master/#packed-struct">packed structs&lt;/a> represent bit masks, so you can use &lt;code>if (joystick.down and joystick.right)&lt;/code> instead of &lt;code>&amp;amp;&lt;/code> &lt;code>|&lt;/code> etc. bitwise operators.&lt;/li>
+&lt;li>&lt;code>true&lt;/code> and &lt;code>false&lt;/code> instead of &lt;code>c.GLFW_TRUE&lt;/code> and &lt;code>c.GLFW_FALSE&lt;/code>.&lt;/li>
+&lt;li>Generics: use &lt;code>window.hint&lt;/code> instead of &lt;code>glfwWindowHint&lt;/code>, &lt;code>glfwWindowHintString&lt;/code>, etc.&lt;/li>
+&lt;li>Methods, e.g. &lt;code>my_window.hint(...)&lt;/code> instead of &lt;code>glfwWindowHint(my_window, ...)&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h2 id="explicit-error-handling-solves-a-real-problem">Explicit error handling solves a real problem&lt;/h2>
+&lt;p>GLFW traditionally passes errors to the user via a callback. This can make errors easy to ignore, as well as difficult to correlate and handle effectively at the time of the function invocation.&lt;/p>
+&lt;p>We translated a &lt;a href="https://github.com/hexops/mach-glfw-vulkan-example">a Vulkan example to mach-glfw&lt;/a>, which you can try for yourself today:&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/139573985-d862f35a-e78e-40c2-bc0c-9c4fb68d6ecd.png">&lt;img alt="mach-glfw and vulkan-zig libraries working together to produce a triangle." class="color" src="https://user-images.githubusercontent.com/3173176/139573985-d862f35a-e78e-40c2-bc0c-9c4fb68d6ecd.png">&lt;/a>&lt;/p>
+&lt;p>After porting it, we found that the example was crashing with a &lt;code>NoWindowContext&lt;/code> error. Strange?&lt;/p>
+&lt;p>As it turns out, we had found &lt;a href="https://github.com/Snektron/vulkan-zig/pull/21">a small bug in the vulkan-zig example code&lt;/a>, it was calling &lt;code>glfwSwapBuffers&lt;/code> which is not needed for Vulkan. The error went unnoticed because it&amp;rsquo;s easy to miss errors with GLFW&amp;rsquo;s error callback handling style. But with mach-glfw, it was an explicit error you have to handle e.g. via &lt;code>try glfw.swapBuffers()&lt;/code> - we literally couldn&amp;rsquo;t miss it.&lt;/p>
+&lt;h2 id="finding-lurking-undefined-behavior-in-6-year-old-glfw-code">Finding lurking undefined behavior in 6+ year old GLFW code&lt;/h2>
+&lt;p>One &lt;em>particularly frustrating&lt;/em> issue was tracking down why the last part of the GLFW API we needed to wrap for 100% coverage, the &lt;code>glfwSetWindowIcon&lt;/code> function, was crashing:&lt;/p>
+&lt;pre>&lt;code>Test [76/135] Window.test &amp;quot;setIcon&amp;quot;... Illegal instruction at address 0x2cee09
+upstream/glfw/src/x11_window.c:0:0: 0x2cee09 in _glfwPlatformSetWindowIcon (/mach/glfw/upstream/glfw/src/x11_window.c)
+upstream/glfw/src/window.c:511:5: 0x2de484 in glfwSetWindowIcon (/mach/glfw/upstream/glfw/src/window.c)
+_glfwPlatformSetWindowIcon(window, count, images);
+^
+/mach/glfw/src/Window.zig:508:28: 0x23a083 in Window.test &amp;quot;setIcon&amp;quot; (test)
+c.glfwSetWindowIcon(self.handle, @intCast(c_int, im.len), &amp;amp;tmp[0]);
+^
+/usr/local/bin/lib/std/special/test_runner.zig:77:28: 0x25a0d1 in std.special.main (test)
+} else test_fn.func();
+^
+/usr/local/bin/lib/std/start.zig:517:22: 0x2896bc in std.start.callMain (test)
+root.main();
+^
+/usr/local/bin/lib/std/start.zig:469:12: 0x25c117 in std.start.callMainWithArgs (test)
+return @call(.{ .modifier = .always_inline }, callMain, .{});
+^
+/usr/local/bin/lib/std/start.zig:434:12: 0x25bec2 in std.start.main (test)
+return @call(.{ .modifier = .always_inline }, callMainWithArgs, .{ @intCast(usize, c_argc), c_argv, envp });
+^
+???:?:?: 0x7f4b7c3280b2 in ??? (???)
+&lt;/code>&lt;/pre>&lt;p>That&amp;rsquo;s odd? &lt;code>Illegal instruction at address 0x2cee09&lt;/code> - are we corrupting the stack somehow? Is this a Zig compiler bug?&lt;/p>
+&lt;p>Running in &lt;code>lldb&lt;/code> didn&amp;rsquo;t help with shining any light on the problem, either:&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/139576146-775371fd-8003-46ba-aa30-8b81a2f22ce0.png">&lt;img alt="lldb showing nothing particularly useful" class="color" src="https://user-images.githubusercontent.com/3173176/139576146-775371fd-8003-46ba-aa30-8b81a2f22ce0.png">&lt;/a>&lt;/p>
+&lt;p>After poking around at the stack, checking all pointers and lengths were valid, etc. I was at a loss. The mach-glfw code &lt;em>sure seemed valid&lt;/em>, and yet, this crash. I managed to track the crash down to the first iteration of a loop in GLFW&amp;rsquo;s &lt;code>x11_window.c&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="kt">void&lt;/span> &lt;span class="nf">_glfwSetWindowIconX11&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">_GLFWwindow&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">window&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">const&lt;/span> &lt;span class="n">GLFWimage&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">count&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="kt">int&lt;/span> &lt;span class="n">longCount&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">longCount&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">width&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">height&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="kt">long&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">icon&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">_glfw_calloc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">longCount&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">long&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;span class="kt">long&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">target&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">icon&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="o">*&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">++&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">width&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="o">*&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">++&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">height&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">j&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">j&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">width&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">height&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">j&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="c1">// illegal instruction on first iteration?
+&lt;/span>&lt;span class="c1">&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">++&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">16&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">24&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">...&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="reaching-my-limits">Reaching my limits&lt;/h2>
+&lt;p>At this point, I feel confident in saying:&lt;/p>
+&lt;ul>
+&lt;li>The Zig code is correct, the pointers are valid, the lengths are correct, everything&amp;rsquo;s right.&lt;/li>
+&lt;li>The GLFW code is pretty popular, and it&amp;rsquo;s been around for 6 years. Seems unlikely it&amp;rsquo;s a bug in GLFW?&lt;/li>
+&lt;/ul>
+&lt;p>Luckily, my brother (and reverse engineer) &lt;a href="https://github.com/Andoryuuta">@Andoryuuta&lt;/a> was available to help debug, so I pulled him in. Stepping through instructions, we could see clearly that after a bit shift we were stepping into the abyss:&lt;/p>
+&lt;pre>&lt;code>* thread #1, name = 'test', stop reason = instruction step over
+frame #0: 0x00000000002c6f84 test`_glfwPlatformSetWindowIcon(window=0x00000000004e53d0, count=1, images=0x00007fffec0b3000) at x11_window.c:2156:58
+2153 *target++ = (images[i].pixels[j * 4 + 0] &amp;lt;&amp;lt; 16) |
+2154 (images[i].pixels[j * 4 + 1] &amp;lt;&amp;lt; 8) |
+2155 (images[i].pixels[j * 4 + 2] &amp;lt;&amp;lt; 0) |
+-&amp;gt; 2156 (images[i].pixels[j * 4 + 3] &amp;lt;&amp;lt; 24);
+2157 printf(&amp;quot;DID WE GET HERE???x\n&amp;quot;);
+2158 }
+2159 }
+(lldb)
+Process 6516 stopped
+* thread #1, name = 'test', stop reason = instruction step over
+frame #0: 0x00000000002c6c21 test`_glfwPlatformSetWindowIcon(window=0x00000000004e53d0, count=1, images=0x00007fffec0b3000) at x11_window.c:0
+1 //========================================================================
+2 // GLFW 3.3 X11 - www.glfw.org
+3 //------------------------------------------------------------------------
+4 // Copyright (c) 2002-2006 Marcus Geelnard
+5 // Copyright (c) 2006-2019 Camilla Löwy &amp;lt;elmindreda@glfw.org&amp;gt;
+6 //
+7 // This software is provided 'as-is', without any express or implied
+(lldb)
+Process 6516 stopped
+&lt;/code>&lt;/pre>&lt;p>Inspecting the binary in IDA Pro we were able to see that we were jumping into an &lt;code>__asm { ud1 }&lt;/code> section (ud1 standing for &amp;ldquo;undefined instruction 1&amp;rdquo;):&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/139594073-b2159e4c-6764-44b1-882d-802724f424e8.png">&lt;img alt="IDA Pro showing a jump to an undefined instruction 1" class="color" src="https://user-images.githubusercontent.com/3173176/139594073-b2159e4c-6764-44b1-882d-802724f424e8.png">&lt;/a>&lt;/p>
+&lt;p>It turns out that clang&amp;rsquo;s UBSan inserts these instructions as traps for when the compiler thinks there is undefined behavior occurring, such as if a pointer addition leads to an overflow. This is super interesting, but unfortunately doesn&amp;rsquo;t always give a compiler error. We got lucky and found someone else who ran into this through Google:&lt;/p>
+&lt;blockquote>
+&lt;p>I &lt;em>believe&lt;/em> LLVM explicitly generates a ud2 x86 instruction because &amp;quot;it determined&amp;quot; there's undefined behavior in the C code. So first I wonder which flags you're passing it through zig (i.e. how strict are you being with the settings?)&lt;/p>— Abner (@AbnerCoimbre) &lt;a href="https://twitter.com/AbnerCoimbre/status/1339396987100168192">December 17, 2020&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>And indeed, compiling via &lt;code>zig build test -Drelease-fast&lt;/code> (which turns off UBsan) made the crash go away. So where&amp;rsquo;s the undefined behavior?&lt;/p>
+&lt;p>If we squint at the code and assume all pointers, counts, and indices are correct, you might be able to spot it:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="kt">void&lt;/span> &lt;span class="nf">_glfwSetWindowIconX11&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">_GLFWwindow&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">window&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">const&lt;/span> &lt;span class="n">GLFWimage&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="p">...&lt;/span>
+&lt;span class="kt">long&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">target&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">icon&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="p">...&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">j&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">j&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">width&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">height&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">j&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="c1">// illegal instruction on first iteration?
+&lt;/span>&lt;span class="c1">&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">++&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">16&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">24&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">...&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>What is happening here is that:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>images[i].pixels[j * 4 + 0]&lt;/code> is returning an &lt;code>unsigned char&lt;/code> (8 bits)&lt;/li>
+&lt;li>&lt;del>It is then being shifted left by &lt;code>&amp;lt;&amp;lt; 16&lt;/code> bits. !!! That&amp;rsquo;s further than an 8-bit number can be shifted left by, so that&amp;rsquo;s UB&lt;/del>
+&lt;ul>
+&lt;li>EDIT: Actually, it turns out that&amp;rsquo;s not exactly right, it&amp;rsquo;s the &lt;code>&amp;lt;&amp;lt; 24&lt;/code> that&amp;rsquo;s the cause of the UB, thanks &lt;a href="https://github.com/Maato">@Maato&lt;/a> for &lt;a href="https://github.com/glfw/glfw/pull/1986#issuecomment-955784179">pointing this out and explaining in better detail than I could&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>Suddenly, it all makes sense. And &lt;a href="https://godbolt.org/z/ddq75WsYK">if we load an equal snippet of code into Godbolt&lt;/a> we can see what is happening when we compile without UBSan / the &lt;code>-fsanitize=undefined&lt;/code> flag:&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/139594650-eff35347-3f32-42e5-bc60-da2a1dceb1e1.png">&lt;img alt="Compilation with godbolt with UBSan turned off shows movement into 32-bit EAX register" class="color" src="https://user-images.githubusercontent.com/3173176/139594650-eff35347-3f32-42e5-bc60-da2a1dceb1e1.png">&lt;/a>&lt;/p>
+&lt;p>Without UBsan, clang merely uses the 32-bit EAX register as an optimization. It loads the 8-bit number into the 32-bit register, and then performs the left shift. Although the shift exceeds 8 bits, it &lt;em>does not get truncated to zero&lt;/em> - instead it is effectively as if the number was converted to a &lt;code>long&lt;/code> (32 bits) prior to the left-shift operation.&lt;/p>
+&lt;p>This explains why nobody has caught this UB in GLFW yet, too: it works by accident! Just because the compiler likes to use 32-bit registers in this context.&lt;/p>
+&lt;p>And this change benefits all the languages out there using GLFW: &lt;a href="https://github.com/glfw/glfw/pull/1986">glfw/glfw#1986&lt;/a>&lt;/p>
+&lt;h2 id="defaults-are-_critical_">Defaults are &lt;em>critical&lt;/em>&lt;/h2>
+&lt;p>This code, and undefined behavior, has been in GLFW for over 6 years according to &lt;code>git blame&lt;/code>.&lt;/p>
+&lt;p>Anybody using GLFW &lt;em>could have&lt;/em> enabled UBSan in their C compiler. Anybody &lt;em>could have&lt;/em> run into this same crash and debugged it in the last 6 years. But they didn&amp;rsquo;t.&lt;/p>
+&lt;p>In mach-glfw, we compile all of GLFW&amp;rsquo;s C code with Zig (which is also a fully functional C and C++ compiler), with UBSan enabled by default.&lt;/p>
+&lt;p>Only because Zig has good defaults, because it places so much emphasis on things being right &lt;em>out of the box&lt;/em>, and because there is such an emphasis on having safety checks for undefined behavior - were we able to catch this undefined behavior that went unnoticed in GLFW for the last 6 years.&lt;/p>
+&lt;h2 id="thanks-for-reading">Thanks for reading&lt;/h2>
+&lt;p>All key Mach engine developments will be posted here, with incremental updates on Twitter &lt;a href="https://twitter.com/machengine">@machengine&lt;/a>.&lt;/p>
+&lt;p>Follow &lt;a href="https://github.com/hexops/mach">Mach engine on GitHub&lt;/a>, and if you like what I&amp;rsquo;m doing please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a>.&lt;/p></description></item></channel></rss>

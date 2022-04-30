@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>unicode on Hexops' devlog</title><link>https://devlog.hexops.com/categories/unicode/</link><description>Recent content in unicode on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 03 Jul 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/unicode/feed.xml" rel="self" type="application/rss+xml"/><item><title>Unicode data file compression: achieving 40-70% reduction over gzip alone</title><link>https://devlog.hexops.com/2021/unicode-data-file-compression/</link><pubDate>Sat, 03 Jul 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/unicode-data-file-compression/</guid><description>&lt;p>A little story about how writing a domain-specific compression algorithm in a few days can sometimes yield big benefits, why it&amp;rsquo;s sometimes worth giving it a shot, and how to tell when you should try. Note: this is about Unicode spec data files, not general purpose text compression.&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="#background">Background&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#problem">Problem&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#investigation">Investigation&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#binary-encoding">Binary encoding?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#differential-encodingcompression">Differential encoding/compression?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#go-implementation">Go implementation&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#zig-implementation">Zig implementation&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#differential-encoding-state-machine">Differential encoding state machine&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#a-stream-of-op-codes">A stream of op codes&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#iteratively-finding-the-most-lucrative-opcodes">Iteratively finding the most lucrative opcodes&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#a-stream-of-opcodes-for-a-state-machine-a-natural-progression-from-a-binary-format">A stream of opcodes for a state machine: a natural progression from a binary format?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#results-better-than-gzipbrotli-and-even-better-with-them">Results? Better than gzip/brotli; and even better &lt;em>with&lt;/em> them!&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#why-test-with-gzipbrotli-but-not-others">Why test with gzip/brotli but not others?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#how-complex-is-the-implementation">How complex is the implementation?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#notable-mention">Notable mention&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#conclusion">Conclusion&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="background">Background&lt;/h2>
+&lt;p>Two weeks ago, I began using &lt;a href="https://github.com/jecolon/ziglyph">Ziglyph&lt;/a> (&amp;ldquo;Unicode processing with Zig, and a UTF-8 string type: Zigstr.&amp;quot;) - an awesome library by &lt;a href="https://github.com/jecolon">@jecolon&lt;/a>, for grapheme cluster sorting in &lt;a href="https://github.com/hexops/zorex">Zorex, an omnipotent regexp engine&lt;/a>.&lt;/p>
+&lt;p>I don&amp;rsquo;t personally have any prior experience working with the lower level details of Unicode, or compression algorithms for that matter.&lt;/p>
+&lt;h2 id="problem">Problem&lt;/h2>
+&lt;p>As I stumbled into the wondrous world that is Unicode text sorting (see also my article: &lt;a href="2021-06-27-unicode-sorting-why-browsers-added-special-emoji-matching.md">Unicode sorting is hard &amp;amp; why browsers added special emoji matching to regexp&lt;/a>) and began using Ziglyph, I came across an issue: the standard Unicode collation algorithm, which Ziglyph implements, depends on some large Unicode data tables for normalization and sort keys - even gzipped these were fairly large:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">hexops-mac:zorex slimsag$ du -sh asset/*
+308K asset/uca-allkeys.txt.gz
+260K asset/ucd-UnicodeData.txt.gz
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>These file sizes may seem small, but one of my goals is to make Zorex a real competitor to e.g. a browser&amp;rsquo;s native regexp engine. That&amp;rsquo;s challenging because WebAssembly bundle sizes matter &lt;em>a lot&lt;/em> in that context, and using the browser&amp;rsquo;s regexp implementation is virtually free.&lt;/p>
+&lt;h2 id="investigation">Investigation&lt;/h2>
+&lt;p>I set out to try and reduce the size of these data files. First I &lt;a href="https://github.com/jecolon/ziglyph/issues/3">opened an issue and asked&lt;/a> if anyone else had thoughts around reducing the size of this data. The author of Ziglyph &lt;a href="https://github.com/jecolon">@jecolon&lt;/a> is awesome and readily had some ideas and was able to reduce the two files substantially by removing unnecessary data (such as comments, etc.)&lt;/p>
+&lt;p>Curious how much further we could go, I kept squinting at the data files (warning: large):&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="http://www.unicode.org/Public/UCA/latest/allkeys.txt">http://www.unicode.org/Public/UCA/latest/allkeys.txt&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://www.unicode.org/Public/UNIDATA/UnicodeData.txt">http://www.unicode.org/Public/UNIDATA/UnicodeData.txt&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="binary-encoding">Binary encoding?&lt;/h3>
+&lt;p>My first thoughts were that a binary encoding would likely reduce the size a lot. I pulled in some help from Hobbyist reverse engineer &lt;a href="https://github.com/Andoryuuta">@Andoryuuta&lt;/a> and he got started on a binary encoding for UnicodeData.txt based on the spec. With that, he was able to reduce the original 1.9M allkeys.txt file down to 250K (125K gzipped) - quite a win.&lt;/p>
+&lt;h3 id="differential-encodingcompression">Differential encoding/compression?&lt;/h3>
+&lt;p>My secondary thought was that, scrolling through these data files it was obvious most entries were derived from prior entries. Many entries were long runs of data where the next entry had the same value, plus a small increment. For example, at the start of the &lt;code>allkeys.txt&lt;/code> file:&lt;/p>
+&lt;pre>&lt;code>0000 ; [.0000.0000.0000] # NULL (in ISO 6429)
+0001 ; [.0000.0000.0000] # START OF HEADING (in ISO 6429)
+0002 ; [.0000.0000.0000] # START OF TEXT (in ISO 6429)
+0003 ; [.0000.0000.0000] # END OF TEXT (in ISO 6429)
+0004 ; [.0000.0000.0000] # END OF TRANSMISSION (in ISO 6429)
+0005 ; [.0000.0000.0000] # ENQUIRY (in ISO 6429)
+0006 ; [.0000.0000.0000] # ACKNOWLEDGE (in ISO 6429)
+0007 ; [.0000.0000.0000] # BELL (in ISO 6429)
+0008 ; [.0000.0000.0000] # BACKSPACE (in ISO 6429)
+000E ; [.0000.0000.0000] # SHIFT OUT (in ISO 6429)
+000F ; [.0000.0000.0000] # SHIFT IN (in ISO 6429)
+&lt;/code>&lt;/pre>&lt;p>Of course, not all sections are so sequential. Many sections are a bit more arbitrary:&lt;/p>
+&lt;pre>&lt;code>FF9A ; [.4304.0020.0012] # HALFWIDTH KATAKANA LETTER RE
+32F9 ; [.4304.0020.0013] # CIRCLED KATAKANA RE
+3355 ; [.4304.0020.001C][.42FB.0020.001C] # SQUARE REMU
+3356 ; [.4304.0020.001C][.430A.0020.001C][.42EE.0020.001C][.42E3.0020.001C][.0000.0037.001C][.430A.0020.001C] # SQUARE RENTOGEN
+308D ; [.4305.0020.000E] # HIRAGANA LETTER RO
+31FF ; [.4305.0020.000F] # KATAKANA LETTER SMALL RO
+30ED ; [.4305.0020.0011] # KATAKANA LETTER RO
+&lt;/code>&lt;/pre>&lt;p>Still, there are obvious patterns one can see in the way these values change.&lt;/p>
+&lt;h3 id="go-implementation">Go implementation&lt;/h3>
+&lt;p>I did a quick hacky Go implementation of differential encoding on these files to see how well that would work. The results were pretty good, and already beat just &lt;code>gzip -9&lt;/code> compression of the files:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>File&lt;/th>
+&lt;th>Original&lt;/th>
+&lt;th>Original + &lt;code>gzip -9&lt;/code>&lt;/th>
+&lt;th>My compression&lt;/th>
+&lt;th>My compression + &lt;code>gzip -9&lt;/code>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Decompositions.txt&lt;/td>
+&lt;td>72K&lt;/td>
+&lt;td>28K&lt;/td>
+&lt;td>48K&lt;/td>
+&lt;td>12K&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>allkeys-minimal.txt&lt;/td>
+&lt;td>500K&lt;/td>
+&lt;td>148K&lt;/td>
+&lt;td>204K&lt;/td>
+&lt;td>36K&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>However, because I chose to do these experiments in Go I found a number of inefficiencies:&lt;/p>
+&lt;ul>
+&lt;li>There were a lot of locations where I encoded things as 8-bit unsigned integers (Go&amp;rsquo;s smallest value type) instead of a more optimal 4-bit unsigned integer. I could&amp;rsquo;ve done bit shifting, but it would&amp;rsquo;ve been annoying.&lt;/li>
+&lt;li>There were also many places where I encoded Unicode codepoints as 32-bit unsigned integers, rather than a more optimal 21-bit unsigned integer (because valid Unicode codepoints do not exceed that range.)&lt;/li>
+&lt;/ul>
+&lt;p>For a real implementation, I switched over to Zig.&lt;/p>
+&lt;h2 id="zig-implementation">Zig implementation&lt;/h2>
+&lt;p>Actually, two things made working on this in Zig much easier than in Go:&lt;/p>
+&lt;ol>
+&lt;li>Zig has variable bit-width integers: I could just write &lt;code>u4&lt;/code> and &lt;code>u21&lt;/code> values instead of needing to handle bit packing within larger size integers myself. That was &lt;em>nice&lt;/em>.&lt;/li>
+&lt;li>In the Zig standard library it provides:&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>&lt;a href="https://sourcegraph.com/github.com/ziglang/zig@0.8.0/-/blob/lib/std/io/bit_writer.zig?L152-202">&lt;code>std.io.BitWriter&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://sourcegraph.com/github.com/ziglang/zig@0.8.0/-/blob/lib/std/io/bit_reader.zig?L176-248">&lt;code>std.io.BitReader&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>With these two features, it became incredibly easy to write the most optimal bit-packed encoding of the data.&lt;/p>
+&lt;p>In fact, the basic uncompressed binary format &lt;a href="https://github.com/jecolon/ziglyph/pull/7/commits/7d4042d8df21cc11eaf42177c2f4d9b3afd9c4a7">was only a few lines to encode&lt;/a>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">pub&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">fn&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">compressTo&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">self&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="n">DecompFile&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">writer&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">anytype&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">buf_writer&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">io&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">bufferedWriter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">writer&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">out&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">io&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">bitWriter&lt;/span>&lt;span class="p">(.&lt;/span>&lt;span class="n">Little&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">buf_writer&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">writer&lt;/span>&lt;span class="p">());&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">out&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">writeBits&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">@intCast&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">u16&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">self&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">entries&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">items&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">len&lt;/span>&lt;span class="p">),&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">16&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">while&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">self&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">next&lt;/span>&lt;span class="p">())&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">out&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">writeBits&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">key_len&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">_&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">out&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">..&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">key_len&lt;/span>&lt;span class="p">]);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">out&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">writeBits&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">@enumToInt&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">form&lt;/span>&lt;span class="p">),&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nb">@bitSizeOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Form&lt;/span>&lt;span class="p">));&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">out&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">writeBits&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">len&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">5&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">for&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">seq&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">..&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">len&lt;/span>&lt;span class="p">])&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="n">s&lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">out&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">writeBits&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">s&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">21&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">out&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">flushBits&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">buf_writer&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">flush&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="differential-encoding-state-machine">Differential encoding state machine&lt;/h3>
+&lt;p>To handle the compression, I started out &lt;em>really&lt;/em> simple. First I encoded just a binary version of the data with no compression. The most important thing was to get to a point where I could start testing some theories about what would compress the data really well, and validate that it was in fact being losslessly compressed/decompressed without issues via tests:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="k">test&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;compression_is_lossless&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">testing&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// Compress UnicodeData.txt -&amp;gt; Decompositions.bin
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">parseFile&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;src/data/ucd/UnicodeData.txt&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">defer&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">deinit&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">compressToFile&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;src/data/ucd/Decompositions.bin&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// Reset the raw file iterator.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">iter&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// Decompress the file.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">decompressed&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">decompressFile&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;src/data/ucd/Decompositions.bin&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">defer&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">decompressed&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">deinit&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">while&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">next&lt;/span>&lt;span class="p">())&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="n">expected&lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">actual&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">decompressed&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">next&lt;/span>&lt;span class="p">().&lt;/span>&lt;span class="o">?&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">testing&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">expectEqual&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">expected&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">actual&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="a-stream-of-op-codes">A stream of op codes&lt;/h3>
+&lt;p>I settled on a really simple idea: these data files all have basically just a variable number of integers per line. And if I kept &amp;ldquo;registers&amp;rdquo; representing the current value for each integer, I could determine the difference between the past line and the subsequent one to produce a difference. If I encoded that difference as a stream of opcodes with associative data, then to decompress the file I could simply &amp;ldquo;replay&amp;rdquo; those operations based on the opcodes and then iteratively come up with more finely-specified, specific opcodes to handle specific types of data.&lt;/p>
+&lt;p>I started out simple, really just with two opcodes:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-Zig" data-lang="Zig">&lt;span class="c1">// A UDDC opcode for a decomposition file.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Opcode&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">enum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">u4&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// Sets all the register values with no compression.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">set&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// Denotes the end of the opcode stream. This is so that we don&amp;#39;t need to encode the total
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// number of opcodes in the stream up front (note also the file is bit packed: there may be
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a few remaining zero bits at the end as padding so we need an EOF opcode rather than say
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// catching the actual file read EOF.)
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">eof&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Using these two opcodes, I was able to effectively encode the entire file. The &lt;code>set&lt;/code> opcode had some associative data which effectively expressed an entire raw, uncompressed entry in the file (one line.) This increased the file size since it was effectively just adding 4 bits (the opcode) as additional overhead.&lt;/p>
+&lt;h3 id="iteratively-finding-the-most-lucrative-opcodes">Iteratively finding the most lucrative opcodes&lt;/h3>
+&lt;p>To find the most lucrative (i.e. compressed) opcodes, I printed the data I would associate with an opcode (like &lt;code>set&lt;/code>) and then looked for repetitions. Sometimes manually, and sometimes by e.g. piping data to a combination of &lt;code>sort|uniq -c|sort -r&lt;/code> to find common patterns.&lt;/p>
+&lt;p>Since I was printing &lt;em>differences&lt;/em> between e.g. the current value and previous value, it was really easy to find common patterns that appeared in the file very frequently, such as specific fields incrementing by specific amounts with one field being arbitrary:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="w"> &lt;/span>&lt;span class="c1">// increments key[3] += 1; sets value.seq[0]; emits an entry.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// 1685 instances
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">increment_key_3_and_set_value_seq_0_and_emit&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Once I had narrowed down to a larger group of opcodes that more specifically represented the data, I was able to print the number of bits required to store the change in specific fields (like &lt;code>value.seq[0]&lt;/code>) and add even more specific opcodes to use variable bit widths:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="w"> &lt;/span>&lt;span class="c1">// increments key[3] += 1; sets value.seq[0]; emits an entry.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// 1685 instances
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">increment_key_3_and_set_value_seq_0_2bit_and_emit&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// 978 instances, 2323 byte reduction
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">increment_key_3_and_set_value_seq_0_8bit_and_emit&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// 269 instances, 437 byte reduction
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">increment_key_3_and_set_value_seq_0_21bit_and_emit&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// 438 instances
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>It being a stream of opcodes was quite nice, because it allowed me to determine how much space was being consumed by a given opcode in sum and target further reducing the size of opcodes that took up the most space. It also made it really easy to find opcodes that I though &lt;em>might&lt;/em> help, but in practice turned out to not be that frequent. Just print them, pipe to &lt;code>sort|uniq -c|sort -r&lt;/code> to count them - and remove the lowest hanging fruit.&lt;/p>
+&lt;h3 id="a-stream-of-opcodes-for-a-state-machine-a-natural-progression-from-a-binary-format">A stream of opcodes for a state machine: a natural progression from a binary format?&lt;/h3>
+&lt;p>I chose an opcode stream for a reason: so that I could encode some complex logic in the form of a state machine. This came in handy for the &lt;code>allkeys.txt&lt;/code> file in specific, as it allowed me to introduce &lt;em>incrementors&lt;/em> into the mix which would &lt;em>increment register values by a chosen amount each iteration (value &amp;ldquo;emission&amp;rdquo;)&lt;/em>.&lt;/p>
+&lt;p>The final opcodes for the allkeys.txt file ended up being:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="c1">// A UDDC opcode for an allkeys file.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Opcode&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">enum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">u3&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// Sets an incrementor for the key register, incrementing the key by this much on each emission.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// 10690 instances, 13,480.5 bytes
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">inc_key&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// Sets an incrementor for the value register, incrementing the value by this much on each emission.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// 7668 instances, 62,970 bytes
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">inc_value&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// Emits a single value.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// 31001 instances, 15,500.5 bytes
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">emit_1&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">emit_2&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">emit_4&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">emit_8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">emit_32&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// Denotes the end of the opcode stream. This is so that we don&amp;#39;t need to encode the total
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// number of opcodes in the stream up front (note also the file is bit packed: there may be
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a few remaining zero bits at the end as padding so we need an EOF opcode rather than say
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// catching the actual file read EOF.)
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">eof&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This meant I could determine the difference in the &lt;code>key&lt;/code> and &lt;code>value&lt;/code> fields (what those actually are isn&amp;rsquo;t important, just that they are all minor incremental differences on the prior entry in the file) - set an &lt;em>incrementor&lt;/em> to do some work on each emission, such as say increment the &lt;code>key&lt;/code> array by &lt;code>[0, 1, 5]&lt;/code> each emission, and then say &amp;ldquo;now emit_32 values!&amp;rdquo;.&lt;/p>
+&lt;p>Suddenly, instead of encoding 32 key entries (32 * 3 key values * 21 bits) I am just setting an incrementor (3 key values * 21 bits) and a single opcode to emit 32 values (3 bits).&lt;/p>
+&lt;p>Overall, this gave me a very nice, natural-feeling progression from a &amp;ldquo;raw binary format&amp;rdquo; to something a bit more specific - a bit more &lt;em>compressed.&lt;/em>&lt;/p>
+&lt;h2 id="results-better-than-gzipbrotli-and-even-better-_with_-them">Results? Better than gzip/brotli; and even better &lt;em>with&lt;/em> them!&lt;/h2>
+&lt;p>For lack of better words, I&amp;rsquo;ll call my compression algorithm here Unicode Data Differential Compression, since it&amp;rsquo;s differential and specifically for the Unicode data table files - or UDDC for short.&lt;/p>
+&lt;p>The two files went from the original 568K (with gzip) down to just 61K (with UDDC+gzip). With this, we are able to equal or match both &lt;code>gzip -9&lt;/code> and &lt;code>brotli -9&lt;/code> on their own, AND when combined with gzip or brotli we are able to reduce by 40-70%:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>File&lt;/th>
+&lt;th>Before (bytes)&lt;/th>
+&lt;th>After (bytes)&lt;/th>
+&lt;th>Change&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>Decompositions.bin&lt;/code>&lt;/td>
+&lt;td>48,242&lt;/td>
+&lt;td>19,072&lt;/td>
+&lt;td>-60.5% (-29,170 bytes)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Decompositions.bin.br&lt;/code>&lt;/td>
+&lt;td>24,411&lt;/td>
+&lt;td>14,783&lt;/td>
+&lt;td>-39.4% (-9,628 bytes)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Decompositions.bin.gz&lt;/code>&lt;/td>
+&lt;td>30,931&lt;/td>
+&lt;td>15,670&lt;/td>
+&lt;td>-49.34% (15,261 bytes)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>allkeys.bin&lt;/code>&lt;/td>
+&lt;td>373,719&lt;/td>
+&lt;td>100,907&lt;/td>
+&lt;td>-73.0% (-272,812 bytes)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>allkeys.bin.br&lt;/code>&lt;/td>
+&lt;td>108,982&lt;/td>
+&lt;td>44,860&lt;/td>
+&lt;td>-58.8% (-64,122 bytes)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>allkeys.bin.gz&lt;/code>&lt;/td>
+&lt;td>163,237&lt;/td>
+&lt;td>46,996&lt;/td>
+&lt;td>-71.2% (-116,241 bytes)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;ul>
+&lt;li>Before represents binary format without UDDC compression.&lt;/li>
+&lt;li>After represents binary format with UDDC compression.&lt;/li>
+&lt;li>&lt;code>.br&lt;/code> represents &lt;code>brotli -9 &amp;lt;file&amp;gt;&lt;/code> compression&lt;/li>
+&lt;li>&lt;code>.gz&lt;/code> represents &lt;code>gzip -9 &amp;lt;file&amp;gt;&lt;/code> compression&lt;/li>
+&lt;/ul>
+&lt;h3 id="why-test-with-gzipbrotli-but-not-others">Why test with gzip/brotli but not others?&lt;/h3>
+&lt;p>I chose to compare against gzip/brotli specifically because you get those effectively for free in WebAssembly: browsers already know how to decompress those and ship with gzip/brotli decompressors - so you can use them for free without shipping any additional code.&lt;/p>
+&lt;h3 id="how-complex-is-the-implementation">How complex is the implementation?&lt;/h3>
+&lt;p>The final implementation for both files is only a few hundred lines (excluding blank lines, comments, and tests):&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/jecolon/ziglyph/blob/main/src/collator/AllKeysFile.zig">&lt;code>AllKeysFile.zig&lt;/code>&lt;/a>: 298 lines&lt;/li>
+&lt;li>&lt;a href="https://github.com/jecolon/ziglyph/blob/main/src/normalizer/DecompFile.zig">&lt;code>DecompFile.zig&lt;/code>&lt;/a> 336 lines&lt;/li>
+&lt;/ul>
+&lt;p>I have not measured produced machine code size yet, but suspect it is relatively negligible compared to the gains.&lt;/p>
+&lt;h2 id="notable-mention">Notable mention&lt;/h2>
+&lt;p>I should mention that the Unicode spec, as &lt;a href="https://github.com/jecolon">@jecolon&lt;/a> pointed out to me, does suggest ways to reduce sort key lengths and implement Run-length Compression:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://unicode.org/reports/tr10/#Reducing_Sort_Key_Lengths">https://unicode.org/reports/tr10/#Reducing_Sort_Key_Lengths&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://unicode.org/reports/tr10/#Run-length_Compression">https://unicode.org/reports/tr10/#Run-length_Compression&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>I wasn&amp;rsquo;t able to locate an implementation of this (I&amp;rsquo;d be curious to compare results!) but suspect that, as the run-length compression does not fit the data as tightly, it would not compress quite as well (although would handle any major changes to the type of data in the files without requiring compression algorithm changes better.)&lt;/p>
+&lt;p>Also of note is that their algorithm only seems to be mentioned in the context of allkeys.txt / the Unicode Collation Algorithm, not in the context of normalization/decompositions from &lt;code>UnicodeData.txt&lt;/code>.&lt;/p>
+&lt;h2 id="conclusion">Conclusion&lt;/h2>
+&lt;p>Ask questions, stay curious, don&amp;rsquo;t be afraid to experiment even if it&amp;rsquo;s outside of your domain of expertise. You might surprise yourself and find something interesting, challenging, and worthwhile.&lt;/p></description></item><item><title>Unicode sorting is hard &amp; why browsers added special emoji matching to regexp</title><link>https://devlog.hexops.com/2021/unicode-sorting-why-browsers-added-special-emoji-matching/</link><pubDate>Sun, 27 Jun 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/unicode-sorting-why-browsers-added-special-emoji-matching/</guid><description>&lt;p>As I work on &lt;a href="https://github.com/hexops/zorex">Zorex, an omnipotent regexp engine&lt;/a> I have stumbled into a world of tales about why Unicode text sorting is so annoying in the modern day. Let&amp;rsquo;s talk about that.&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="#why-ascii-sorting-is-not-enough">Why ASCII sorting is not enough&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#twitters-emoji-problem---or-when-unicode-locale-aware-sorting-really-matters">Twitter&amp;rsquo;s emoji problem - or when Unicode locale-aware sorting Really Matters™&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#browsers-added-special-emoji-matching-to-regexp">Browsers added special emoji matching to regexp&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#language-comparison">Language comparison&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#javascript-collator-sorting-is-not-guaranteed-across-browsers">JavaScript Collator sorting is not guaranteed across browsers&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#go-sortstrings-is-not-locale-aware">Go sort.Strings is not locale aware&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#rust-vec-sorting-is-not-locale-aware">Rust Vec sorting is not locale aware&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#swifts-default-is-not-locale-aware-but-unicode-support-is-notable">Swift&amp;rsquo;s default is not locale aware, but unicode support is notable&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#zigs-ziglyph-package">Zig&amp;rsquo;s ziglyph package&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#why-is-localized-text-sorting-hard">Why is localized text sorting hard?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#webassembly-may-make-things-worse">WebAssembly may make things worse?&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="why-ascii-sorting-is-not-enough">Why ASCII sorting is not enough&lt;/h2>
+&lt;p>Perhaps you are sorting strings in JavaScript like this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="kr">const&lt;/span> &lt;span class="nx">words&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;Bears&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;Beetle&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;kiss&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;Similar&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;Apples&amp;#39;&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;span class="nx">words&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">sort&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;span class="c1">// [ &amp;#34;Apples&amp;#34;, &amp;#34;Bears&amp;#34;, &amp;#34;Beetle&amp;#34;, &amp;#34;Similar&amp;#34;, &amp;#34;kiss&amp;#34; ]
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>And that works pretty well, until someone translates it to German:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="kr">const&lt;/span> &lt;span class="nx">words&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;Bären&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;Käfer&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;küssen&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;Ähnlich&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;Äpfel&amp;#39;&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;span class="nx">words&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">sort&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;span class="c1">// [ &amp;#34;Bären&amp;#34;, &amp;#34;Käfer&amp;#34;, &amp;#34;küssen&amp;#34;, &amp;#34;Ähnlich&amp;#34;, &amp;#34;Äpfel&amp;#34; ]
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The preferred alphabetical sorting would be &lt;code>[ &amp;quot;Ähnlich&amp;quot;, &amp;quot;Äpfel&amp;quot;, &amp;quot;Bären&amp;quot;, &amp;quot;Käfer&amp;quot;, &amp;quot;küssen&amp;quot; ]&lt;/code> - &lt;code>Array.sort&lt;/code> doesn&amp;rsquo;t do that.&lt;/p>
+&lt;p>That is because it is sorting lexicographically by byte values in the string, and not taking into account locales.&lt;/p>
+&lt;h2 id="twitters-emoji-problem---or-when-unicode-locale-aware-sorting-really-matters">Twitter&amp;rsquo;s emoji problem - or when Unicode locale-aware sorting Really Matters™&lt;/h2>
+&lt;p>Twitter is &lt;a href="https://9to5google.com/2018/05/21/twitter-android-emoji-updates/">no stranger to issues with emojis&lt;/a>, but have you ever thought about how they check if a hashtag contains only legal characters and emojis? Regexp, of course!&lt;/p>
+&lt;p>You might think one could just use a regexp unicode character class, like &lt;code>[\u{1f300}-\u{1f5ff}]&lt;/code> - but that only covers a single codepoint! Emojis and other text rely on combining multiple Unicode codepoints to compose &lt;em>grapheme clusters&lt;/em> - and often what we see as a single visible character on our screen.&lt;/p>
+&lt;p>The full regexp needed to match all emojis with codepoints would be:&lt;/p>
+&lt;pre>&lt;code class="language-regexp" data-lang="regexp">(?:\ud83e\uddd1\ud83c\udffb\u200d\u2764\ufe0f\u200d\ud83d\udc8b\u200d\ud83e\uddd1\ud83c\udffc|\ud83e\uddd1\ud83c\udffb\u200d\u2764\ufe0f\u200d\ud83d
+[102,816 characters omitted]
+&lt;/code>&lt;/pre>&lt;p>For your sake, I&amp;rsquo;ve omitted the other 102,816 characters of that regexp. You can view it here: &lt;a href="https://regex101.com/r/2ia4m2/7">https://regex101.com/r/2ia4m2/7&lt;/a>&lt;/p>
+&lt;h2 id="browsers-added-special-emoji-matching-to-regexp">Browsers added special emoji matching to regexp&lt;/h2>
+&lt;p>Luckily for Twitter and others, ECMAScript&amp;rsquo;s &lt;a href="https://github.com/tc39/proposal-regexp-unicode-property-escapes">TC39 proposal a few years back&lt;/a> extended the regexp engine to support Unicode property escapes for emojis and a few other Unicode properties so you can write e.g.:&lt;/p>
+&lt;pre>&lt;code class="language-regexp" data-lang="regexp">\p{Emoji_Presentation}
+&lt;/code>&lt;/pre>&lt;p>Without packing several thousand bytes of Unicode data tables or regexp into your JS bundle.&lt;/p>
+&lt;h2 id="language-comparison">Language comparison&lt;/h2>
+&lt;p>As &lt;a href="https://lemire.me/blog/2018/12/17/sorting-strings-properly-is-stupidly-hard/">Daniel Lemire said&lt;/a>: &lt;em>sorting strings is stupidly hard&lt;/em>.&lt;/p>
+&lt;h3 id="javascript-collator-sorting-is-not-guaranteed-across-browsers">JavaScript Collator sorting is not guaranteed across browsers&lt;/h3>
+&lt;p>You may have found browser&amp;rsquo;s &lt;a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare">&lt;code>String.prototype.localCompare&lt;/code>&lt;/a> or &lt;a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator">&lt;code>Intl.Collator&lt;/code>&lt;/a> and they &lt;strong>DO&lt;/strong> fix the issue&lt;a href="https://ourcodeworld.com/articles/read/958/how-to-sort-an-array-of-strings-alphabetically-with-special-characters-properly-with-javascript">[1]&lt;/a>:&lt;/p>
+&lt;pre>&lt;code>const words = ['Bären', 'Käfer', 'küssen', 'Ähnlich', 'Äpfel'];
+words.sort(Intl.Collator().compare);
+// [ &amp;quot;Ähnlich&amp;quot;, &amp;quot;Äpfel&amp;quot;, &amp;quot;Bären&amp;quot;, &amp;quot;Käfer&amp;quot;, &amp;quot;küssen&amp;quot; ]
+&lt;/code>&lt;/pre>&lt;p>(note, however, you may wish to use &lt;code>Intl.Collator('de').compare&lt;/code> instead to sort according to German language customs)&lt;/p>
+&lt;p>However, beware that if you look at &lt;a href="https://tc39.es/ecma402/#sec-collator-comparestrings">the ECMA spec&lt;/a> for this you will find:&lt;/p>
+&lt;blockquote>
+&lt;p>It is &lt;strong>recommended&lt;/strong> that the CompareStrings abstract operation be implemented following Unicode Technical Standard 10, Unicode Collation Algorithm [&amp;hellip;]&lt;/p>
+&lt;p>Applications should not assume that the behaviour of the CompareStrings abstract operation for Collator instances with the same resolved options will remain the same for different versions of the same implementation.&lt;/p>
+&lt;/blockquote>
+&lt;p>Although many browsers may produce similar sorting results - not all will. For one thing, not all locales are available across browsers.&lt;/p>
+&lt;p>Further, different browsers may choose to sort things differently. For example IE 11 sorting &amp;ldquo;co-op&amp;rdquo; after &amp;ldquo;coop&amp;rdquo; while other browsers do the opposite.&lt;a href="https://stackoverflow.com/questions/33919257/sorting-strings-with-punctuation-using-intl-collator-is-inconsistent-across-brow">[2]&lt;/a>&lt;/p>
+&lt;h2 id="go-sortstrings-is-not-locale-aware">Go sort.Strings is not locale aware&lt;/h2>
+&lt;p>It may be interesting to note that Go&amp;rsquo;s &lt;code>sort.Strings&lt;/code> operates on byte comparisons, and has the same issue as JavaScript&amp;rsquo;s &lt;code>Array.prototype.sort&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-Go" data-lang="Go">&lt;span class="nx">words&lt;/span> &lt;span class="o">:=&lt;/span> &lt;span class="p">[]&lt;/span>&lt;span class="kt">string&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="s">&amp;#34;Bären&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Käfer&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;küssen&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Ähnlich&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Äpfel&amp;#34;&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;span class="nx">sort&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">Strings&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nx">words&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">// [Bären Käfer küssen Ähnlich Äpfel]
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>One can easily perform unicode code point (rune) sorting in Go, which would fix the above example - but note that rune sorting is not locale-aware, and importantly that &lt;a href="https://www.reddit.com/r/golang/comments/o1o5hr/fyi_a_single_go_rune_is_not_the_same_as_a_single">a Go rune is not the same as a visible character&lt;/a> and would not take into account grapheme clusters.&lt;/p>
+&lt;p>For proper Unicode locale-aware sorting in Go, you need to use the Unicode Collation Algorithm via &lt;a href="https://pkg.go.dev/golang.org/x/text/collate">golang.org/x/text/collate&lt;/a> but be sure to also apply normalization to your text first via &lt;a href="https://pkg.go.dev/golang.org/x/text@v0.3.6/unicode/norm">golang.org/x/text/unicode/norm&lt;/a>&lt;/p>
+&lt;h3 id="rust-vec-sorting-is-not-locale-aware">Rust Vec sorting is not locale aware&lt;/h3>
+&lt;p>A Rust &lt;code>Vec&lt;/code> of strings implements sorting&lt;a href="https://doc.rust-lang.org/std/primitive.str.html#impl-Ord">[3]&lt;/a> lexicographically by their byte values, consistent with Go&amp;rsquo;s &lt;code>sort.Strings&lt;/code> and JavaScripts &lt;code>Array.prototype.sort&lt;/code>:&lt;/p>
+&lt;pre>&lt;code>let mut vec = Vec::new();
+vec.push(&amp;quot;Bären&amp;quot;);
+vec.push(&amp;quot;Käfer&amp;quot;);
+vec.push(&amp;quot;küssen&amp;quot;);
+vec.push(&amp;quot;Ähnlich&amp;quot;);
+vec.sort(&amp;quot;Äpfel&amp;quot;);
+println!(&amp;quot;{:?}&amp;quot;, vec);
+// [&amp;quot;Bären&amp;quot;, &amp;quot;Käfer&amp;quot;, &amp;quot;küssen&amp;quot;, &amp;quot;Ähnlich&amp;quot;, &amp;quot;Äpfel&amp;quot;]
+&lt;/code>&lt;/pre>&lt;p>Locale-aware sorting in Rust is provided &lt;a href="https://github.com/google/rust_icu">by ICU4C bindings by Google, google/rust_icu&lt;/a> (note however, there have been a number of &lt;a href="https://github.com/rust-lang/rust/issues/14656#issuecomment-45164318">vulnerabilities in the ICU4C library&lt;/a>) and there is ongoing work to implement internationalization in pure Rust as a safer alternative: &lt;a href="https://github.com/unicode-org/icu4x">unicode-org/icu4x&lt;/a>.&lt;/p>
+&lt;h3 id="swifts-default-is-not-locale-aware-but-unicode-support-is-notable">Swift&amp;rsquo;s default is not locale aware, but unicode support is notable&lt;/h3>
+&lt;p>Swift remains consistent with other languages in sorting strings lexicographically by byte value:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-swift" data-lang="swift">&lt;span class="kd">var&lt;/span> &lt;span class="nv">words&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s">&amp;#34;Bären&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Käfer&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;küssen&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Ähnlich&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Äpfel&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;span class="n">words&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="bp">sort&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">// [&amp;#34;Bären&amp;#34;, &amp;#34;Käfer&amp;#34;, &amp;#34;küssen&amp;#34;, &amp;#34;Ähnlich&amp;#34;, &amp;#34;Äpfel&amp;#34;]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>However, it is notable that Swift includes locale sensitive sorting out of the box&lt;a href="https://sarunw.com/posts/different-ways-to-sort-array-of-strings-in-swift/">[4]&lt;/a>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-swift" data-lang="swift">&lt;span class="kd">var&lt;/span> &lt;span class="nv">words&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="s">&amp;#34;Bären&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Käfer&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;küssen&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Ähnlich&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Äpfel&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;span class="kd">let&lt;/span> &lt;span class="nv">sorted&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">words&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="bp">sorted&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">lhs&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nb">String&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">rhs&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="nb">String&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">-&amp;gt;&lt;/span> &lt;span class="nb">Bool&lt;/span> &lt;span class="k">in&lt;/span>
+&lt;span class="k">return&lt;/span> &lt;span class="n">lhs&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">localizedStandardCompare&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">rhs&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">==&lt;/span> &lt;span class="p">.&lt;/span>&lt;span class="n">orderedAscending&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="c1">// [&amp;#34;Ähnlich&amp;#34;, &amp;#34;Äpfel&amp;#34;, &amp;#34;Bären&amp;#34;, &amp;#34;Käfer&amp;#34;, &amp;#34;küssen&amp;#34;]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>It also seems quite notable just &lt;a href="https://developer.apple.com/documentation/swift/string">how very unicode-aware the Swift documentation is on their String type&lt;/a>. Other languages could learn a thing or two here in educating developers.&lt;/p>
+&lt;h2 id="zigs-ziglyph-package">Zig&amp;rsquo;s ziglyph package&lt;/h2>
+&lt;p>Zig&amp;rsquo;s standard library is still quite under development, however it seems likely that major unicode functionality will be outside the stdlib.&lt;/p>
+&lt;p>Luckily, &lt;a href="https://github.com/jecolon">@jecolon&lt;/a> in the Zig community is working on an excellent package for this: &lt;a href="https://github.com/jecolon/ziglyph">ziglyph&lt;/a>.&lt;/p>
+&lt;p>I mention this because I&amp;rsquo;m a fan of the language and have recently begun contributing to that package; but otherwise Zig isn&amp;rsquo;t any different than other languages listed here aside from there being no real &amp;ldquo;default&amp;rdquo; way to sort strings from what I know.&lt;/p>
+&lt;h2 id="why-is-localized-text-sorting-hard">Why is localized text sorting hard?&lt;/h2>
+&lt;p>I believe there are a combination of factors at play:&lt;/p>
+&lt;ul>
+&lt;li>Most languages leave Unicode locale-aware text sorting as an afterthought.&lt;/li>
+&lt;li>Most developers don&amp;rsquo;t care enough to use Unicode, let alone implement locale-aware text sorting. Internationalization is always &amp;ldquo;that thing we&amp;rsquo;ll do if somebody complains&amp;rdquo; or an afterthought.&lt;/li>
+&lt;li>It&amp;rsquo;s hard. It wasn&amp;rsquo;t until recently that we got semi-decent support for it across browsers, and what is there still leaves a lot to be desired.&lt;/li>
+&lt;li>Many are still running into dated software, like NodeJS versions from ~2019 ish that &lt;a href="https://github.com/nodejs/node/issues/19214">didn&amp;rsquo;t have full ICU support on by default&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;h2 id="webassembly-may-make-things-worse">WebAssembly may make things worse?&lt;/h2>
+&lt;p>As a closing thought, I just want to hint at why I think WebAssembly will make things worse before they get better.&lt;/p>
+&lt;p>Whether your application is in Go and has it&amp;rsquo;s own Unicode Collation Algorithm (UCA) implementation, or Rust and uses bindings to the popular ICU4C library - one thing is going to remain true: it requires large data files to work.&lt;/p>
+&lt;p>The UCA algorithm depends on two quite large data table files to work:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://www.unicode.org/Public/9.0.0/ucd/UnicodeData.txt">UnicodeData.txt&lt;/a> for normalization, a step required before sorting can take place.&lt;/li>
+&lt;li>&lt;a href="http://www.unicode.org/Public/UCA/12.0.0/allkeys.txt">allkeys.txt&lt;/a> for weighting certain text above others.&lt;/li>
+&lt;li>And more, if you want truly locale-aware sorting and not just &amp;ldquo;the default&amp;rdquo; the UCA algorithm gives you.&lt;/li>
+&lt;/ul>
+&lt;p>Together, these files can add up to over a half a megabyte.&lt;/p>
+&lt;p>While WASM languages could shell out to JavaScript browser APIs for collation, I suspect they won&amp;rsquo;t due to the lack of guarantees around those APIs.&lt;/p>
+&lt;p>A more likely scenario is languages continuing to leave locale-aware sorting as an optional, opt-in feature - that also makes your application larger.&lt;/p>
+&lt;p>I think this a worthwhile problem to solve, so I am working on &lt;a href="https://github.com/jecolon/ziglyph/issues/3">compression algorithms for these files specifically&lt;/a> in Zig to reduce them to only a few tens of kilobytes.&lt;/p></description></item></channel></rss>

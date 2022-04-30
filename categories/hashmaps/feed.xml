@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hashmaps on Hexops' devlog</title><link>https://devlog.hexops.com/categories/hashmaps/</link><description>Recent content in hashmaps on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 29 Jan 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/hashmaps/feed.xml" rel="self" type="application/rss+xml"/><item><title>Zig hashmaps explained</title><link>https://devlog.hexops.com/2022/zig-hashmaps-explained/</link><pubDate>Sat, 29 Jan 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/zig-hashmaps-explained/</guid><description>&lt;p>If you just got started with &lt;a href="https://ziglang.org">Zig&lt;/a>, you might quickly want to use a hashmap. Zig provides good defaults, with a lot of customization options.&lt;/p>
+&lt;p>Here I will try to guide you into choosing the right hashmap type.&lt;/p>
+&lt;h2 id="60-second-explainer">60-second explainer&lt;/h2>
+&lt;p>You probably want:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">StringHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Or if you do not have string keys, you can use an &lt;code>Auto&lt;/code> hashmap instead:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Where &lt;code>K&lt;/code> and &lt;code>V&lt;/code> are your key and value data types, respectively. e.g. &lt;code>[]const u8&lt;/code> for a string.&lt;/p>
+&lt;p>You can then use these APIs:&lt;/p>
+&lt;h3 id="insert-a-value">Insert a value&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">put&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="insert-a-value-assert-entry-does-not-already-exist">Insert a value, assert entry does not already exist&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">putNoClobber&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Note &lt;code>putNoClobber&lt;/code> may be renamed to something like &lt;code>putAssumeNoEntry&lt;/code> in the near future: &lt;a href="https://github.com/ziglang/zig/issues/10736">ziglang/zig#10736&lt;/a>&lt;/p>
+&lt;h3 id="get-a-value">Get a value&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">if&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// got value &amp;#34;v&amp;#34;
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">else&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// doesn&amp;#39;t exist
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="get-a-value-insert-if-not-exist">Get a value, insert if not exist&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">getOrPut&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">if&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">found_existing&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// We inserted an entry, specify the new value
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// This is a conditional in case creating the new value is expensive
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">value_ptr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;my value&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">value_ptr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// use the value
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can find more APIs &lt;a href="https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig#L342">by going here&lt;/a> and using your browser&amp;rsquo;s builtin search for &lt;code>pub fn&lt;/code>.&lt;/p>
+&lt;h2 id="about-key-data-types">About key data types&lt;/h2>
+&lt;p>Zig hash map types start with the data type of the key:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>std.StringHashMap&lt;/code> - uses a good default hashing function for string keys&lt;/li>
+&lt;li>&lt;code>std.AutoHashMap&lt;/code> - uses a good default hashing function for most data types&lt;/li>
+&lt;li>&lt;code>std.HashMap&lt;/code> - the &amp;ldquo;bring your own hashing function&amp;rdquo; option&lt;/li>
+&lt;/ul>
+&lt;p>Note: &lt;code>AutoHashMap&lt;/code> does not support &lt;em>slices&lt;/em>, such as &lt;code>[]const u8&lt;/code> string slices, because that is a pointer to an array and it is ambiguous whether or not you intend to hash &lt;em>the array elements&lt;/em> or &lt;em>the pointer itself&lt;/em>. You can use the generic &lt;code>std.HashMap&lt;/code> for any slice type, you just have to provide your own hash functions.&lt;/p>
+&lt;h2 id="hashmaps-are-also-sets">Hashmaps are also sets&lt;/h2>
+&lt;p>A set in Zig is just a hashmap with a &lt;code>void&lt;/code> value:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">put&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{});&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// `{}` is a value of type `void`
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="advanced-usages">Advanced usages&lt;/h2>
+&lt;p>If you&amp;rsquo;re just getting started with Zig, don&amp;rsquo;t worry too much about the below. Just know that you have options available should you need to reduce memory usage or optimize your use of hashmaps in the future.&lt;/p>
+&lt;h3 id="managed-vs-unmanaged-hashmaps">Managed vs. unmanaged hashmaps&lt;/h3>
+&lt;p>You can add &lt;code>Unmanaged&lt;/code> to the end of a Zig hashmap data type, e.g. &lt;code>std.StringHashMapUnmanaged&lt;/code> in order to get the &lt;em>unmanaged&lt;/em> version.&lt;/p>
+&lt;p>This merely doesn&amp;rsquo;t carry an &lt;code>allocator&lt;/code> internally, instead you must pass the allocator into every method of the hashmap. While only a few bytes, this can be a useful optimization if you&amp;rsquo;re storing many hashmaps for example.&lt;/p>
+&lt;p>Managed:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">StringHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Unmanaged:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">StringHashMapUnmanaged&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">){};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="array-hash-maps">Array hash maps&lt;/h3>
+&lt;p>Zig actually provides &lt;a href="https://github.com/ziglang/zig/pull/5999">&lt;em>two hashmap implementations&lt;/em>&lt;/a> in the standard library&lt;/p>
+&lt;p>&lt;code>std.HashMap&lt;/code>, perfect for every-day use cases:&lt;/p>
+&lt;ul>
+&lt;li>Optimized for lookup times primarily&lt;/li>
+&lt;li>Optimized for insertion/removal times secondarily&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>std.ArrayHashMap&lt;/code>, useful in &lt;em>some&lt;/em> situations:&lt;/p>
+&lt;ul>
+&lt;li>Iterating over the hashmap is an order of magnitude faster (a contiguous array)&lt;/li>
+&lt;li>Insertion order is preserved.&lt;/li>
+&lt;li>You can index into the underlying data like an array if you like&lt;/li>
+&lt;li>Deletions can be performed one of two ways, mirroring the &lt;code>ArrayList&lt;/code> API:
+&lt;ul>
+&lt;li>&lt;code>swapRemove&lt;/code>: swaps the target element with the last element in the list to remove it&lt;/li>
+&lt;li>&lt;code>orderedRemove&lt;/code>: removes target element by shifting all elements forward, maintaining current ordering&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="hashmap-context">Hashmap context&lt;/h3>
+&lt;p>If you choose to use &lt;code>std.HashMap&lt;/code> or &lt;code>std.ArrayHashMap&lt;/code> directly (without the &lt;code>String&lt;/code> or &lt;code>Auto&lt;/code> prefix), then you&amp;rsquo;ll find it wants a &lt;em>context&lt;/em> parameter and &lt;em>max load percentage&lt;/em>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">HashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AutoContext&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">),&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">default_max_load_percentage&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;em>context&lt;/em> parameter lets you embed some of your own data within the hash map type. This can be useful for &lt;a href="https://zig.news/andrewrk/how-to-use-hash-map-contexts-to-save-memory-when-doing-a-string-table-3l33">reducing the amount of memory that a hash map takes up when doing a string table&lt;/a>.&lt;/p>
+&lt;h3 id="pick-your-hashmap">Pick your hashmap&lt;/h3>
+&lt;p>Regular implementation:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Key type&lt;/th>
+&lt;th>Managed?&lt;/th>
+&lt;th>How to initialize&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.StringHashMap(V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.AutoHashMap(K, V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.StringHashMapUnmanaged(V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.AutoHashMapUnmanaged(K, V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>&lt;code>ArrayHashMap&lt;/code> implementation:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Key type&lt;/th>
+&lt;th>Managed?&lt;/th>
+&lt;th>How to initialize&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.StringArrayHashMap(V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.AutoArrayHashMap(K, V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.StringArrayHashMapUnmanaged(V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.AutoArrayHashMapUnmanaged(K, V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="learn-more">Learn more&lt;/h3>
+&lt;p>The source code is very readable:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig">&lt;code>std.HashMap&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig">&lt;code>std.ArrayHashMap&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="help-improve-this-page">Help improve this page&lt;/h3>
+&lt;p>I wrote this article quickly because I needed to explain my choice of hashmaps in the &lt;a href="https://devlog.hexops.com/categories/build-an-ecs/">&amp;ldquo;Let&amp;rsquo;s build an Entity Component System from scratch&amp;rdquo;&lt;/a> series and there was no better source of this info. I&amp;rsquo;m sure there are things that can be improved.&lt;/p>
+&lt;p>&lt;a href="https://github.com/hexops/devlog/blob/main/_posts/2022-01-29-zig-hashmaps-explained.md">Feel free to send a PR!&lt;/a>&lt;/p></description></item></channel></rss>

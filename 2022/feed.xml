@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>2022s on Hexops' devlog</title><link>https://devlog.hexops.com/2022/</link><description>Recent content in 2022s on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 26 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/2022/feed.xml" rel="self" type="application/rss+xml"/><item><title>Mach v0.1 - cross-platform Zig graphics in ~60 seconds</title><link>https://devlog.hexops.com/2022/mach-v0.1-zig-graphics-in-60s/</link><pubDate>Sat, 26 Mar 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/mach-v0.1-zig-graphics-in-60s/</guid><description>&lt;p>Five months ago we announced some of our vision for Mach &amp;amp; &lt;a href="https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig">the future of graphics with Zig&lt;/a>. Today we&amp;rsquo;ve reached Mach v0.1 with over 1,100 commits.&lt;/p>
+&lt;h2 id="cross-platform-graphics-in-60-seconds">Cross-platform graphics in 60 seconds&lt;/h2>
+&lt;p>If you have &lt;a href="https://ziglang.org/">Zig v0.10&lt;/a> you can get started with cross-platform graphics in under 60 seconds, try it for yourself:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">git clone https://github.com/hexops/mach
+&lt;span class="nb">cd&lt;/span> mach/gpu
+zig build run-example
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>(not working? see &lt;a href="https://github.com/hexops/mach/blob/main/doc/known-issues.md#known-issues">known issues&lt;/a>)&lt;/p>
+&lt;img class="color img-center" src="https://user-images.githubusercontent.com/3173176/159139851-013fc1ad-98d2-4fed-ae58-1d5eaa658a15.png">
+&lt;h2 id="all-you-need-is-zig-git-and-curl">All you need is zig, git, and curl.&lt;/h2>
+&lt;p>One key point we&amp;rsquo;re solving with Mach is the developer experience. We&amp;rsquo;re tired of people wasting hours and sometimes days getting the right versions of dependencies on their system in order to build projects!&lt;/p>
+&lt;img class="color img-center" src="https://user-images.githubusercontent.com/3173176/159140683-0714eb12-806a-43e5-980f-63aa0d998fc2.png">
+&lt;p>Our &lt;a href="https://github.com/hexops/mach-glfw">glfw bindings&lt;/a> build GLFW 100% from source using Zig. We even go so far as to build the DirectX Shader Compiler from source via Zig&amp;rsquo;s build system.&lt;/p>
+&lt;p>For the few inescapable system dependencies, such as &lt;code>Metal.framework&lt;/code> or &lt;code>libx11&lt;/code>, we &lt;a href="https://github.com/hexops/mach-system-sdk">package them up ourselves&lt;/a> and our build system knows how to fetch them as needed.&lt;/p>
+&lt;h2 id="effortless-cross-compilation">Effortless cross-compilation&lt;/h2>
+&lt;p>Because of our aggressive approach to solving dependencies, you get effortless cross-compilation to any OS literally at the flip of a switch:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">$ zig build -Dtarget&lt;span class="o">=&lt;/span>x86_64-windows
+$ zig build -Dtarget&lt;span class="o">=&lt;/span>x86_64-linux
+$ zig build -Dtarget&lt;span class="o">=&lt;/span>x86_64-macos.12
+$ zig build -Dtarget&lt;span class="o">=&lt;/span>aarch64-macos.12
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The binaries you end up with are virtually static.&lt;/p>
+&lt;p>For Linux, Zig lets you target any glibc version, and musl too, so no more worrying if that binary will run on other machines.&lt;/p>
+&lt;h3 id="unified-graphics-api-metal-vulkan-directx-12">Unified graphics API (Metal, Vulkan, DirectX 12)&lt;/h3>
+&lt;p>Backed by Metal, Vulkan, DirectX 12 &amp;amp; OpenGL (as a fallback), you get a truly cross-platform graphics API for Windows, Linux, and macOS (Browser and Mobile coming in the future)&lt;/p>
+&lt;img class="color img-of-code" src="https://user-images.githubusercontent.com/3173176/160258676-3031e453-c43b-4a9a-b1f7-bfa31c1e002f.png">
+&lt;h3 id="unified-shader-language--compute-shaders">Unified shader language &amp;amp; compute shaders&lt;/h3>
+&lt;p>There&amp;rsquo;s no need to write shaders for each graphics backend, instead you write shaders in a single modern language (WGSL):&lt;/p>
+&lt;img class="color img-of-code" src="https://user-images.githubusercontent.com/3173176/160258785-ffeffec7-c7ce-4e1f-a133-1ff849c91f80.png">
+&lt;p>With compute shaders, you have the ability to leverage computation on the GPU outside of graphical applications (machine learning, physics calculations, etc.) using a straightforward &amp;amp; approachable API that works with every GPU vendor.&lt;/p>
+&lt;h3 id="behind-the-scenes">Behind the scenes&lt;/h3>
+&lt;img class="color" style="max-height: 175px; display: block; margin: auto;" src="https://user-images.githubusercontent.com/3173176/160266635-e35438bc-da23-4b2b-8be0-05ae4cce01c0.png">
+&lt;p>Mach &lt;a href="https://gpuweb.github.io/gpuweb/explainer/">leverages WebGPU&lt;/a>, a successor to WebGL. WebGPU is an up and coming graphics API being built by Mozilla, Google, Apple, Microsoft, Intel and others.&lt;/p>
+&lt;p>Natively, Mach uses Zig as a C/C++ compiler to build &lt;a href="https://github.com/hexops/mach-gpu-dawn">Google Chrome&amp;rsquo;s native WebGPU implementation&lt;/a> and we use Zig&amp;rsquo;s build system so you don&amp;rsquo;t even have to deal with cmake/ninja/gn/etc.&lt;/p>
+&lt;p>Our infrastructure produces binary releases so you don&amp;rsquo;t even have to wait the handful of minutes it would take to compile by default. From-source builds are literally at your fingertips, though, just add &lt;code>-Ddawn-from-source=true&lt;/code> to your &lt;code>zig build&lt;/code> command.&lt;/p>
+&lt;h2 id="machgpu-the-gpu-interface-for-zig">&lt;code>mach/gpu&lt;/code>: the GPU interface for Zig&lt;/h2>
+&lt;p>&lt;a href="https://github.com/hexops/mach/tree/main/gpu">mach/gpu&lt;/a> is our Zig interface to WebGPU and comes in at just over 250 commits.&lt;/p>
+&lt;img class="img-center color-inverted" style="max-height: 125px;" src="https://user-images.githubusercontent.com/3173176/160261203-505aa417-e990-45bb-8a3d-17e224f1506c.png">
+&lt;p>It provides a &lt;code>gpu.Interface&lt;/code>, similar to how Zig provides a &lt;code>std.mem.Allocator&lt;/code> interface, it&amp;rsquo;s backed by any implementation:&lt;/p>
+&lt;ul>
+&lt;li>A &lt;code>NativeInstance&lt;/code> like Dawn (Google Chrome&amp;rsquo;s WebGPU implementation.)&lt;/li>
+&lt;li>(future) A browser implementation when targeting WebAssembly.&lt;/li>
+&lt;/ul>
+&lt;p>Imagine future implementations: maybe a pure-Zig implementation? Maybe a debugger implementation that &lt;em>wraps an existing one&lt;/em> and streams all API calls to disk so you can replay them later and step through graphics API calls. Lots of possibilities here!&lt;/p>
+&lt;p>It&amp;rsquo;s a comprehensive interface, covering the 176 methods, 73 data structures, and 43 enum types that WebGPU exposes today - but there&amp;rsquo;s still much to do around documentation, fixing bugs, and ensuring we match the browser API nicely. but the foundation is all there!&lt;/p>
+&lt;h2 id="zig--greatness">Zig ≈ greatness&lt;/h2>
+&lt;p>Zig provides &lt;a href="https://ziglang.org/learn/overview/#performance-and-safety-choose-two">some excellent runtime safety&lt;/a> and catches many of the mistakes people make in C/C++ (memory leaks, integer overflow, index out of bounds, etc.)&lt;/p>
+&lt;p>In fact, we&amp;rsquo;ve caught several instances of undefined behavior in GLFW, and even &lt;a href="https://github.com/microsoft/DirectXShaderCompiler/pull/4178#discussion_r780733405">illegal integer coercion in the DirectX Shader Compiler&lt;/a> - all just by compiling C/C++ code using Zig.&lt;/p>
+&lt;p>&lt;a href="https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior">&lt;img class="color img-center" style="max-height: 125px;" src="https://user-images.githubusercontent.com/3173176/160260551-41af24c6-9b35-44e9-a759-5966f47b5390.png">&lt;/a>&lt;/p>
+&lt;p>The reason we&amp;rsquo;re &lt;em>really&lt;/em> ecstatic about Zig, though, are what it promises us in the future:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://twitter.com/andy_kelley/status/1483677253682675713">Blazing fast compilation&lt;/a>, compiling and running a program faster than Python can interpret it - impressive!&lt;/li>
+&lt;li>&lt;a href="http://www.jakubkonka.com/2022/03/16/hcs-zig.html">Hot code swapping&lt;/a>, how cool would it be to edit variables etc. as your game is running?&lt;/li>
+&lt;/ul>
+&lt;h2 id="entity-component-system">Entity Component System&lt;/h2>
+&lt;p>We&amp;rsquo;re building an Entity Component System &lt;a href="https://devlog.hexops.com/categories/build-an-ecs/">in a blog series&lt;/a> and inspired by:&lt;/p>
+&lt;ul>
+&lt;li>Data Oriented Design&lt;/li>
+&lt;li>Database design&lt;/li>
+&lt;li>Advice from the authors of &lt;a href="https://bevyengine.org">Bevy&lt;/a> (a very popular ECS)&lt;/li>
+&lt;/ul>
+&lt;p>It&amp;rsquo;s still early stages, we&amp;rsquo;ve got some ways to go! But we&amp;rsquo;re &lt;a href="https://github.com/hexops/mach/tree/main/ecs">on our third major revision&lt;/a> and beginning to face the interesting problems. Keep an eye out for updates on that blog series coming soon.&lt;/p>
+&lt;h2 id="sounds-great-whats-the-catch">Sounds great! What&amp;rsquo;s the catch?&lt;/h2>
+&lt;p>Mach (and Zig) are still very early stages! APIs are going to change and break. Mach is missing &lt;em>a lot!&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>Documentation..&lt;/li>
+&lt;li>Examples..&lt;/li>
+&lt;li>Demos..&lt;/li>
+&lt;li>Browser and Mobile support..&lt;/li>
+&lt;li>..Literally everything else that makes a game engine&lt;/li>
+&lt;/ul>
+&lt;p>If you&amp;rsquo;re looking for cross-platform graphics in Zig, Mach is for you! Otherwise, you&amp;rsquo;ll probably need to wait a bit.&lt;/p>
+&lt;h2 id="getting-started">Getting started&lt;/h2>
+&lt;p>Check out &lt;a href="https://github.com/hexops/mach">the GitHub&lt;/a> and in particular &lt;a href="https://github.com/hexops/mach/tree/main/gpu/examples">this example code&lt;/a>.&lt;/p>
+&lt;p>There&amp;rsquo;s a ton of material out there about WebGPU already, check out &lt;a href="https://surma.dev/things/webgpu/">this excellent and comprehensive introductory article&lt;/a> and &lt;a href="https://github.com/austinEng/webgpu-samples">these awesome samples&lt;/a>. It should be easy to map any of these to the Mach &lt;code>gpu.Interface&lt;/code> since it&amp;rsquo;s the same API, just Ziggified!&lt;/p>
+&lt;p>Join our &lt;a href="https://matrix.to/#/#hexops:matrix.org">Matrix chat room&lt;/a> to get help, discuss, etc.&lt;/p>
+&lt;h2 id="a-personal-note">A personal note&lt;/h2>
+&lt;p>&lt;img class="color" style="float: left; margin-right: 2rem;" src="https://user-images.githubusercontent.com/3173176/160262520-6768c665-7127-4242-b77a-fd2340ed88cf.png"> No, it&amp;rsquo;s not Tom from myspace - it&amp;rsquo;s me, &lt;a href="https://twitter.com/slimsag">@slimsag&lt;/a>! It&amp;rsquo;s cool that we reached this milestone, but let&amp;rsquo;s be honest: it&amp;rsquo;s still just a dumb red triangle!&lt;/p>
+&lt;p>It&amp;rsquo;s taken &lt;em>9 brutal months to get here&lt;/em> - staring at broken CI pipelines, C++ compiler errors, &lt;a href="https://twitter.com/slimsag/status/1507506138144681986">buying hardware&lt;/a> to test every OS+arch possible - and slugging through the depths of hell &lt;a href="https://twitter.com/slimsag/status/1471986125296205825">where only a footnote from Raymond Chen himself will save you.&lt;/a> All to get to a point where it all &lt;em>just works the way you and I expect it to.&lt;/em>&lt;/p>
+&lt;p>Given the chance, I&amp;rsquo;d scream from a rooftop &amp;ldquo;f***ing finally! Now we build the cool part!&amp;rdquo; because I am so &lt;em>ecstatic&lt;/em> to have gotten to this point!&lt;/p>
+&lt;p>There are few things in life that I am &lt;em>more serious about&lt;/em> than this. I dedicate ~48 hours/week to my dayjob, and ~50h/week to Zig building Mach and running &lt;a href="https://zigmonthly.org">zigmonthly.org&lt;/a>. After three years of aggressively pushing for progress in this exact way, I have &lt;a href="https://devlog.hexops.com/2021/I-write-code-100-hours-a-week">no plans to slow down anytime soon&lt;/a>.&lt;/p>
+&lt;p>This is &lt;em>literally&lt;/em> just the beginning. Buckle up!&lt;/p>
+&lt;h2 id="whats-next">What&amp;rsquo;s next?&lt;/h2>
+&lt;img class="color img-center" style="max-height: 250px;" src="https://user-images.githubusercontent.com/3173176/160262449-79adcd0a-dde7-46fe-8730-316419f25516.png">
+&lt;p>My lightning talk in which I&amp;rsquo;ll be making the case for Mach engine and conveying the vision for where we go from here will be presented at the first-ever European &lt;a href="https://zig.news/kristoff/zig-milan-party-2022-final-info-schedule-1jc1">Zig meetup in Milan, Italy on Apr 9-10&lt;/a>.&lt;/p>
+&lt;p>If like me you are unable to attend in person, the short video will be available afterwards on the &lt;a href="https://twitter.com/machengine">@machengine&lt;/a> Twitter!&lt;/p>
+&lt;h2 id="help-us-reach-mach-v10">Help us reach Mach v1.0&lt;/h2>
+&lt;p>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring me on GitHub&lt;/a> if you like my work, so I can do more of it!&lt;/p>
+&lt;p>Join our &lt;a href="https://matrix.to/#/#hexops:matrix.org">Matrix chat room&lt;/a> to discuss ideas - collaboration very welcome!&lt;/p>
+&lt;p>Thanks for coming along in our journey!&lt;/p></description></item><item><title>Zig hashmaps explained</title><link>https://devlog.hexops.com/2022/zig-hashmaps-explained/</link><pubDate>Sat, 29 Jan 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/zig-hashmaps-explained/</guid><description>&lt;p>If you just got started with &lt;a href="https://ziglang.org">Zig&lt;/a>, you might quickly want to use a hashmap. Zig provides good defaults, with a lot of customization options.&lt;/p>
+&lt;p>Here I will try to guide you into choosing the right hashmap type.&lt;/p>
+&lt;h2 id="60-second-explainer">60-second explainer&lt;/h2>
+&lt;p>You probably want:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">StringHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Or if you do not have string keys, you can use an &lt;code>Auto&lt;/code> hashmap instead:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Where &lt;code>K&lt;/code> and &lt;code>V&lt;/code> are your key and value data types, respectively. e.g. &lt;code>[]const u8&lt;/code> for a string.&lt;/p>
+&lt;p>You can then use these APIs:&lt;/p>
+&lt;h3 id="insert-a-value">Insert a value&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">put&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="insert-a-value-assert-entry-does-not-already-exist">Insert a value, assert entry does not already exist&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">putNoClobber&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Note &lt;code>putNoClobber&lt;/code> may be renamed to something like &lt;code>putAssumeNoEntry&lt;/code> in the near future: &lt;a href="https://github.com/ziglang/zig/issues/10736">ziglang/zig#10736&lt;/a>&lt;/p>
+&lt;h3 id="get-a-value">Get a value&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">if&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// got value &amp;#34;v&amp;#34;
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">else&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// doesn&amp;#39;t exist
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="get-a-value-insert-if-not-exist">Get a value, insert if not exist&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">getOrPut&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">if&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">found_existing&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// We inserted an entry, specify the new value
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// This is a conditional in case creating the new value is expensive
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">value_ptr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;my value&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">value_ptr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// use the value
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can find more APIs &lt;a href="https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig#L342">by going here&lt;/a> and using your browser&amp;rsquo;s builtin search for &lt;code>pub fn&lt;/code>.&lt;/p>
+&lt;h2 id="about-key-data-types">About key data types&lt;/h2>
+&lt;p>Zig hash map types start with the data type of the key:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>std.StringHashMap&lt;/code> - uses a good default hashing function for string keys&lt;/li>
+&lt;li>&lt;code>std.AutoHashMap&lt;/code> - uses a good default hashing function for most data types&lt;/li>
+&lt;li>&lt;code>std.HashMap&lt;/code> - the &amp;ldquo;bring your own hashing function&amp;rdquo; option&lt;/li>
+&lt;/ul>
+&lt;p>Note: &lt;code>AutoHashMap&lt;/code> does not support &lt;em>slices&lt;/em>, such as &lt;code>[]const u8&lt;/code> string slices, because that is a pointer to an array and it is ambiguous whether or not you intend to hash &lt;em>the array elements&lt;/em> or &lt;em>the pointer itself&lt;/em>. You can use the generic &lt;code>std.HashMap&lt;/code> for any slice type, you just have to provide your own hash functions.&lt;/p>
+&lt;h2 id="hashmaps-are-also-sets">Hashmaps are also sets&lt;/h2>
+&lt;p>A set in Zig is just a hashmap with a &lt;code>void&lt;/code> value:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">put&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{});&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// `{}` is a value of type `void`
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="advanced-usages">Advanced usages&lt;/h2>
+&lt;p>If you&amp;rsquo;re just getting started with Zig, don&amp;rsquo;t worry too much about the below. Just know that you have options available should you need to reduce memory usage or optimize your use of hashmaps in the future.&lt;/p>
+&lt;h3 id="managed-vs-unmanaged-hashmaps">Managed vs. unmanaged hashmaps&lt;/h3>
+&lt;p>You can add &lt;code>Unmanaged&lt;/code> to the end of a Zig hashmap data type, e.g. &lt;code>std.StringHashMapUnmanaged&lt;/code> in order to get the &lt;em>unmanaged&lt;/em> version.&lt;/p>
+&lt;p>This merely doesn&amp;rsquo;t carry an &lt;code>allocator&lt;/code> internally, instead you must pass the allocator into every method of the hashmap. While only a few bytes, this can be a useful optimization if you&amp;rsquo;re storing many hashmaps for example.&lt;/p>
+&lt;p>Managed:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">StringHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Unmanaged:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">StringHashMapUnmanaged&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">){};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="array-hash-maps">Array hash maps&lt;/h3>
+&lt;p>Zig actually provides &lt;a href="https://github.com/ziglang/zig/pull/5999">&lt;em>two hashmap implementations&lt;/em>&lt;/a> in the standard library&lt;/p>
+&lt;p>&lt;code>std.HashMap&lt;/code>, perfect for every-day use cases:&lt;/p>
+&lt;ul>
+&lt;li>Optimized for lookup times primarily&lt;/li>
+&lt;li>Optimized for insertion/removal times secondarily&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>std.ArrayHashMap&lt;/code>, useful in &lt;em>some&lt;/em> situations:&lt;/p>
+&lt;ul>
+&lt;li>Iterating over the hashmap is an order of magnitude faster (a contiguous array)&lt;/li>
+&lt;li>Insertion order is preserved.&lt;/li>
+&lt;li>You can index into the underlying data like an array if you like&lt;/li>
+&lt;li>Deletions can be performed one of two ways, mirroring the &lt;code>ArrayList&lt;/code> API:
+&lt;ul>
+&lt;li>&lt;code>swapRemove&lt;/code>: swaps the target element with the last element in the list to remove it&lt;/li>
+&lt;li>&lt;code>orderedRemove&lt;/code>: removes target element by shifting all elements forward, maintaining current ordering&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="hashmap-context">Hashmap context&lt;/h3>
+&lt;p>If you choose to use &lt;code>std.HashMap&lt;/code> or &lt;code>std.ArrayHashMap&lt;/code> directly (without the &lt;code>String&lt;/code> or &lt;code>Auto&lt;/code> prefix), then you&amp;rsquo;ll find it wants a &lt;em>context&lt;/em> parameter and &lt;em>max load percentage&lt;/em>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">HashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AutoContext&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">),&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">default_max_load_percentage&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;em>context&lt;/em> parameter lets you embed some of your own data within the hash map type. This can be useful for &lt;a href="https://zig.news/andrewrk/how-to-use-hash-map-contexts-to-save-memory-when-doing-a-string-table-3l33">reducing the amount of memory that a hash map takes up when doing a string table&lt;/a>.&lt;/p>
+&lt;h3 id="pick-your-hashmap">Pick your hashmap&lt;/h3>
+&lt;p>Regular implementation:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Key type&lt;/th>
+&lt;th>Managed?&lt;/th>
+&lt;th>How to initialize&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.StringHashMap(V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.AutoHashMap(K, V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.StringHashMapUnmanaged(V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.AutoHashMapUnmanaged(K, V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>&lt;code>ArrayHashMap&lt;/code> implementation:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Key type&lt;/th>
+&lt;th>Managed?&lt;/th>
+&lt;th>How to initialize&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.StringArrayHashMap(V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.AutoArrayHashMap(K, V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.StringArrayHashMapUnmanaged(V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.AutoArrayHashMapUnmanaged(K, V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="learn-more">Learn more&lt;/h3>
+&lt;p>The source code is very readable:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig">&lt;code>std.HashMap&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig">&lt;code>std.ArrayHashMap&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="help-improve-this-page">Help improve this page&lt;/h3>
+&lt;p>I wrote this article quickly because I needed to explain my choice of hashmaps in the &lt;a href="https://devlog.hexops.com/categories/build-an-ecs/">&amp;ldquo;Let&amp;rsquo;s build an Entity Component System from scratch&amp;rdquo;&lt;/a> series and there was no better source of this info. I&amp;rsquo;m sure there are things that can be improved.&lt;/p>
+&lt;p>&lt;a href="https://github.com/hexops/devlog/blob/main/_posts/2022-01-29-zig-hashmaps-explained.md">Feel free to send a PR!&lt;/a>&lt;/p></description></item><item><title>Let's build an Entity Component System from scratch (part 1)</title><link>https://devlog.hexops.com/2022/lets-build-ecs-part-1/</link><pubDate>Sun, 16 Jan 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/lets-build-ecs-part-1/</guid><description>&lt;p>In this multi-part series we&amp;rsquo;ll build the Entity Component System used in &lt;a href="https://hexops.com/mach">Mach engine&lt;/a> in &lt;a href="https://ziglang.org">the Zig programming language&lt;/a> from first principles (asking what an ECS is and walking through what problems it solves) all the way to writing an implementation in a low-level programming language. The only thing you need to follow along is some programming experience and a desire to learn.&lt;/p>
+&lt;p>In this article, we&amp;rsquo;ll mostly go over the problem space, data oriented design, the things we need our ECS to solve, etc. In the next article, implementation will begin.&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="#motivation">Motivation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#my-approach-to-complex-software-architecture">My approach to complex software architecture&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#what-really-is-an-entity-component-system-anyway">What really is an entity component system, anyway?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#what-problems-does-an-ecs-solve">What problems does an ECS solve?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#start-with-data-oriented-design">Start with data oriented design&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#what-would-data-oriented-design-look-like-code-starts-here">What would data oriented design look like? (code starts here!)&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#sparse-data-storage">Sparse data storage&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#comptime-sparse-data">Comptime sparse data&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#runtime-sparse-data">Runtime sparse data&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#avoiding-unity-software-patents--improving-performance-while-doing-it">Avoiding Unity software patents &amp;amp; improving performance while doing it&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#archetype-storage">Archetype storage&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#comptime-archetype-storage">Comptime archetype storage&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#runtime-archetype-storage">Runtime archetype storage&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#designing-our-ecs">Designing our ECS&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#next-up-starting-our-ecs-implementation">Next up: starting our ECS implementation&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="motivation">Motivation&lt;/h2>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png">&lt;/a>&lt;/p>
+&lt;p>I&amp;rsquo;ve used and written more traditional &lt;a href="https://en.wikipedia.org/wiki/Object-oriented_programming">OOP&lt;/a> &lt;a href="https://en.wikipedia.org/wiki/Scene_graph">scene graphs&lt;/a> in the past. These are often the core engine architecture used to represent everything in game worlds: they&amp;rsquo;re used in Unity historically (which is now migrating to ECS due to popular demand) and even &lt;a href="https://godotengine.org/article/why-isnt-godot-ecs-based-game-engine">in other modern engines such as Godot&lt;/a>.&lt;/p>
+&lt;p>For &lt;a href="https://hexops.com/mach">Mach engine&lt;/a>, however, we&amp;rsquo;re adopting an ECS as our core architecture. ECS has gained great momentum in recent years for its composition and performance benefits.&lt;/p>
+&lt;h2 id="my-approach-to-complex-software-architecture">My approach to complex software architecture&lt;/h2>
+&lt;ol>
+&lt;li>What user problems does the proposed architecture (scene graphs, ECS, React-like frameworks, etc.) solve?&lt;/li>
+&lt;li>How does the proposed architecture &lt;em>typically&lt;/em> solve such problems?&lt;/li>
+&lt;/ol>
+&lt;p>The key point here is that, personally, I find it useful to intentionally avoid looking directly at code for the implementations themselves.&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png">&lt;/a>&lt;/p>
+&lt;p>I&amp;rsquo;ve used this approach to &lt;a href="https://github.com/hexops/vecty">to great success before&lt;/a>: the nice thing about this is that the end result really &lt;em>fits the language&lt;/em>, using patterns and features specific to the language - it doesn&amp;rsquo;t just end up feeling like a port of some other language&amp;rsquo;s implementation.&lt;/p>
+&lt;p>I&amp;rsquo;ve researched a bit about ECS in general, and have chatted with people familiar with ECS, but haven&amp;rsquo;t read any other&amp;rsquo;s code. No doubt, initially, I&amp;rsquo;ll get some aspects wrong! As this series of articles progresses over the coming months, though, you&amp;rsquo;ll see how this can be a winning tactic as we learn together!&lt;/p>
+&lt;h2 id="what-really-is-an-entity-component-system-anyway">What really is an entity component system, anyway?&lt;/h2>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png">&lt;/a>&lt;/p>
+&lt;p>I&amp;rsquo;ve found the Rust project &lt;a href="https://bevyengine.org/learn/book/getting-started/ecs/#bevy-ecs">Bevy ECS to have a great succinct explanation&lt;/a>, which I further simplify here:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Entities&lt;/strong>: a unique integer&lt;/li>
+&lt;li>&lt;strong>Components&lt;/strong>: structs of plain old data&lt;/li>
+&lt;li>&lt;strong>Systems&lt;/strong>: normal functions&lt;/li>
+&lt;/ul>
+&lt;p>When you hear this, things may start to sounds a whole lot simpler! Those are the core concepts of an ECS.&lt;/p>
+&lt;p>There is one other concept of an ECS that I think is particularly important:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Archetype&lt;/strong>: A &lt;em>chosen set of components&lt;/em> that an entity of a certain type will have.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png">&lt;/a>&lt;/p>
+&lt;h2 id="what-problems-does-an-ecs-solve">What problems does an ECS solve?&lt;/h2>
+&lt;p>I&amp;rsquo;ve identified two problems it solves.&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png">&lt;/a>&lt;/p>
+&lt;p>First and foremost is &lt;em>making it easy for game developers to architect their code&lt;/em> compared to them doing it manually. If it&amp;rsquo;s easier for someone to structure their code themselves, manually, then such a system is not useful at all! Of course, as complexity and the scale of software increases then a &lt;em>consistent&lt;/em> system is &lt;em>far more useful&lt;/em> than a bunch of ad-hoc systems.&lt;/p>
+&lt;p>The second problem ECS solves, I believe, is making your software architecture &lt;em>efficient&lt;/em> without you really having to think too much about it. You don&amp;rsquo;t have to think about how to structure all your code &amp;amp; data for logic first, &lt;em>and then for performance&lt;/em>, but rather get good performance by nature of following patterns.&lt;/p>
+&lt;h2 id="start-with-data-oriented-design">Start with data oriented design&lt;/h2>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png">&lt;/a>&lt;/p>
+&lt;p>ECS overlaps with &lt;a href="https://dataorienteddesign.com/site.php">&lt;em>data oriented design&lt;/em>&lt;/a> in many ways (although it&amp;rsquo;s &lt;a href="https://github.com/hexops/mach/issues/127#issuecomment-1014176503">roots are &lt;em>much&lt;/em> earlier&lt;/a>). There are many talks about data oriented design including &lt;a href="https://www.youtube.com/watch?v=rX0ItVEVjHc">Mike Acton&amp;rsquo;s at CppCon&lt;/a>, and my personal favorite &lt;a href="https://media.handmade-seattle.com/practical-data-oriented-design/">&amp;ldquo;A Practical Guide to Applying Data-Oriented Design&amp;rdquo;&lt;/a> by Andrew Kelley. You don&amp;rsquo;t have to watch either, I&amp;rsquo;ll cover the important concepts we use here. But I highly suggest &lt;strong>every&lt;/strong> developer watch Andrew Kelley&amp;rsquo;s talk above. It&amp;rsquo;s eye opening no matter what kind of programming you are doing.&lt;/p>
+&lt;p>Let&amp;rsquo;s work forwards, not backwards: We&amp;rsquo;re not starting by building an ECS, we&amp;rsquo;re starting by building a proper data oriented design for CPU cache and memory efficiency, and then we&amp;rsquo;re working towards &amp;ldquo;how do we make that easier for people to do by default?&amp;rdquo; and looking to existing ECS architectures for inspiration.&lt;/p>
+&lt;h2 id="what-would-data-oriented-design-look-like-code-starts-here">What would data oriented design look like? (code starts here!)&lt;/h2>
+&lt;p>A simple first approach would be something like this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string / byte slice
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">location&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">velocity&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">health&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">team&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Team&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">alive&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Cat&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string / byte slice
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">location&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Monster&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">location&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">health&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="c1">// All the players, cats, monsters in our game world.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">cats&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Cat&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">monsters&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Monster&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="c1">// The index of a player in the players array, a cat in the cats array, etc.!
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Entity&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u32&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now we can refer to players, cats, or monsters by using an entity ID (their index in the array), which we call an &lt;em>entity&lt;/em>. We could also write functions (called systems) which iterate over these arrays and e.g. compute physics for players.&lt;/p>
+&lt;p>However, we can improve this quite a bit!&lt;/p>
+&lt;h2 id="sparse-data-storage">Sparse data storage&lt;/h2>
+&lt;h3 id="comptime-sparse-data">Comptime sparse data&lt;/h3>
+&lt;p>It&amp;rsquo;s likely that most players will be alive in our game, only a few will be dead at a time - but yet we&amp;rsquo;re paying the cost of storing which players are dead for &lt;em>every living player&lt;/em> (via the &lt;code>Player.alive&lt;/code> struct field)!&lt;/p>
+&lt;p>We can eliminate paying the cost of &lt;code>alive: bool&lt;/code> per player by removing the field entirely, and having what I call &lt;em>compile time sparse data&lt;/em> instead:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">alive_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">dead_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This not only reduces the amount of memory each &lt;code>Player&lt;/code> entity takes up because we no longer store an &lt;code>alive: bool&lt;/code> per player, but also it:&lt;/p>
+&lt;ol>
+&lt;li>Improves performance by ensuring more players fit into L1/L2/L3 cache.&lt;/li>
+&lt;li>Reduces the amount of players we must skip (and reduces potential cache misses) because in some cases we might only be interested in alive players and have to skip over dead ones when iterating.&lt;/li>
+&lt;/ol>
+&lt;p>This introduces some complexity for us to deal with, though:&lt;/p>
+&lt;ul>
+&lt;li>Now if a player goes from dead-&amp;gt;alive, or alive-&amp;gt;dead, we need logic to remove it from the old array and put it in the new one.&lt;/li>
+&lt;li>When we move a player from one array to another, the Entity ID we use to refer to that player (the array index) has changed! So if someone is storing a player Entity ID in order to have reference to it somewhere, we&amp;rsquo;d need to have logic to update that.&lt;/li>
+&lt;/ul>
+&lt;p>Now we start to see one thing our ECS needs to make simpler!&lt;/p>
+&lt;p>I call this type of data &lt;em>comptime sparse data&lt;/em>.&lt;/p>
+&lt;h3 id="runtime-sparse-data">Runtime sparse data&lt;/h3>
+&lt;p>In an ideal world, we&amp;rsquo;re able to pre-declare all sparse data at compile time like we did above:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">alive_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">dead_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>But sometimes, this just isn&amp;rsquo;t possible:&lt;/p>
+&lt;ul>
+&lt;li>Maybe players in your game can give other players a customer nickname to display above their head. Again, for most players this won&amp;rsquo;t be set - but for some players it will be! Ideally we don&amp;rsquo;t have to pay the cost of storing a nickname string pointer for every player in the game without one&lt;/li>
+&lt;li>Maybe a handful of players out of thousands are given the speciality of having a custom weapon, they get to choose it&amp;rsquo;s type, a custom name for it, and even the damage it should do! Where should we store that information?&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;p>In this case, we could use a hash map:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">PlayerNickname&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Weapon&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">custom_name&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">type&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">WeaponType&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">damage&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// all players
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players_with_nicknames&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Entity&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">PlayerNickname&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players_with_weapons&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Entity&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Weapon&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now we&amp;rsquo;ve got a mapping of player Entity IDs -&amp;gt; their nicknames and weapons. We only pay the cost of storing this information for players that do actually have these specialties - not for every player.&lt;/p>
+&lt;p>I call this type of data &lt;em>runtime sparse data&lt;/em>.&lt;/p>
+&lt;h3 id="avoiding-unity-software-patents--improving-performance-while-doing-it">Avoiding Unity software patents &amp;amp; improving performance while doing it&lt;/h3>
+&lt;p>Consider our player storage as it stands right now:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string / byte slice
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">location&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">velocity&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">health&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">team&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Team&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// all players
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In a perfect world, software patents wouldn&amp;rsquo;t exist. But, in our world, however, Unity makes 20 claims in their software patent covering ECS, including all code we&amp;rsquo;ve written above to this point. Luckily, &lt;a href="https://www.reddit.com/r/rust/comments/pjtpkj/unity_files_patent_for_ecs_in_game_engines_that/hbzaz61/">as the Bevy authors suggest here&lt;/a> entity component systems which store components in separate arrays are not affected by this (this is not legal advice)&lt;/p>
+&lt;p>Additionally, because of the way structs get laid out in memory with padding, our players array above would end up having a larger memory footprint than needed. So we actually benefit from using a separate array for every type of data (thanks, Unity!):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_names&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">([]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_locations&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_velocities&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_healths&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_teams&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Team&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Luckily, we don&amp;rsquo;t actually have to enumerate all our fields out like this: Zig has a nice &lt;code>MultiArrayList&lt;/code> type which does this for us, we need change only one line:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-diff" data-lang="diff">const Player = struct {
+name: []const u8, // a string / byte slice
+location: Vec3,
+velocity: Vec3,
+health: u8,
+team: Team,
+};
+&lt;span class="gd">-var players: ArrayList(Player) = .{}; // all players
+&lt;/span>&lt;span class="gd">&lt;/span>&lt;span class="gi">+var players: MultiArrayList(Player) = .{}; // all players
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Not only does this use less memory, it also improves CPU cache efficiency a ton, especially when iterating over a lot of players to do work with them. If you&amp;rsquo;re curious why, then you should watch Andrew Kelley&amp;rsquo;s &lt;a href="https://media.handmade-seattle.com/practical-data-oriented-design/">&amp;ldquo;A Practical Guide to Applying Data-Oriented Design&amp;rdquo;&lt;/a> talk!&lt;/p>
+&lt;h2 id="archetype-storage">Archetype storage&lt;/h2>
+&lt;h3 id="comptime-archetype-storage">Comptime archetype storage&lt;/h3>
+&lt;p>Up until now, we&amp;rsquo;ve assumed we have pre-defined archetypes (&amp;ldquo;player&amp;rdquo;, &amp;ldquo;cat&amp;rdquo;, &amp;ldquo;monster&amp;rdquo;):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="c1">// All the players, cats, monsters in our game world.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">cats&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Cat&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">monsters&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Monster&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This is ideal: we don&amp;rsquo;t need to ask the computer to do any work to find out where players, cats, or monsters are stored - we just &lt;em>know at compile time&lt;/em> because &lt;em>they&amp;rsquo;re in that variable&lt;/em>. When someone uses our ECS, we could have them write a compile time function like:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="n">World&lt;/span>&lt;span class="p">(.{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Cat&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Monster&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">})&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>And that&amp;rsquo;s great because it means our ECS &amp;ldquo;world&amp;rdquo; can be aware ahead of time exactly which archetypes it needs to store. It could write out those &lt;code>var players: ArrayList...&lt;/code> variables for us.&lt;/p>
+&lt;p>I call this &lt;em>comptime archetype storage&lt;/em>.&lt;/p>
+&lt;h3 id="runtime-archetype-storage">Runtime archetype storage&lt;/h3>
+&lt;p>However, real games are much more complex: we might not really know at the time we&amp;rsquo;re declaring the &lt;code>World&lt;/code> all the different archetypes we plan on storing. Code gets messy. In some cases, maybe we even need to define some archetypes &lt;em>of a common type&lt;/em> at runtime. For example, if we wanted to allow configuring &lt;code>red&lt;/code> and &lt;code>blue&lt;/code> here (or the number of teams) via a configuration file on disk or via a GUI:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">red_team_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">blue_team_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Of course our &lt;code>Player&lt;/code> could have a &lt;code>team&lt;/code> field in it to represent the team, but there may be cases where storing &lt;em>a separate list of entities&lt;/em> like this is needed without pre-declaring it. If we want to do that, we could use a hashmap:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">runtime_archetypes&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">([]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="n">anyopaque&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In this model, we could store the &lt;em>archtype string name&lt;/em> as the hashmap key (for example, the &lt;code>@typeName(Player)&lt;/code> if we wanted, or maybe a custom name like &lt;code>red&lt;/code>, &lt;code>blue&lt;/code>, etc.). The value of the hashmap would need to be different types: an &lt;code>ArrayList(Player)&lt;/code>, an &lt;code>ArrayList(Monster)&lt;/code>, etc. and so we would store a type-erased &lt;code>*anyopaque&lt;/code> (like a C &lt;code>void*&lt;/code>) pointer. When we get a value out, we&amp;rsquo;ll need to &amp;ldquo;know&amp;rdquo; what type of &lt;code>ArrayList&lt;/code> to cast the pointer back to. It won&amp;rsquo;t store that info for us.&lt;/p>
+&lt;p>I call this &lt;em>runtime archetype storage&lt;/em>.&lt;/p>
+&lt;h2 id="designing-our-ecs">Designing our ECS&lt;/h2>
+&lt;p>We now start to see &lt;em>some&lt;/em> of the things our ECS architecture should solve:&lt;/p>
+&lt;ul>
+&lt;li>Typed entity storage (how you interact with a list of players, monsters, etc.)&lt;/li>
+&lt;li>Sparse data: both comptime and runtime&lt;/li>
+&lt;li>Archetype storage: both comptime and runtime&lt;/li>
+&lt;/ul>
+&lt;p>Additionally, these are the design principles I&amp;rsquo;ve come up with:&lt;/p>
+&lt;ul>
+&lt;li>Clean-room implementation (I&amp;rsquo;ve not read any other ECS implementation code.)&lt;/li>
+&lt;li>Solve the problems ECS solves, in a way that is natural to Zig and leverages Zig comptime.&lt;/li>
+&lt;li>Avoid patent infringement upon Unity ECS patent claims.&lt;/li>
+&lt;li>Fast. Optimal for CPU caches, multi-threaded, leverage comptime as much as is reasonable.&lt;/li>
+&lt;li>Simple. Small API footprint, should be natural and fun - not like you&amp;rsquo;re writing boilerplate.&lt;/li>
+&lt;li>Enable other libraries to provide tracing, editors, visualizers, profilers, etc.&lt;/li>
+&lt;/ul>
+&lt;p>From this, you can easily gather that storing entities is actually only a small (but critical) portion of this system. In the next article we will get into the details of implementing this in code, and go on to explore more challenging topics like multi-threading, systems, and scheduling in future articles.&lt;/p>
+&lt;h2 id="next-up-starting-our-ecs-implementation">Next up: starting our ECS implementation&lt;/h2>
+&lt;p>As this series develops, all the code is being developed in the Mach repository&amp;rsquo;s &lt;code>ecs&lt;/code> subfolder &lt;a href="https://github.com/hexops/mach/tree/main/ecs">on GitHub&lt;/a>. The articles will lag slightly behind.&lt;/p>
+&lt;p>&lt;a href="https://devlog.hexops.com/categories/lets-build-an-ecs">As more articles come out, you can find them here&lt;/a>. Join us in developing it, give us advice, etc. &lt;a href="https://matrix.to/#/#ecs:matrix.org">on Matrix chat&lt;/a> or &lt;a href="https://twitter.com/machengine">follow updates on Twitter&lt;/a>.&lt;/p>
+&lt;p>If you like what I&amp;rsquo;m doing, you can &lt;a href="https://github.com/sponsors/slimsag">sponsor me on GitHub&lt;/a>.&lt;/p></description></item></channel></rss>

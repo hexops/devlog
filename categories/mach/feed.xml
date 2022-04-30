@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mach on Hexops' devlog</title><link>https://devlog.hexops.com/categories/mach/</link><description>Recent content in mach on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 26 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/mach/feed.xml" rel="self" type="application/rss+xml"/><item><title>Mach v0.1 - cross-platform Zig graphics in ~60 seconds</title><link>https://devlog.hexops.com/2022/mach-v0.1-zig-graphics-in-60s/</link><pubDate>Sat, 26 Mar 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/mach-v0.1-zig-graphics-in-60s/</guid><description>&lt;p>Five months ago we announced some of our vision for Mach &amp;amp; &lt;a href="https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig">the future of graphics with Zig&lt;/a>. Today we&amp;rsquo;ve reached Mach v0.1 with over 1,100 commits.&lt;/p>
+&lt;h2 id="cross-platform-graphics-in-60-seconds">Cross-platform graphics in 60 seconds&lt;/h2>
+&lt;p>If you have &lt;a href="https://ziglang.org/">Zig v0.10&lt;/a> you can get started with cross-platform graphics in under 60 seconds, try it for yourself:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">git clone https://github.com/hexops/mach
+&lt;span class="nb">cd&lt;/span> mach/gpu
+zig build run-example
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>(not working? see &lt;a href="https://github.com/hexops/mach/blob/main/doc/known-issues.md#known-issues">known issues&lt;/a>)&lt;/p>
+&lt;img class="color img-center" src="https://user-images.githubusercontent.com/3173176/159139851-013fc1ad-98d2-4fed-ae58-1d5eaa658a15.png">
+&lt;h2 id="all-you-need-is-zig-git-and-curl">All you need is zig, git, and curl.&lt;/h2>
+&lt;p>One key point we&amp;rsquo;re solving with Mach is the developer experience. We&amp;rsquo;re tired of people wasting hours and sometimes days getting the right versions of dependencies on their system in order to build projects!&lt;/p>
+&lt;img class="color img-center" src="https://user-images.githubusercontent.com/3173176/159140683-0714eb12-806a-43e5-980f-63aa0d998fc2.png">
+&lt;p>Our &lt;a href="https://github.com/hexops/mach-glfw">glfw bindings&lt;/a> build GLFW 100% from source using Zig. We even go so far as to build the DirectX Shader Compiler from source via Zig&amp;rsquo;s build system.&lt;/p>
+&lt;p>For the few inescapable system dependencies, such as &lt;code>Metal.framework&lt;/code> or &lt;code>libx11&lt;/code>, we &lt;a href="https://github.com/hexops/mach-system-sdk">package them up ourselves&lt;/a> and our build system knows how to fetch them as needed.&lt;/p>
+&lt;h2 id="effortless-cross-compilation">Effortless cross-compilation&lt;/h2>
+&lt;p>Because of our aggressive approach to solving dependencies, you get effortless cross-compilation to any OS literally at the flip of a switch:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">$ zig build -Dtarget&lt;span class="o">=&lt;/span>x86_64-windows
+$ zig build -Dtarget&lt;span class="o">=&lt;/span>x86_64-linux
+$ zig build -Dtarget&lt;span class="o">=&lt;/span>x86_64-macos.12
+$ zig build -Dtarget&lt;span class="o">=&lt;/span>aarch64-macos.12
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The binaries you end up with are virtually static.&lt;/p>
+&lt;p>For Linux, Zig lets you target any glibc version, and musl too, so no more worrying if that binary will run on other machines.&lt;/p>
+&lt;h3 id="unified-graphics-api-metal-vulkan-directx-12">Unified graphics API (Metal, Vulkan, DirectX 12)&lt;/h3>
+&lt;p>Backed by Metal, Vulkan, DirectX 12 &amp;amp; OpenGL (as a fallback), you get a truly cross-platform graphics API for Windows, Linux, and macOS (Browser and Mobile coming in the future)&lt;/p>
+&lt;img class="color img-of-code" src="https://user-images.githubusercontent.com/3173176/160258676-3031e453-c43b-4a9a-b1f7-bfa31c1e002f.png">
+&lt;h3 id="unified-shader-language--compute-shaders">Unified shader language &amp;amp; compute shaders&lt;/h3>
+&lt;p>There&amp;rsquo;s no need to write shaders for each graphics backend, instead you write shaders in a single modern language (WGSL):&lt;/p>
+&lt;img class="color img-of-code" src="https://user-images.githubusercontent.com/3173176/160258785-ffeffec7-c7ce-4e1f-a133-1ff849c91f80.png">
+&lt;p>With compute shaders, you have the ability to leverage computation on the GPU outside of graphical applications (machine learning, physics calculations, etc.) using a straightforward &amp;amp; approachable API that works with every GPU vendor.&lt;/p>
+&lt;h3 id="behind-the-scenes">Behind the scenes&lt;/h3>
+&lt;img class="color" style="max-height: 175px; display: block; margin: auto;" src="https://user-images.githubusercontent.com/3173176/160266635-e35438bc-da23-4b2b-8be0-05ae4cce01c0.png">
+&lt;p>Mach &lt;a href="https://gpuweb.github.io/gpuweb/explainer/">leverages WebGPU&lt;/a>, a successor to WebGL. WebGPU is an up and coming graphics API being built by Mozilla, Google, Apple, Microsoft, Intel and others.&lt;/p>
+&lt;p>Natively, Mach uses Zig as a C/C++ compiler to build &lt;a href="https://github.com/hexops/mach-gpu-dawn">Google Chrome&amp;rsquo;s native WebGPU implementation&lt;/a> and we use Zig&amp;rsquo;s build system so you don&amp;rsquo;t even have to deal with cmake/ninja/gn/etc.&lt;/p>
+&lt;p>Our infrastructure produces binary releases so you don&amp;rsquo;t even have to wait the handful of minutes it would take to compile by default. From-source builds are literally at your fingertips, though, just add &lt;code>-Ddawn-from-source=true&lt;/code> to your &lt;code>zig build&lt;/code> command.&lt;/p>
+&lt;h2 id="machgpu-the-gpu-interface-for-zig">&lt;code>mach/gpu&lt;/code>: the GPU interface for Zig&lt;/h2>
+&lt;p>&lt;a href="https://github.com/hexops/mach/tree/main/gpu">mach/gpu&lt;/a> is our Zig interface to WebGPU and comes in at just over 250 commits.&lt;/p>
+&lt;img class="img-center color-inverted" style="max-height: 125px;" src="https://user-images.githubusercontent.com/3173176/160261203-505aa417-e990-45bb-8a3d-17e224f1506c.png">
+&lt;p>It provides a &lt;code>gpu.Interface&lt;/code>, similar to how Zig provides a &lt;code>std.mem.Allocator&lt;/code> interface, it&amp;rsquo;s backed by any implementation:&lt;/p>
+&lt;ul>
+&lt;li>A &lt;code>NativeInstance&lt;/code> like Dawn (Google Chrome&amp;rsquo;s WebGPU implementation.)&lt;/li>
+&lt;li>(future) A browser implementation when targeting WebAssembly.&lt;/li>
+&lt;/ul>
+&lt;p>Imagine future implementations: maybe a pure-Zig implementation? Maybe a debugger implementation that &lt;em>wraps an existing one&lt;/em> and streams all API calls to disk so you can replay them later and step through graphics API calls. Lots of possibilities here!&lt;/p>
+&lt;p>It&amp;rsquo;s a comprehensive interface, covering the 176 methods, 73 data structures, and 43 enum types that WebGPU exposes today - but there&amp;rsquo;s still much to do around documentation, fixing bugs, and ensuring we match the browser API nicely. but the foundation is all there!&lt;/p>
+&lt;h2 id="zig--greatness">Zig ≈ greatness&lt;/h2>
+&lt;p>Zig provides &lt;a href="https://ziglang.org/learn/overview/#performance-and-safety-choose-two">some excellent runtime safety&lt;/a> and catches many of the mistakes people make in C/C++ (memory leaks, integer overflow, index out of bounds, etc.)&lt;/p>
+&lt;p>In fact, we&amp;rsquo;ve caught several instances of undefined behavior in GLFW, and even &lt;a href="https://github.com/microsoft/DirectXShaderCompiler/pull/4178#discussion_r780733405">illegal integer coercion in the DirectX Shader Compiler&lt;/a> - all just by compiling C/C++ code using Zig.&lt;/p>
+&lt;p>&lt;a href="https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior">&lt;img class="color img-center" style="max-height: 125px;" src="https://user-images.githubusercontent.com/3173176/160260551-41af24c6-9b35-44e9-a759-5966f47b5390.png">&lt;/a>&lt;/p>
+&lt;p>The reason we&amp;rsquo;re &lt;em>really&lt;/em> ecstatic about Zig, though, are what it promises us in the future:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://twitter.com/andy_kelley/status/1483677253682675713">Blazing fast compilation&lt;/a>, compiling and running a program faster than Python can interpret it - impressive!&lt;/li>
+&lt;li>&lt;a href="http://www.jakubkonka.com/2022/03/16/hcs-zig.html">Hot code swapping&lt;/a>, how cool would it be to edit variables etc. as your game is running?&lt;/li>
+&lt;/ul>
+&lt;h2 id="entity-component-system">Entity Component System&lt;/h2>
+&lt;p>We&amp;rsquo;re building an Entity Component System &lt;a href="https://devlog.hexops.com/categories/build-an-ecs/">in a blog series&lt;/a> and inspired by:&lt;/p>
+&lt;ul>
+&lt;li>Data Oriented Design&lt;/li>
+&lt;li>Database design&lt;/li>
+&lt;li>Advice from the authors of &lt;a href="https://bevyengine.org">Bevy&lt;/a> (a very popular ECS)&lt;/li>
+&lt;/ul>
+&lt;p>It&amp;rsquo;s still early stages, we&amp;rsquo;ve got some ways to go! But we&amp;rsquo;re &lt;a href="https://github.com/hexops/mach/tree/main/ecs">on our third major revision&lt;/a> and beginning to face the interesting problems. Keep an eye out for updates on that blog series coming soon.&lt;/p>
+&lt;h2 id="sounds-great-whats-the-catch">Sounds great! What&amp;rsquo;s the catch?&lt;/h2>
+&lt;p>Mach (and Zig) are still very early stages! APIs are going to change and break. Mach is missing &lt;em>a lot!&lt;/em>&lt;/p>
+&lt;ul>
+&lt;li>Documentation..&lt;/li>
+&lt;li>Examples..&lt;/li>
+&lt;li>Demos..&lt;/li>
+&lt;li>Browser and Mobile support..&lt;/li>
+&lt;li>..Literally everything else that makes a game engine&lt;/li>
+&lt;/ul>
+&lt;p>If you&amp;rsquo;re looking for cross-platform graphics in Zig, Mach is for you! Otherwise, you&amp;rsquo;ll probably need to wait a bit.&lt;/p>
+&lt;h2 id="getting-started">Getting started&lt;/h2>
+&lt;p>Check out &lt;a href="https://github.com/hexops/mach">the GitHub&lt;/a> and in particular &lt;a href="https://github.com/hexops/mach/tree/main/gpu/examples">this example code&lt;/a>.&lt;/p>
+&lt;p>There&amp;rsquo;s a ton of material out there about WebGPU already, check out &lt;a href="https://surma.dev/things/webgpu/">this excellent and comprehensive introductory article&lt;/a> and &lt;a href="https://github.com/austinEng/webgpu-samples">these awesome samples&lt;/a>. It should be easy to map any of these to the Mach &lt;code>gpu.Interface&lt;/code> since it&amp;rsquo;s the same API, just Ziggified!&lt;/p>
+&lt;p>Join our &lt;a href="https://matrix.to/#/#hexops:matrix.org">Matrix chat room&lt;/a> to get help, discuss, etc.&lt;/p>
+&lt;h2 id="a-personal-note">A personal note&lt;/h2>
+&lt;p>&lt;img class="color" style="float: left; margin-right: 2rem;" src="https://user-images.githubusercontent.com/3173176/160262520-6768c665-7127-4242-b77a-fd2340ed88cf.png"> No, it&amp;rsquo;s not Tom from myspace - it&amp;rsquo;s me, &lt;a href="https://twitter.com/slimsag">@slimsag&lt;/a>! It&amp;rsquo;s cool that we reached this milestone, but let&amp;rsquo;s be honest: it&amp;rsquo;s still just a dumb red triangle!&lt;/p>
+&lt;p>It&amp;rsquo;s taken &lt;em>9 brutal months to get here&lt;/em> - staring at broken CI pipelines, C++ compiler errors, &lt;a href="https://twitter.com/slimsag/status/1507506138144681986">buying hardware&lt;/a> to test every OS+arch possible - and slugging through the depths of hell &lt;a href="https://twitter.com/slimsag/status/1471986125296205825">where only a footnote from Raymond Chen himself will save you.&lt;/a> All to get to a point where it all &lt;em>just works the way you and I expect it to.&lt;/em>&lt;/p>
+&lt;p>Given the chance, I&amp;rsquo;d scream from a rooftop &amp;ldquo;f***ing finally! Now we build the cool part!&amp;rdquo; because I am so &lt;em>ecstatic&lt;/em> to have gotten to this point!&lt;/p>
+&lt;p>There are few things in life that I am &lt;em>more serious about&lt;/em> than this. I dedicate ~48 hours/week to my dayjob, and ~50h/week to Zig building Mach and running &lt;a href="https://zigmonthly.org">zigmonthly.org&lt;/a>. After three years of aggressively pushing for progress in this exact way, I have &lt;a href="https://devlog.hexops.com/2021/I-write-code-100-hours-a-week">no plans to slow down anytime soon&lt;/a>.&lt;/p>
+&lt;p>This is &lt;em>literally&lt;/em> just the beginning. Buckle up!&lt;/p>
+&lt;h2 id="whats-next">What&amp;rsquo;s next?&lt;/h2>
+&lt;img class="color img-center" style="max-height: 250px;" src="https://user-images.githubusercontent.com/3173176/160262449-79adcd0a-dde7-46fe-8730-316419f25516.png">
+&lt;p>My lightning talk in which I&amp;rsquo;ll be making the case for Mach engine and conveying the vision for where we go from here will be presented at the first-ever European &lt;a href="https://zig.news/kristoff/zig-milan-party-2022-final-info-schedule-1jc1">Zig meetup in Milan, Italy on Apr 9-10&lt;/a>.&lt;/p>
+&lt;p>If like me you are unable to attend in person, the short video will be available afterwards on the &lt;a href="https://twitter.com/machengine">@machengine&lt;/a> Twitter!&lt;/p>
+&lt;h2 id="help-us-reach-mach-v10">Help us reach Mach v1.0&lt;/h2>
+&lt;p>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring me on GitHub&lt;/a> if you like my work, so I can do more of it!&lt;/p>
+&lt;p>Join our &lt;a href="https://matrix.to/#/#hexops:matrix.org">Matrix chat room&lt;/a> to discuss ideas - collaboration very welcome!&lt;/p>
+&lt;p>Thanks for coming along in our journey!&lt;/p></description></item><item><title>Let's build an Entity Component System from scratch (part 1)</title><link>https://devlog.hexops.com/2022/lets-build-ecs-part-1/</link><pubDate>Sun, 16 Jan 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/lets-build-ecs-part-1/</guid><description>&lt;p>In this multi-part series we&amp;rsquo;ll build the Entity Component System used in &lt;a href="https://hexops.com/mach">Mach engine&lt;/a> in &lt;a href="https://ziglang.org">the Zig programming language&lt;/a> from first principles (asking what an ECS is and walking through what problems it solves) all the way to writing an implementation in a low-level programming language. The only thing you need to follow along is some programming experience and a desire to learn.&lt;/p>
+&lt;p>In this article, we&amp;rsquo;ll mostly go over the problem space, data oriented design, the things we need our ECS to solve, etc. In the next article, implementation will begin.&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="#motivation">Motivation&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#my-approach-to-complex-software-architecture">My approach to complex software architecture&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#what-really-is-an-entity-component-system-anyway">What really is an entity component system, anyway?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#what-problems-does-an-ecs-solve">What problems does an ECS solve?&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#start-with-data-oriented-design">Start with data oriented design&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#what-would-data-oriented-design-look-like-code-starts-here">What would data oriented design look like? (code starts here!)&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#sparse-data-storage">Sparse data storage&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#comptime-sparse-data">Comptime sparse data&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#runtime-sparse-data">Runtime sparse data&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#avoiding-unity-software-patents--improving-performance-while-doing-it">Avoiding Unity software patents &amp;amp; improving performance while doing it&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#archetype-storage">Archetype storage&lt;/a>
+&lt;ul>
+&lt;li>&lt;a href="#comptime-archetype-storage">Comptime archetype storage&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#runtime-archetype-storage">Runtime archetype storage&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="#designing-our-ecs">Designing our ECS&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#next-up-starting-our-ecs-implementation">Next up: starting our ECS implementation&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="motivation">Motivation&lt;/h2>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png">&lt;/a>&lt;/p>
+&lt;p>I&amp;rsquo;ve used and written more traditional &lt;a href="https://en.wikipedia.org/wiki/Object-oriented_programming">OOP&lt;/a> &lt;a href="https://en.wikipedia.org/wiki/Scene_graph">scene graphs&lt;/a> in the past. These are often the core engine architecture used to represent everything in game worlds: they&amp;rsquo;re used in Unity historically (which is now migrating to ECS due to popular demand) and even &lt;a href="https://godotengine.org/article/why-isnt-godot-ecs-based-game-engine">in other modern engines such as Godot&lt;/a>.&lt;/p>
+&lt;p>For &lt;a href="https://hexops.com/mach">Mach engine&lt;/a>, however, we&amp;rsquo;re adopting an ECS as our core architecture. ECS has gained great momentum in recent years for its composition and performance benefits.&lt;/p>
+&lt;h2 id="my-approach-to-complex-software-architecture">My approach to complex software architecture&lt;/h2>
+&lt;ol>
+&lt;li>What user problems does the proposed architecture (scene graphs, ECS, React-like frameworks, etc.) solve?&lt;/li>
+&lt;li>How does the proposed architecture &lt;em>typically&lt;/em> solve such problems?&lt;/li>
+&lt;/ol>
+&lt;p>The key point here is that, personally, I find it useful to intentionally avoid looking directly at code for the implementations themselves.&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png">&lt;/a>&lt;/p>
+&lt;p>I&amp;rsquo;ve used this approach to &lt;a href="https://github.com/hexops/vecty">to great success before&lt;/a>: the nice thing about this is that the end result really &lt;em>fits the language&lt;/em>, using patterns and features specific to the language - it doesn&amp;rsquo;t just end up feeling like a port of some other language&amp;rsquo;s implementation.&lt;/p>
+&lt;p>I&amp;rsquo;ve researched a bit about ECS in general, and have chatted with people familiar with ECS, but haven&amp;rsquo;t read any other&amp;rsquo;s code. No doubt, initially, I&amp;rsquo;ll get some aspects wrong! As this series of articles progresses over the coming months, though, you&amp;rsquo;ll see how this can be a winning tactic as we learn together!&lt;/p>
+&lt;h2 id="what-really-is-an-entity-component-system-anyway">What really is an entity component system, anyway?&lt;/h2>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png">&lt;/a>&lt;/p>
+&lt;p>I&amp;rsquo;ve found the Rust project &lt;a href="https://bevyengine.org/learn/book/getting-started/ecs/#bevy-ecs">Bevy ECS to have a great succinct explanation&lt;/a>, which I further simplify here:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Entities&lt;/strong>: a unique integer&lt;/li>
+&lt;li>&lt;strong>Components&lt;/strong>: structs of plain old data&lt;/li>
+&lt;li>&lt;strong>Systems&lt;/strong>: normal functions&lt;/li>
+&lt;/ul>
+&lt;p>When you hear this, things may start to sounds a whole lot simpler! Those are the core concepts of an ECS.&lt;/p>
+&lt;p>There is one other concept of an ECS that I think is particularly important:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Archetype&lt;/strong>: A &lt;em>chosen set of components&lt;/em> that an entity of a certain type will have.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png">&lt;/a>&lt;/p>
+&lt;h2 id="what-problems-does-an-ecs-solve">What problems does an ECS solve?&lt;/h2>
+&lt;p>I&amp;rsquo;ve identified two problems it solves.&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png">&lt;/a>&lt;/p>
+&lt;p>First and foremost is &lt;em>making it easy for game developers to architect their code&lt;/em> compared to them doing it manually. If it&amp;rsquo;s easier for someone to structure their code themselves, manually, then such a system is not useful at all! Of course, as complexity and the scale of software increases then a &lt;em>consistent&lt;/em> system is &lt;em>far more useful&lt;/em> than a bunch of ad-hoc systems.&lt;/p>
+&lt;p>The second problem ECS solves, I believe, is making your software architecture &lt;em>efficient&lt;/em> without you really having to think too much about it. You don&amp;rsquo;t have to think about how to structure all your code &amp;amp; data for logic first, &lt;em>and then for performance&lt;/em>, but rather get good performance by nature of following patterns.&lt;/p>
+&lt;h2 id="start-with-data-oriented-design">Start with data oriented design&lt;/h2>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png">&lt;/a>&lt;/p>
+&lt;p>ECS overlaps with &lt;a href="https://dataorienteddesign.com/site.php">&lt;em>data oriented design&lt;/em>&lt;/a> in many ways (although it&amp;rsquo;s &lt;a href="https://github.com/hexops/mach/issues/127#issuecomment-1014176503">roots are &lt;em>much&lt;/em> earlier&lt;/a>). There are many talks about data oriented design including &lt;a href="https://www.youtube.com/watch?v=rX0ItVEVjHc">Mike Acton&amp;rsquo;s at CppCon&lt;/a>, and my personal favorite &lt;a href="https://media.handmade-seattle.com/practical-data-oriented-design/">&amp;ldquo;A Practical Guide to Applying Data-Oriented Design&amp;rdquo;&lt;/a> by Andrew Kelley. You don&amp;rsquo;t have to watch either, I&amp;rsquo;ll cover the important concepts we use here. But I highly suggest &lt;strong>every&lt;/strong> developer watch Andrew Kelley&amp;rsquo;s talk above. It&amp;rsquo;s eye opening no matter what kind of programming you are doing.&lt;/p>
+&lt;p>Let&amp;rsquo;s work forwards, not backwards: We&amp;rsquo;re not starting by building an ECS, we&amp;rsquo;re starting by building a proper data oriented design for CPU cache and memory efficiency, and then we&amp;rsquo;re working towards &amp;ldquo;how do we make that easier for people to do by default?&amp;rdquo; and looking to existing ECS architectures for inspiration.&lt;/p>
+&lt;h2 id="what-would-data-oriented-design-look-like-code-starts-here">What would data oriented design look like? (code starts here!)&lt;/h2>
+&lt;p>A simple first approach would be something like this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string / byte slice
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">location&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">velocity&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">health&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">team&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Team&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">alive&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Cat&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string / byte slice
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">location&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Monster&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">location&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">health&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="c1">// All the players, cats, monsters in our game world.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">cats&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Cat&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">monsters&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Monster&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="c1">// The index of a player in the players array, a cat in the cats array, etc.!
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Entity&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u32&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now we can refer to players, cats, or monsters by using an entity ID (their index in the array), which we call an &lt;em>entity&lt;/em>. We could also write functions (called systems) which iterate over these arrays and e.g. compute physics for players.&lt;/p>
+&lt;p>However, we can improve this quite a bit!&lt;/p>
+&lt;h2 id="sparse-data-storage">Sparse data storage&lt;/h2>
+&lt;h3 id="comptime-sparse-data">Comptime sparse data&lt;/h3>
+&lt;p>It&amp;rsquo;s likely that most players will be alive in our game, only a few will be dead at a time - but yet we&amp;rsquo;re paying the cost of storing which players are dead for &lt;em>every living player&lt;/em> (via the &lt;code>Player.alive&lt;/code> struct field)!&lt;/p>
+&lt;p>We can eliminate paying the cost of &lt;code>alive: bool&lt;/code> per player by removing the field entirely, and having what I call &lt;em>compile time sparse data&lt;/em> instead:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">alive_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">dead_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This not only reduces the amount of memory each &lt;code>Player&lt;/code> entity takes up because we no longer store an &lt;code>alive: bool&lt;/code> per player, but also it:&lt;/p>
+&lt;ol>
+&lt;li>Improves performance by ensuring more players fit into L1/L2/L3 cache.&lt;/li>
+&lt;li>Reduces the amount of players we must skip (and reduces potential cache misses) because in some cases we might only be interested in alive players and have to skip over dead ones when iterating.&lt;/li>
+&lt;/ol>
+&lt;p>This introduces some complexity for us to deal with, though:&lt;/p>
+&lt;ul>
+&lt;li>Now if a player goes from dead-&amp;gt;alive, or alive-&amp;gt;dead, we need logic to remove it from the old array and put it in the new one.&lt;/li>
+&lt;li>When we move a player from one array to another, the Entity ID we use to refer to that player (the array index) has changed! So if someone is storing a player Entity ID in order to have reference to it somewhere, we&amp;rsquo;d need to have logic to update that.&lt;/li>
+&lt;/ul>
+&lt;p>Now we start to see one thing our ECS needs to make simpler!&lt;/p>
+&lt;p>I call this type of data &lt;em>comptime sparse data&lt;/em>.&lt;/p>
+&lt;h3 id="runtime-sparse-data">Runtime sparse data&lt;/h3>
+&lt;p>In an ideal world, we&amp;rsquo;re able to pre-declare all sparse data at compile time like we did above:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">alive_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">dead_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>But sometimes, this just isn&amp;rsquo;t possible:&lt;/p>
+&lt;ul>
+&lt;li>Maybe players in your game can give other players a customer nickname to display above their head. Again, for most players this won&amp;rsquo;t be set - but for some players it will be! Ideally we don&amp;rsquo;t have to pay the cost of storing a nickname string pointer for every player in the game without one&lt;/li>
+&lt;li>Maybe a handful of players out of thousands are given the speciality of having a custom weapon, they get to choose it&amp;rsquo;s type, a custom name for it, and even the damage it should do! Where should we store that information?&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;p>In this case, we could use a hash map:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">PlayerNickname&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Weapon&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">custom_name&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">type&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">WeaponType&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">damage&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// all players
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players_with_nicknames&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Entity&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">PlayerNickname&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players_with_weapons&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Entity&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Weapon&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now we&amp;rsquo;ve got a mapping of player Entity IDs -&amp;gt; their nicknames and weapons. We only pay the cost of storing this information for players that do actually have these specialties - not for every player.&lt;/p>
+&lt;p>I call this type of data &lt;em>runtime sparse data&lt;/em>.&lt;/p>
+&lt;h3 id="avoiding-unity-software-patents--improving-performance-while-doing-it">Avoiding Unity software patents &amp;amp; improving performance while doing it&lt;/h3>
+&lt;p>Consider our player storage as it stands right now:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string / byte slice
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">location&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">velocity&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">health&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">team&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Team&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// all players
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In a perfect world, software patents wouldn&amp;rsquo;t exist. But, in our world, however, Unity makes 20 claims in their software patent covering ECS, including all code we&amp;rsquo;ve written above to this point. Luckily, &lt;a href="https://www.reddit.com/r/rust/comments/pjtpkj/unity_files_patent_for_ecs_in_game_engines_that/hbzaz61/">as the Bevy authors suggest here&lt;/a> entity component systems which store components in separate arrays are not affected by this (this is not legal advice)&lt;/p>
+&lt;p>Additionally, because of the way structs get laid out in memory with padding, our players array above would end up having a larger memory footprint than needed. So we actually benefit from using a separate array for every type of data (thanks, Unity!):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_names&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">([]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_locations&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_velocities&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_healths&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_teams&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Team&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Luckily, we don&amp;rsquo;t actually have to enumerate all our fields out like this: Zig has a nice &lt;code>MultiArrayList&lt;/code> type which does this for us, we need change only one line:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-diff" data-lang="diff">const Player = struct {
+name: []const u8, // a string / byte slice
+location: Vec3,
+velocity: Vec3,
+health: u8,
+team: Team,
+};
+&lt;span class="gd">-var players: ArrayList(Player) = .{}; // all players
+&lt;/span>&lt;span class="gd">&lt;/span>&lt;span class="gi">+var players: MultiArrayList(Player) = .{}; // all players
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Not only does this use less memory, it also improves CPU cache efficiency a ton, especially when iterating over a lot of players to do work with them. If you&amp;rsquo;re curious why, then you should watch Andrew Kelley&amp;rsquo;s &lt;a href="https://media.handmade-seattle.com/practical-data-oriented-design/">&amp;ldquo;A Practical Guide to Applying Data-Oriented Design&amp;rdquo;&lt;/a> talk!&lt;/p>
+&lt;h2 id="archetype-storage">Archetype storage&lt;/h2>
+&lt;h3 id="comptime-archetype-storage">Comptime archetype storage&lt;/h3>
+&lt;p>Up until now, we&amp;rsquo;ve assumed we have pre-defined archetypes (&amp;ldquo;player&amp;rdquo;, &amp;ldquo;cat&amp;rdquo;, &amp;ldquo;monster&amp;rdquo;):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="c1">// All the players, cats, monsters in our game world.
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">cats&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Cat&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">monsters&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Monster&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This is ideal: we don&amp;rsquo;t need to ask the computer to do any work to find out where players, cats, or monsters are stored - we just &lt;em>know at compile time&lt;/em> because &lt;em>they&amp;rsquo;re in that variable&lt;/em>. When someone uses our ECS, we could have them write a compile time function like:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="n">World&lt;/span>&lt;span class="p">(.{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Cat&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Monster&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">})&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>And that&amp;rsquo;s great because it means our ECS &amp;ldquo;world&amp;rdquo; can be aware ahead of time exactly which archetypes it needs to store. It could write out those &lt;code>var players: ArrayList...&lt;/code> variables for us.&lt;/p>
+&lt;p>I call this &lt;em>comptime archetype storage&lt;/em>.&lt;/p>
+&lt;h3 id="runtime-archetype-storage">Runtime archetype storage&lt;/h3>
+&lt;p>However, real games are much more complex: we might not really know at the time we&amp;rsquo;re declaring the &lt;code>World&lt;/code> all the different archetypes we plan on storing. Code gets messy. In some cases, maybe we even need to define some archetypes &lt;em>of a common type&lt;/em> at runtime. For example, if we wanted to allow configuring &lt;code>red&lt;/code> and &lt;code>blue&lt;/code> here (or the number of teams) via a configuration file on disk or via a GUI:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">red_team_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">blue_team_players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Of course our &lt;code>Player&lt;/code> could have a &lt;code>team&lt;/code> field in it to represent the team, but there may be cases where storing &lt;em>a separate list of entities&lt;/em> like this is needed without pre-declaring it. If we want to do that, we could use a hashmap:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">runtime_archetypes&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">([]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="n">anyopaque&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In this model, we could store the &lt;em>archtype string name&lt;/em> as the hashmap key (for example, the &lt;code>@typeName(Player)&lt;/code> if we wanted, or maybe a custom name like &lt;code>red&lt;/code>, &lt;code>blue&lt;/code>, etc.). The value of the hashmap would need to be different types: an &lt;code>ArrayList(Player)&lt;/code>, an &lt;code>ArrayList(Monster)&lt;/code>, etc. and so we would store a type-erased &lt;code>*anyopaque&lt;/code> (like a C &lt;code>void*&lt;/code>) pointer. When we get a value out, we&amp;rsquo;ll need to &amp;ldquo;know&amp;rdquo; what type of &lt;code>ArrayList&lt;/code> to cast the pointer back to. It won&amp;rsquo;t store that info for us.&lt;/p>
+&lt;p>I call this &lt;em>runtime archetype storage&lt;/em>.&lt;/p>
+&lt;h2 id="designing-our-ecs">Designing our ECS&lt;/h2>
+&lt;p>We now start to see &lt;em>some&lt;/em> of the things our ECS architecture should solve:&lt;/p>
+&lt;ul>
+&lt;li>Typed entity storage (how you interact with a list of players, monsters, etc.)&lt;/li>
+&lt;li>Sparse data: both comptime and runtime&lt;/li>
+&lt;li>Archetype storage: both comptime and runtime&lt;/li>
+&lt;/ul>
+&lt;p>Additionally, these are the design principles I&amp;rsquo;ve come up with:&lt;/p>
+&lt;ul>
+&lt;li>Clean-room implementation (I&amp;rsquo;ve not read any other ECS implementation code.)&lt;/li>
+&lt;li>Solve the problems ECS solves, in a way that is natural to Zig and leverages Zig comptime.&lt;/li>
+&lt;li>Avoid patent infringement upon Unity ECS patent claims.&lt;/li>
+&lt;li>Fast. Optimal for CPU caches, multi-threaded, leverage comptime as much as is reasonable.&lt;/li>
+&lt;li>Simple. Small API footprint, should be natural and fun - not like you&amp;rsquo;re writing boilerplate.&lt;/li>
+&lt;li>Enable other libraries to provide tracing, editors, visualizers, profilers, etc.&lt;/li>
+&lt;/ul>
+&lt;p>From this, you can easily gather that storing entities is actually only a small (but critical) portion of this system. In the next article we will get into the details of implementing this in code, and go on to explore more challenging topics like multi-threading, systems, and scheduling in future articles.&lt;/p>
+&lt;h2 id="next-up-starting-our-ecs-implementation">Next up: starting our ECS implementation&lt;/h2>
+&lt;p>As this series develops, all the code is being developed in the Mach repository&amp;rsquo;s &lt;code>ecs&lt;/code> subfolder &lt;a href="https://github.com/hexops/mach/tree/main/ecs">on GitHub&lt;/a>. The articles will lag slightly behind.&lt;/p>
+&lt;p>&lt;a href="https://devlog.hexops.com/categories/lets-build-an-ecs">As more articles come out, you can find them here&lt;/a>. Join us in developing it, give us advice, etc. &lt;a href="https://matrix.to/#/#ecs:matrix.org">on Matrix chat&lt;/a> or &lt;a href="https://twitter.com/machengine">follow updates on Twitter&lt;/a>.&lt;/p>
+&lt;p>If you like what I&amp;rsquo;m doing, you can &lt;a href="https://github.com/sponsors/slimsag">sponsor me on GitHub&lt;/a>.&lt;/p></description></item><item><title>Perfecting GLFW for Zig, and finding lurking undefined behavior that went unnoticed for 6+ years</title><link>https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior/</link><pubDate>Sun, 31 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior/</guid><description>&lt;p>&lt;strong>Today, I am announcing &lt;a href="https://github.com/hexops/mach-glfw">mach-glfw&lt;/a>: Ziggified GLFW bindings with 100% API coverage, zero-fuss installation, cross compilation, and more.&lt;/strong>&lt;/p>
+&lt;h2 id="building-mach-for-everyone">Building Mach for everyone&lt;/h2>
+&lt;p>If &lt;a href="https://github.com/hexops/mach">Mach engine&lt;/a> only benefits people interested in using that engine, and not the broader Zig (and even gamedev) community I would consider that &lt;em>a total failure&lt;/em>.&lt;/p>
+&lt;p>Whether you&amp;rsquo;re interested in using all of Mach, just some of it with your own engine / project, or just the tools/ideas we develop in the future (with Unity, Unreal, etc.), &lt;em>I truly aim to produce something that benefits you&lt;/em>.&lt;/p>
+&lt;p>Mach is in super early stages, I&amp;rsquo;ve spent the last four months perfecting a Zig interface to GLFW, and making no-fuss installation and cross-compilation a reality. Today, you can benefit from that work too.&lt;/p>
+&lt;h2 id="building-glfw-for-every-platform">Building GLFW for every platform&lt;/h2>
+&lt;p>Just &lt;code>zig&lt;/code> and &lt;code>git&lt;/code>, that&amp;rsquo;s the idea. The GLFW C code is compiled with &lt;code>zig&lt;/code>, and the &lt;code>build.zig&lt;/code> file automatically uses &lt;code>git&lt;/code> to clone (a very minimal set of) system dependencies for you (X11 libraries, etc.)&lt;/p>
+&lt;p>No installing apt packages. No dealing with missing header errors. It should just work out-of-the-box, and for every platform:&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png">&lt;img alt="Mach engine platform support, including Windows, Linux, Mac and cross-compilation between them with Android/iOS coming soon." class="color" src="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png">&lt;/a>&lt;/p>
+&lt;p>Today, this works for GLFW itself. Cross-compilation of &lt;em>OpenGL and Vulkan apps&lt;/em> is not yet fully functional. &lt;a href="https://github.com/hexops/mach/issues/59">We&amp;rsquo;re working on it, though.&lt;/a>&lt;/p>
+&lt;h2 id="perfecting-glfw-for-zig">Perfecting GLFW for Zig&lt;/h2>
+&lt;p>Aside from platform support, mach-glfw now has:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>100% API coverage&lt;/strong> of GLFW v3.3.4. Every function, type, constant, etc. has been wrapped in a ziggified API.&lt;/li>
+&lt;li>&lt;strong>130+ tests&lt;/strong>, with CI testing Linux, Windows, Mac (x86 and M1/ARM) and cross-compilation between them.&lt;/li>
+&lt;/ul>
+&lt;p>You might be asking: &lt;em>why Zig bindings, when Zig can interface directly with C?&lt;/em> Ziggified bindings to GLFW get us:&lt;/p>
+&lt;ul>
+&lt;li>Errors as &lt;a href="https://ziglang.org/documentation/master/#Errors">zig errors&lt;/a> instead of via a callback function.&lt;/li>
+&lt;li>&lt;strong>Enums&lt;/strong>: always know what value a GLFW function can accept as everything is strictly typed. And use the nice Zig syntax to access enums, like &lt;code>window.getKey(.escape)&lt;/code> instead of &lt;code>c.glfwGetKey(window, c.GLFW_KEY_ESCAPE)&lt;/code>&lt;/li>
+&lt;li>Slices instead of C pointers and lengths.&lt;/li>
+&lt;li>&lt;a href="https://ziglang.org/documentation/master/#packed-struct">packed structs&lt;/a> represent bit masks, so you can use &lt;code>if (joystick.down and joystick.right)&lt;/code> instead of &lt;code>&amp;amp;&lt;/code> &lt;code>|&lt;/code> etc. bitwise operators.&lt;/li>
+&lt;li>&lt;code>true&lt;/code> and &lt;code>false&lt;/code> instead of &lt;code>c.GLFW_TRUE&lt;/code> and &lt;code>c.GLFW_FALSE&lt;/code>.&lt;/li>
+&lt;li>Generics: use &lt;code>window.hint&lt;/code> instead of &lt;code>glfwWindowHint&lt;/code>, &lt;code>glfwWindowHintString&lt;/code>, etc.&lt;/li>
+&lt;li>Methods, e.g. &lt;code>my_window.hint(...)&lt;/code> instead of &lt;code>glfwWindowHint(my_window, ...)&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h2 id="explicit-error-handling-solves-a-real-problem">Explicit error handling solves a real problem&lt;/h2>
+&lt;p>GLFW traditionally passes errors to the user via a callback. This can make errors easy to ignore, as well as difficult to correlate and handle effectively at the time of the function invocation.&lt;/p>
+&lt;p>We translated a &lt;a href="https://github.com/hexops/mach-glfw-vulkan-example">a Vulkan example to mach-glfw&lt;/a>, which you can try for yourself today:&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/139573985-d862f35a-e78e-40c2-bc0c-9c4fb68d6ecd.png">&lt;img alt="mach-glfw and vulkan-zig libraries working together to produce a triangle." class="color" src="https://user-images.githubusercontent.com/3173176/139573985-d862f35a-e78e-40c2-bc0c-9c4fb68d6ecd.png">&lt;/a>&lt;/p>
+&lt;p>After porting it, we found that the example was crashing with a &lt;code>NoWindowContext&lt;/code> error. Strange?&lt;/p>
+&lt;p>As it turns out, we had found &lt;a href="https://github.com/Snektron/vulkan-zig/pull/21">a small bug in the vulkan-zig example code&lt;/a>, it was calling &lt;code>glfwSwapBuffers&lt;/code> which is not needed for Vulkan. The error went unnoticed because it&amp;rsquo;s easy to miss errors with GLFW&amp;rsquo;s error callback handling style. But with mach-glfw, it was an explicit error you have to handle e.g. via &lt;code>try glfw.swapBuffers()&lt;/code> - we literally couldn&amp;rsquo;t miss it.&lt;/p>
+&lt;h2 id="finding-lurking-undefined-behavior-in-6-year-old-glfw-code">Finding lurking undefined behavior in 6+ year old GLFW code&lt;/h2>
+&lt;p>One &lt;em>particularly frustrating&lt;/em> issue was tracking down why the last part of the GLFW API we needed to wrap for 100% coverage, the &lt;code>glfwSetWindowIcon&lt;/code> function, was crashing:&lt;/p>
+&lt;pre>&lt;code>Test [76/135] Window.test &amp;quot;setIcon&amp;quot;... Illegal instruction at address 0x2cee09
+upstream/glfw/src/x11_window.c:0:0: 0x2cee09 in _glfwPlatformSetWindowIcon (/mach/glfw/upstream/glfw/src/x11_window.c)
+upstream/glfw/src/window.c:511:5: 0x2de484 in glfwSetWindowIcon (/mach/glfw/upstream/glfw/src/window.c)
+_glfwPlatformSetWindowIcon(window, count, images);
+^
+/mach/glfw/src/Window.zig:508:28: 0x23a083 in Window.test &amp;quot;setIcon&amp;quot; (test)
+c.glfwSetWindowIcon(self.handle, @intCast(c_int, im.len), &amp;amp;tmp[0]);
+^
+/usr/local/bin/lib/std/special/test_runner.zig:77:28: 0x25a0d1 in std.special.main (test)
+} else test_fn.func();
+^
+/usr/local/bin/lib/std/start.zig:517:22: 0x2896bc in std.start.callMain (test)
+root.main();
+^
+/usr/local/bin/lib/std/start.zig:469:12: 0x25c117 in std.start.callMainWithArgs (test)
+return @call(.{ .modifier = .always_inline }, callMain, .{});
+^
+/usr/local/bin/lib/std/start.zig:434:12: 0x25bec2 in std.start.main (test)
+return @call(.{ .modifier = .always_inline }, callMainWithArgs, .{ @intCast(usize, c_argc), c_argv, envp });
+^
+???:?:?: 0x7f4b7c3280b2 in ??? (???)
+&lt;/code>&lt;/pre>&lt;p>That&amp;rsquo;s odd? &lt;code>Illegal instruction at address 0x2cee09&lt;/code> - are we corrupting the stack somehow? Is this a Zig compiler bug?&lt;/p>
+&lt;p>Running in &lt;code>lldb&lt;/code> didn&amp;rsquo;t help with shining any light on the problem, either:&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/139576146-775371fd-8003-46ba-aa30-8b81a2f22ce0.png">&lt;img alt="lldb showing nothing particularly useful" class="color" src="https://user-images.githubusercontent.com/3173176/139576146-775371fd-8003-46ba-aa30-8b81a2f22ce0.png">&lt;/a>&lt;/p>
+&lt;p>After poking around at the stack, checking all pointers and lengths were valid, etc. I was at a loss. The mach-glfw code &lt;em>sure seemed valid&lt;/em>, and yet, this crash. I managed to track the crash down to the first iteration of a loop in GLFW&amp;rsquo;s &lt;code>x11_window.c&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="kt">void&lt;/span> &lt;span class="nf">_glfwSetWindowIconX11&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">_GLFWwindow&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">window&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">const&lt;/span> &lt;span class="n">GLFWimage&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">count&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="kt">int&lt;/span> &lt;span class="n">longCount&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">longCount&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">width&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">height&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="kt">long&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">icon&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">_glfw_calloc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">longCount&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">long&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;span class="kt">long&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">target&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">icon&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="o">*&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">++&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">width&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="o">*&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">++&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">height&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">j&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">j&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">width&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">height&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">j&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="c1">// illegal instruction on first iteration?
+&lt;/span>&lt;span class="c1">&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">++&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">16&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">24&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">...&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="reaching-my-limits">Reaching my limits&lt;/h2>
+&lt;p>At this point, I feel confident in saying:&lt;/p>
+&lt;ul>
+&lt;li>The Zig code is correct, the pointers are valid, the lengths are correct, everything&amp;rsquo;s right.&lt;/li>
+&lt;li>The GLFW code is pretty popular, and it&amp;rsquo;s been around for 6 years. Seems unlikely it&amp;rsquo;s a bug in GLFW?&lt;/li>
+&lt;/ul>
+&lt;p>Luckily, my brother (and reverse engineer) &lt;a href="https://github.com/Andoryuuta">@Andoryuuta&lt;/a> was available to help debug, so I pulled him in. Stepping through instructions, we could see clearly that after a bit shift we were stepping into the abyss:&lt;/p>
+&lt;pre>&lt;code>* thread #1, name = 'test', stop reason = instruction step over
+frame #0: 0x00000000002c6f84 test`_glfwPlatformSetWindowIcon(window=0x00000000004e53d0, count=1, images=0x00007fffec0b3000) at x11_window.c:2156:58
+2153 *target++ = (images[i].pixels[j * 4 + 0] &amp;lt;&amp;lt; 16) |
+2154 (images[i].pixels[j * 4 + 1] &amp;lt;&amp;lt; 8) |
+2155 (images[i].pixels[j * 4 + 2] &amp;lt;&amp;lt; 0) |
+-&amp;gt; 2156 (images[i].pixels[j * 4 + 3] &amp;lt;&amp;lt; 24);
+2157 printf(&amp;quot;DID WE GET HERE???x\n&amp;quot;);
+2158 }
+2159 }
+(lldb)
+Process 6516 stopped
+* thread #1, name = 'test', stop reason = instruction step over
+frame #0: 0x00000000002c6c21 test`_glfwPlatformSetWindowIcon(window=0x00000000004e53d0, count=1, images=0x00007fffec0b3000) at x11_window.c:0
+1 //========================================================================
+2 // GLFW 3.3 X11 - www.glfw.org
+3 //------------------------------------------------------------------------
+4 // Copyright (c) 2002-2006 Marcus Geelnard
+5 // Copyright (c) 2006-2019 Camilla Löwy &amp;lt;elmindreda@glfw.org&amp;gt;
+6 //
+7 // This software is provided 'as-is', without any express or implied
+(lldb)
+Process 6516 stopped
+&lt;/code>&lt;/pre>&lt;p>Inspecting the binary in IDA Pro we were able to see that we were jumping into an &lt;code>__asm { ud1 }&lt;/code> section (ud1 standing for &amp;ldquo;undefined instruction 1&amp;rdquo;):&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/139594073-b2159e4c-6764-44b1-882d-802724f424e8.png">&lt;img alt="IDA Pro showing a jump to an undefined instruction 1" class="color" src="https://user-images.githubusercontent.com/3173176/139594073-b2159e4c-6764-44b1-882d-802724f424e8.png">&lt;/a>&lt;/p>
+&lt;p>It turns out that clang&amp;rsquo;s UBSan inserts these instructions as traps for when the compiler thinks there is undefined behavior occurring, such as if a pointer addition leads to an overflow. This is super interesting, but unfortunately doesn&amp;rsquo;t always give a compiler error. We got lucky and found someone else who ran into this through Google:&lt;/p>
+&lt;blockquote>
+&lt;p>I &lt;em>believe&lt;/em> LLVM explicitly generates a ud2 x86 instruction because &amp;quot;it determined&amp;quot; there's undefined behavior in the C code. So first I wonder which flags you're passing it through zig (i.e. how strict are you being with the settings?)&lt;/p>— Abner (@AbnerCoimbre) &lt;a href="https://twitter.com/AbnerCoimbre/status/1339396987100168192">December 17, 2020&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>And indeed, compiling via &lt;code>zig build test -Drelease-fast&lt;/code> (which turns off UBsan) made the crash go away. So where&amp;rsquo;s the undefined behavior?&lt;/p>
+&lt;p>If we squint at the code and assume all pointers, counts, and indices are correct, you might be able to spot it:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="kt">void&lt;/span> &lt;span class="nf">_glfwSetWindowIconX11&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">_GLFWwindow&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">window&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">const&lt;/span> &lt;span class="n">GLFWimage&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="p">...&lt;/span>
+&lt;span class="kt">long&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">target&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">icon&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="p">...&lt;/span>
+&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">j&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">j&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">width&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">height&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">j&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="c1">// illegal instruction on first iteration?
+&lt;/span>&lt;span class="c1">&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">target&lt;/span>&lt;span class="o">++&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">16&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">images&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">pixels&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">j&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="mi">24&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">...&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>What is happening here is that:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>images[i].pixels[j * 4 + 0]&lt;/code> is returning an &lt;code>unsigned char&lt;/code> (8 bits)&lt;/li>
+&lt;li>&lt;del>It is then being shifted left by &lt;code>&amp;lt;&amp;lt; 16&lt;/code> bits. !!! That&amp;rsquo;s further than an 8-bit number can be shifted left by, so that&amp;rsquo;s UB&lt;/del>
+&lt;ul>
+&lt;li>EDIT: Actually, it turns out that&amp;rsquo;s not exactly right, it&amp;rsquo;s the &lt;code>&amp;lt;&amp;lt; 24&lt;/code> that&amp;rsquo;s the cause of the UB, thanks &lt;a href="https://github.com/Maato">@Maato&lt;/a> for &lt;a href="https://github.com/glfw/glfw/pull/1986#issuecomment-955784179">pointing this out and explaining in better detail than I could&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>Suddenly, it all makes sense. And &lt;a href="https://godbolt.org/z/ddq75WsYK">if we load an equal snippet of code into Godbolt&lt;/a> we can see what is happening when we compile without UBSan / the &lt;code>-fsanitize=undefined&lt;/code> flag:&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/139594650-eff35347-3f32-42e5-bc60-da2a1dceb1e1.png">&lt;img alt="Compilation with godbolt with UBSan turned off shows movement into 32-bit EAX register" class="color" src="https://user-images.githubusercontent.com/3173176/139594650-eff35347-3f32-42e5-bc60-da2a1dceb1e1.png">&lt;/a>&lt;/p>
+&lt;p>Without UBsan, clang merely uses the 32-bit EAX register as an optimization. It loads the 8-bit number into the 32-bit register, and then performs the left shift. Although the shift exceeds 8 bits, it &lt;em>does not get truncated to zero&lt;/em> - instead it is effectively as if the number was converted to a &lt;code>long&lt;/code> (32 bits) prior to the left-shift operation.&lt;/p>
+&lt;p>This explains why nobody has caught this UB in GLFW yet, too: it works by accident! Just because the compiler likes to use 32-bit registers in this context.&lt;/p>
+&lt;p>And this change benefits all the languages out there using GLFW: &lt;a href="https://github.com/glfw/glfw/pull/1986">glfw/glfw#1986&lt;/a>&lt;/p>
+&lt;h2 id="defaults-are-_critical_">Defaults are &lt;em>critical&lt;/em>&lt;/h2>
+&lt;p>This code, and undefined behavior, has been in GLFW for over 6 years according to &lt;code>git blame&lt;/code>.&lt;/p>
+&lt;p>Anybody using GLFW &lt;em>could have&lt;/em> enabled UBSan in their C compiler. Anybody &lt;em>could have&lt;/em> run into this same crash and debugged it in the last 6 years. But they didn&amp;rsquo;t.&lt;/p>
+&lt;p>In mach-glfw, we compile all of GLFW&amp;rsquo;s C code with Zig (which is also a fully functional C and C++ compiler), with UBSan enabled by default.&lt;/p>
+&lt;p>Only because Zig has good defaults, because it places so much emphasis on things being right &lt;em>out of the box&lt;/em>, and because there is such an emphasis on having safety checks for undefined behavior - were we able to catch this undefined behavior that went unnoticed in GLFW for the last 6 years.&lt;/p>
+&lt;h2 id="thanks-for-reading">Thanks for reading&lt;/h2>
+&lt;p>All key Mach engine developments will be posted here, with incremental updates on Twitter &lt;a href="https://twitter.com/machengine">@machengine&lt;/a>.&lt;/p>
+&lt;p>Follow &lt;a href="https://github.com/hexops/mach">Mach engine on GitHub&lt;/a>, and if you like what I&amp;rsquo;m doing please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a>.&lt;/p></description></item><item><title>Mach Engine: The future of graphics (with Zig)</title><link>https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig/</link><pubDate>Sun, 17 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig/</guid><description>&lt;p>In the coming months, we&amp;rsquo;ll begin to have truly cross-platform low-level graphics, with the ability to cross compile GPU-accelerated applications written in Zig from any OS and deploy to desktop, mobile, and (in the future) web.&lt;/p>
+&lt;h2 id="mach-engine">Mach engine&lt;/h2>
+&lt;img class="color-inverted" alt="Mach: Game engine &amp; graphics toolkit for the future" src="https://user-images.githubusercontent.com/3173176/137651926-3734c3b2-4875-47de-b42f-0ece854756f7.png">
+&lt;p>I&amp;rsquo;ve been working on &lt;a href="https://github.com/hexops/mach">Mach Engine&lt;/a> for about 4 months now, although it as a project is many years in the making, and I believe in the next 4-6 months we&amp;rsquo;ll have completion of the first key milestone: truly cross platform graphics and seamless cross compilation.&lt;/p>
+&lt;h2 id="vision">Vision&lt;/h2>
+&lt;p>Today, I share only the first milestone: Mach engine core. I&amp;rsquo;ve been working on this for around 1 year now, and we&amp;rsquo;re close (maybe 4-6 months away) from completion:&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137649720-072ff7fe-323d-49c6-ae88-51344e04e3e5.png">&lt;img class="color-inverted" alt="Zero fuss installation, out of the box cross compilation, and a truly cross-platform graphics API" src="https://user-images.githubusercontent.com/3173176/137649720-072ff7fe-323d-49c6-ae88-51344e04e3e5.png">&lt;/a>&lt;/p>
+&lt;h2 id="zero-fuss-installation--cross-compilation">Zero fuss installation &amp;amp; cross compilation&lt;/h2>
+&lt;p>Only &lt;code>zig&lt;/code> and &lt;code>git&lt;/code> are needed to build from any OS and produce binaries for every OS. You do &lt;strong>not&lt;/strong> need any system dependencies, C libraries, SDKs (Xcode, etc.), C compilers or anything else.&lt;/p>
+&lt;p>We&amp;rsquo;re able to achieve this thanks to two things:&lt;/p>
+&lt;ol>
+&lt;li>Zig has fantastic cross-compilation support, including its own custom linker &lt;code>zld&lt;/code> written by &lt;a href="http://www.jakubkonka.com/">Jakub Konka&lt;/a> which is capable of supporting MacOS cross compilation.&lt;/li>
+&lt;li>Mach doing the heavy lifting of packaging the required system SDK libraries and C sources for e.g. GLFW so our Zig build scripts can simply &lt;code>git clone&lt;/code> them for you as needed for the target OS you&amp;rsquo;re building for, completely automagically.&lt;/li>
+&lt;/ol>
+&lt;h2 id="truly-cross-platform-graphics-api">Truly cross-platform graphics API&lt;/h2>
+&lt;h3 id="directx-12-metal-vulkan--opengl">DirectX 12, Metal, Vulkan &amp;amp; OpenGL&lt;/h3>
+&lt;p>Imagine a low-level, little to no overhead graphics API that unifies DirectX, Metal, Vulkan, and OpenGL (if no others are available):&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137646296-72ba698e-c710-4daf-aa75-222f8d717d00.png">&lt;img class="color-inverted" alt="Simple, low-level unified graphics API mapping to DirectX 12, Metal, Vulkan, and OpenGL" src="https://user-images.githubusercontent.com/3173176/137646296-72ba698e-c710-4daf-aa75-222f8d717d00.png">&lt;/a>&lt;/p>
+&lt;p>&lt;em>This isn&amp;rsquo;t anything new:&lt;/em> all modern engines provide this, Godot has been working towards this for &lt;em>years&lt;/em> (and still is), and there exist abstraction layers for Vulkan over most of these APIs as well.&lt;/p>
+&lt;h3 id="vendor-support">Vendor support&lt;/h3>
+&lt;p>&lt;strong>An API is only as good as the momentum behind it.&lt;/strong> What modern API can target the largest array of platforms with the most vendor backing?&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137647361-3340e33a-9b2f-4c0d-aba5-6bb99ffd1cd8.png">&lt;img class="color-inverted" alt="Google to Vulkan, Microsoft to DirectX, Apple to Metal, AMD and NVidia to everything." src="https://user-images.githubusercontent.com/3173176/137647361-3340e33a-9b2f-4c0d-aba5-6bb99ffd1cd8.png">&lt;/a>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Microsoft sees DirectX as the future, not Vulkan.&lt;/strong> (DirectX 13 is coming by the end of 2022.)&lt;/li>
+&lt;li>&lt;strong>Apple sees Metal as the future, not Vulkan.&lt;/strong> OpenGL and OpenCL are deprecated, and private legal arguments with Khoronos make it unlikely we&amp;rsquo;ll ever see OpenGL or Vulkan on Apple hardware ever again.&lt;/li>
+&lt;li>Google, with their Fuschia OS &lt;a href="https://fuchsia.dev/fuchsia-src/concepts/graphics/magma">appears to be primarily into Vulkan&lt;/a> from a system-level POV.&lt;/li>
+&lt;li>&lt;strong>NVIDIA, AMD, and Intel generally support as many graphics APIs as possible&lt;/strong>, they want to sell hardware.&lt;/li>
+&lt;/ul>
+&lt;h3 id="one-api-that-apple-microsoft-and-google-can-all-agree-on">One API that Apple, Microsoft, and Google can all agree on&lt;/h3>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137647342-abf2bde6-a8bb-4276-b072-95c279c5d92f.png">&lt;img class="color-inverted" alt="Mozilla, Google, Microsoft, Apple, and Intel all to WebGPU" src="https://user-images.githubusercontent.com/3173176/137647342-abf2bde6-a8bb-4276-b072-95c279c5d92f.png">&lt;/a>&lt;/p>
+&lt;p>Outside the bounds of traditional graphics APIs there exists an attempt to provide a unified API across all platforms, &lt;a href="https://en.wikipedia.org/wiki/WebGPU">WebGPU&lt;/a> (not to be confused with the much older &lt;em>WebGL&lt;/em>).&lt;/p>
+&lt;p>Mozilla, Google, Apple, and Microsoft all got together to build an abstraction layer over the modern graphics APIs - finding the common ground between Direct3D 12, Metal, and Vulkan - plus a safe way to expose that functionality in browsers.&lt;/p>
+&lt;p>The name &lt;em>WebGPU&lt;/em> might lead you to believe that this is only for browsers, and that it may not be low-level or fast - but this really couldn&amp;rsquo;t be further from the truth.&lt;/p>
+&lt;h3 id="apple--googles-role-is-what-makes-webgpu-unique-and-why-we-chose-it">Apple &amp;amp; Google&amp;rsquo;s role is what makes WebGPU unique, and why we chose it&lt;/h3>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137648560-e15820d7-6427-4ebd-95bb-c7c9f026477a.png">&lt;img class="color-inverted" alt="Khronos group out of the piture in the future" src="https://user-images.githubusercontent.com/3173176/137648560-e15820d7-6427-4ebd-95bb-c7c9f026477a.png">&lt;/a>&lt;/p>
+&lt;p>What is new about WebGPU in my view is the vendors playing key roles in its development, and the fact that it grew outside the Khronos Group.&lt;/p>
+&lt;p>Although abstraction layers over modern graphics APIs are nothing new - as Apple, Google, and Microsoft continue to get more into manufacturing their own hardware (it&amp;rsquo;s clear this is a strategic move for them) we should ask ourselves how this will change the landscape, and WebGPU is the first cross-vendor API to be produced by this new ecosystem.&lt;/p>
+&lt;h3 id="webgpu-extended-thoughts">WebGPU extended thoughts&lt;/h3>
+&lt;details>
+&lt;summary>Is WebGPU "native enough"? Yes&lt;/summary>
+&lt;p>For browsers, WebGPU will require sandboxing and validation layers. But in native uses, this can all be turned off, and the WebGPU developers are clearly thinking about this use case:&lt;/p>
+&lt;ul>
+&lt;li>Google's implementation of WebGPU, &lt;a href="https://dawn.googlesource.com/dawn">Dawn&lt;/a>, can be configured to effectively turn off all browser sandboxing / validation that could harm performance due to its client/server architecture.&lt;/li>
+&lt;li>Mozilla / gfx-rs Rust engineers have published articles such as &lt;a href="http://kvark.github.io/web/gpu/native/2020/05/03/point-of-webgpu-native.html">"The point of WebGPU on native"&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;p>As for the quality of implementations, we could compare the amount of resources going into e.g. Google's WebGPU implementation vs. the amount of resources going into Unity/Unreal/MoltenVK/other graphics abstraction layers - but I suspect they're &lt;em>about equal&lt;/em>.&lt;/p>
+&lt;/details>
+&lt;details>
+&lt;summary>Will WebGPU be implemented on GPUs natively? Maybe someday&lt;/summary>
+&lt;p>Not anytime soon. We get some insight into this &lt;a href="https://github.com/gpuweb/gpuweb/issues/847#issuecomment-642883924">via @kvark&lt;/a>, a WebGPU developer:&lt;/p>
+&lt;blockquote>
+&lt;p>[...] We are not in Khronos, and therefore we have limited participation from IHVs (only Intel and Apple are active). WebGPU was never designed to be implemented by the drivers. I mean, it would totally be rad, in the context of how usable WebGPU &lt;a href="http://kvark.github.io/web/gpu/native/2020/05/03/point-of-webgpu-native.html">can be on native&lt;/a>, but it couldn't be the requirement from the start.&lt;/p>
+&lt;/blockquote>
+&lt;p>But as WebGPU usage grows or even becomes prodominate due to it being the most powerful API in browsers, and as Microsoft, Google, and Apple continue to develop their own hardware - I think it's not unreasonable to think that it's possible some day WebGPU will be an even more direct 1:1 mapping between a cross-platform API and low-level APIs, more direct than Vulkan abstraction layers such as MoltenVK (which is required to get Vulkan working on top of MacOS's Metal API) - with the potential that some vendor starts asking "what would a GPU native WebGPU implementation look like?"&lt;/p>
+&lt;/details>
+&lt;details>
+&lt;summary>Momentum of WebGPU vs. Vulkan&lt;/summary>
+&lt;p>To &lt;a href="https://news.ycombinator.com/item?id=23090432">quote&lt;/a> &lt;a href="http://kvark.github.io/about/">Dzmitry Malyshau / kvark&lt;/a>, a Mozilla engineer working on gfx-rs and WebGPU:&lt;/p>
+&lt;blockquote>
+&lt;p>At some point, it comes down to the amount of momentum behind the API. In case of WebGPU, we have strong support from Intel and Apple, which are hardware vendors, as well as Google, who can influence mobile hardware vendors. We are making the specification and have resources to appropriately test it and develop the necessary workarounds. It's the quantity to quality transition that sometimes just needs to cross a certain threshold in order to succeed.&lt;/p>
+&lt;/blockquote>
+&lt;p>According to some, Nvidia and AMD tend to develop new features with Microsoft as part of DirectX. Only then are they "ported" back to Vulkan and OpenGL. I think that says a lot.&lt;/p>
+&lt;/details>
+&lt;h2 id="what-progress-has-been-made-so-far-on-mach-engine">What progress has been made so far on Mach Engine?&lt;/h2>
+&lt;p>Today, we have cross-compilation of GLFW on all desktop OSs working out of the box with nothing more than &lt;code>zig&lt;/code> and &lt;code>git&lt;/code>:&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png">&lt;img class="color-inverted" alt="Cross compilation from Mac, Linux, and Windows to eachother on all major architectures." src="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png">&lt;/a>&lt;/p>
+&lt;p>This involved:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/hexops/sdk-macos-11.3">Packaging MacOS SDKs&lt;/a> and &lt;a href="https://github.com/hexops/sdk-linux-x86_64">Linux system X11/Wayland libraries&lt;/a> into SDKs, and creating Zig build scripts that could merely &lt;code>git clone&lt;/code> them and utilize them for cross-compilation.&lt;/li>
+&lt;li>Purchasing Apple M1 hardware to test on, and for GitHub Actions as it doesn&amp;rsquo;t support it.&lt;/li>
+&lt;li>Normalizing symlinks in Mac/Linux SDKs everywhere so that Windows users don&amp;rsquo;t have a hard time with Git symlink management.&lt;/li>
+&lt;li>Contributing &lt;a href="https://github.com/ziglang/zig/pull/9734">a small fix to the Zig linker&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>All this to say, we&amp;rsquo;re really taking a holistic approach to achieve this.&lt;/p>
+&lt;h2 id="whats-next-webgpu">What&amp;rsquo;s next? WebGPU&lt;/h2>
+&lt;p>I&amp;rsquo;m happy to report that a fair amount of progress on this front has been made.&lt;/p>
+&lt;p>Here is Google&amp;rsquo;s WebGPU implementation, Dawn, compiled using &lt;code>zig&lt;/code>:
+&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137650403-290c6a94-7ee4-44be-8ed0-94f96adcde4e.png">&lt;img alt="A red triangle in a black window titled 'Dawn Window', the" src="https://user-images.githubusercontent.com/3173176/137650403-290c6a94-7ee4-44be-8ed0-94f96adcde4e.png">&lt;/a>
+&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137650621-f304f20b-5f74-4a3d-956d-7feb3838351d.png">&lt;img alt="A Zig code file, hello_triangle.zig showing Dawn and WebGPU API usage in Zig" src="https://user-images.githubusercontent.com/3173176/137650621-f304f20b-5f74-4a3d-956d-7feb3838351d.png">&lt;/a>&lt;/p>
+&lt;p>This includes:&lt;/p>
+&lt;ul>
+&lt;li>A ~500 line port of the &lt;code>hello_triangle&lt;/code> example from Dawn to Zig&lt;/li>
+&lt;li>A ~1200 line &lt;code>build.zig&lt;/code> file which compiles all the Dawn sources using Zig, without using Google&amp;rsquo;s ninja/etc development tools.&lt;/li>
+&lt;li>A hack to workaround a bug in Zig where ObjC++ &lt;code>.mm&lt;/code> files are not yet recognized.&lt;/li>
+&lt;li>C shims for the &lt;code>dawn_native&lt;/code> C++ API and utility APIs, which are required in order to bind Dawn to an actual GLFW window.&lt;/li>
+&lt;/ul>
+&lt;p>There are a few weeks of work to do before this can be merged and will be usable by others, please stay tuned for that.&lt;/p>
+&lt;p>After that will be development of idiomatic Zig bindings to the &lt;a href="https://github.com/webgpu-native/webgpu-headers">WebGPU C API&lt;/a> which is shared between implementations such as Dawn and the Rust&amp;rsquo;s &lt;a href="https://github.com/gfx-rs/wgpu-native">gfx-rs/wgpu-native&lt;/a> implementation (we could theoretically switch between them at startup in the future, but we&amp;rsquo;ll probably stick with Dawn as it does not require a separate Rust toolchain and it would prevent out-of-the-box cross compilation.)&lt;/p>
+&lt;h2 id="when-will-there-be-games-examples-etc">When will there be games, examples, etc.?&lt;/h2>
+&lt;p>It&amp;rsquo;ll be a while because I am focusing purely on the groundwork first. It&amp;rsquo;s unlikely you&amp;rsquo;ll see anything with &lt;em>real demo value&lt;/em> before later next year.&lt;/p>
+&lt;p>I&amp;rsquo;m sure that will be disheartening to hear - and may make you to think there&amp;rsquo;s nothing of substance here. I totally understand that view, but I hope you&amp;rsquo;ll stay tuned because I&amp;rsquo;m in this for the long haul and it&amp;rsquo;s not my first rodeo (I previously spent 4 years writing &lt;a href="https://azul3d.org">a game engine in Go&lt;/a>, and have worked &lt;a href="https://sourcegraph.com">at a devtools startup for 7 years&lt;/a>, with my biggest lesson from of those experiences being the importance of demos and examples.&lt;/p>
+&lt;h2 id="follow-along">Follow along&lt;/h2>
+&lt;p>Major developments will be posted here, as well as on Twitter &lt;a href="https://twitter.com/machengine">@machengine&lt;/a>.&lt;/p>
+&lt;p>You can also follow the project at &lt;a href="https://github.com/hexops/mach">github.com/hexops/mach&lt;/a>.&lt;/p>
+&lt;p>If you like what I&amp;rsquo;m doing, you can &lt;a href="https://github.com/sponsors/slimsag">sponsor me on GitHub&lt;/a>.&lt;/p>
+&lt;p>Thanks for reading!&lt;/p></description></item></channel></rss>

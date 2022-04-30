@@ -1,0 +1,1089 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>trigrams on Hexops' devlog</title><link>https://devlog.hexops.com/categories/trigrams/</link><description>Recent content in trigrams on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 17 Feb 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/trigrams/feed.xml" rel="self" type="application/rss+xml"/><item><title>Postgres regex search over 10,000 GitHub repositories (using only a Macbook)</title><link>https://devlog.hexops.com/2021/postgres-regex-search-over-10000-github-repositories/</link><pubDate>Wed, 17 Feb 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/postgres-regex-search-over-10000-github-repositories/</guid><description>&lt;p>In this article, we share empirical measurements from our experiments in using Postgres to index and search over 10,000 top GitHub repositories using &lt;code>pg_trgm&lt;/code> on only a Macbook.&lt;/p>
+&lt;p>This is a follow up to &lt;a href="https://devlog.hexops.com/2021/postgres-trigram-search-learnings">&amp;ldquo;Postgres Trigram search learnings&amp;rdquo;&lt;/a>, in which we shared several learnings and beliefs about trying to use Postgres Trigram indexes as an alterative to Google&amp;rsquo;s &lt;a href="https://github.com/google/zoekt">Zoekt&lt;/a> (&amp;ldquo;Fast trigram based code search&amp;rdquo;).&lt;/p>
+&lt;p>We share our results, as well as &lt;a href="https://github.com/hexops/pgtrgm_emperical_measurements">the exact steps we performed, scripts, and lists of the top 20,000 repositories by stars/language on GitHub&lt;/a> so you can reproduce the results yourself should you desire.&lt;/p>
+&lt;h2 id="tldr">TL;DR&lt;/h2>
+&lt;p>&lt;strong>This article is extensive and more akin to a research paper than a blog post.&lt;/strong> If you&amp;rsquo;re interested in our conclusions, see &lt;a href="#conclusions">conclusions&lt;/a> instead.&lt;/p>
+&lt;h2 id="goals">Goals&lt;/h2>
+&lt;p>We wanted to get empirical measurements for how suitable Postgres is in providing regexp search over documents, e.g. as an alterative to Google&amp;rsquo;s &lt;a href="https://github.com/google/zoekt">Zoekt&lt;/a> (&amp;ldquo;Fast trigram based code search&amp;rdquo;). In specific:&lt;/p>
+&lt;ul>
+&lt;li>How many repositories can we index on just a 2019 Macbook Pro?&lt;/li>
+&lt;li>How fast are different regexp searches over the corpus?&lt;/li>
+&lt;li>What Postgres 13 configuration gives best results?&lt;/li>
+&lt;li>What other operational effects need consideration if seriously attempting to use Postgres as the backend for a regexp search engine?&lt;/li>
+&lt;li>What is the best database schema to use?&lt;/li>
+&lt;/ul>
+&lt;h2 id="hardware">Hardware&lt;/h2>
+&lt;p>We ran all tests on a 2019 Macbook Pro with:&lt;/p>
+&lt;ul>
+&lt;li>2.3 GHz 8-Core Intel Core i9&lt;/li>
+&lt;li>16 GB 2667 MHz DDR4&lt;/li>
+&lt;/ul>
+&lt;p>During test execution, few other Mac applications were in use such that effectively all CPU/memory was available to Postgres.&lt;/p>
+&lt;h2 id="corpus">Corpus&lt;/h2>
+&lt;p>We scraped &lt;a href="https://github.com/hexops/pgtrgm_emperical_measurements/tree/main/top_repos">lists of the top 1,000 repositories from the GitHub search API&lt;/a> ranked by stars for each of the following languages (~20.5k repositories in total):&lt;/p>
+&lt;ul>
+&lt;li>C++, C#, CSS, Go, HTML, Java, JavaScript, MatLab, ObjC, Perl, PHP, Python, Ruby, Rust, Shell, Solidity, Swift, TypeScript, VB .NET, and Zig.&lt;/li>
+&lt;/ul>
+&lt;p>Cloning all ~20.5k repositories in parallel took ~14 hours with a fast ~100 Mbps connection to GitHub&amp;rsquo;s servers.&lt;/p>
+&lt;h3 id="dataset-reduction">Dataset reduction&lt;/h3>
+&lt;p>We found the amount of disk space required by &lt;code>git clone --depth 1&lt;/code> on these repositories to be a sizable ~412G for just 12,148 repositories - and so we put in place several processes for further reduce the dataset size by about 66%:&lt;/p>
+&lt;ul>
+&lt;li>Removing &lt;code>.git&lt;/code> directories resulted in a 30% reduction (412G -&amp;gt; 290G, for 12,148 repositories)&lt;/li>
+&lt;li>Removing files &amp;gt; 1 MiB resulted in another 51% reduction (290G -&amp;gt; 142G, for 12,148 repositories - note GitHub does not index files &amp;gt; 384 KiB in their search engine)&lt;/li>
+&lt;/ul>
+&lt;h2 id="database-insertion">Database insertion&lt;/h2>
+&lt;p>We &lt;a href="https://github.com/hexops/pgtrgm_emperical_measurements/blob/main/cmd/corpusindex/main.go">concurrently inserted&lt;/a> the entire corpus into Postgres, with the following DB schema:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sql" data-lang="sql">&lt;span class="k">CREATE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">EXTENSION&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">IF&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">NOT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">EXISTS&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">pg_trgm&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">CREATE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">TABLE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">IF&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">NOT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">EXISTS&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">files&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">bigserial&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">PRIMARY&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">KEY&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">contents&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nb">text&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">NOT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">NULL&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">filepath&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nb">text&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">NOT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">NULL&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In total, this took around ~8 hours to complete and Postgres&amp;rsquo;s entire on-disk utilization was 101G.&lt;/p>
+&lt;h2 id="creating-the-trigram-index">Creating the Trigram index&lt;/h2>
+&lt;p>We tried three separate times to index the dataset using the following GIN Trigram index:&lt;/p>
+&lt;pre>&lt;code>CREATE INDEX IF NOT EXISTS files_contents_trgm_idx ON files USING GIN (contents gin_trgm_ops);
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>&lt;strong>In the first attempt, we hit an OOM after 11 hours and 34 minutes.&lt;/strong> This was due to a rapid spike in memory usage at the very end of indexing. We used a &lt;a href="https://github.com/hexops/pgtrgm_emperical_measurements#configuration-attempt-1-indexing-failure-oom">fairly aggressive&lt;/a> Postgres configuration with a very large max WAL size, so it was not entirely unexpected.&lt;/li>
+&lt;li>&lt;strong>In the second attempt, we ran out of SSD disk space after ~27 hours&lt;/strong>. Notable is that the disk space largely grew towards the end of indexing, similar to when we faced an OOM - it was not a gradual increase over time. For this attempt, we used the excellent &lt;a href="https://pgtune.leopard.in.ua/#/">pgtune&lt;/a> tool to reduce our first Postgres configuration as follows:&lt;/li>
+&lt;/ul>
+&lt;pre>&lt;code>shared_buffers = 4GB → 2560MB
+effective_cache_size = 12GB → 7680MB
+maintenance_work_mem = 16GB → 1280MB
+default_statistics_target = 100 → 500
+work_mem = 5242kB → 16MB
+min_wal_size = 50GB → 4GB
+max_wal_size = 4GB → 16GB
+max_parallel_workers_per_gather = 8 → 4
+max_parallel_maintenance_workers = 8 → 4
+&lt;/code>&lt;/pre>&lt;ul>
+&lt;li>&lt;strong>In our third and final attempt, we cut the dataset in half and indexing succeeded after 22 hours.&lt;/strong> In specific, we deleted half of the files in the database (from 19,441,820 files / 178GiB of data to 9,720,910 files / 82 GiB of data.) The Postgres configuration used was the same as in attempt 2.&lt;/li>
+&lt;/ul>
+&lt;h2 id="indexing-performance-memory-usage">Indexing performance: Memory usage&lt;/h2>
+&lt;p>In our first attempt, we see the reported &lt;code>docker stats&lt;/code> memory usage of the container grow up to 12 GiB (chart shows MiB of memory used over time):&lt;/p>
+&lt;img width="981" alt="image" src="https://user-images.githubusercontent.com/3173176/107313722-56bbac80-6a50-11eb-94c7-8e13ea095053.png">
+&lt;p>In our second and third attempts, we see far less memory usage (~1.6 GiB consistently):&lt;/p>
+&lt;img width="980" alt="image" src="https://user-images.githubusercontent.com/3173176/107314104-350ef500-6a51-11eb-909f-2f1b524d29b2.png">
+&lt;img width="980" alt="image" src="https://user-images.githubusercontent.com/3173176/107315387-ce3f0b00-6a53-11eb-886c-410f000f73bd.png">
+&lt;h2 id="indexing-performance-cpu-usage">Indexing performance: CPU usage&lt;/h2>
+&lt;p>Postgres' Trigram indexing appears to be mostly single-threaded (at least when indexing &lt;em>a single table&lt;/em>, we test multiple tables later.)&lt;/p>
+&lt;p>In our first attempt, CPU usage for the container did not rise above 156% (one and a half virtual CPU cores):&lt;/p>
+&lt;img width="982" alt="image" src="https://user-images.githubusercontent.com/3173176/107313915-cc277d00-6a50-11eb-9282-62159a127966.png">
+&lt;p>Our second attempt was around 150-200% CPU usage on average:&lt;/p>
+&lt;img width="980" alt="image" src="https://user-images.githubusercontent.com/3173176/107314168-507a0000-6a51-11eb-8a18-ec18752f7f16.png">
+&lt;p>Our third attempt similarly saw an average of 150-200%, but with a brief spike towards the end to ~350% CPU:&lt;/p>
+&lt;img width="980" alt="image" src="https://user-images.githubusercontent.com/3173176/107315239-8324f800-6a53-11eb-9a5b-fcc61d1a7b59.png">
+&lt;h2 id="indexing-performance-disk-io">Indexing performance: Disk IO&lt;/h2>
+&lt;p>Disk reads/writes during indexing averaged about ~250 MB/s for reads (blue) and writes (red). Native in-software tests show the same Macbook able to achieve read/write speeds of ~860 MB/s with &amp;lt;5% affect on CPU utilization.&lt;/p>
+&lt;p>&lt;small>Addition made Feb 20, 2021:&lt;/small> We ran tests using native Postgres as well (instead of in Docker with a bind mount) and found better indexing and query performance, more on this below.&lt;/p>
+&lt;img width="599" alt="image" src="https://user-images.githubusercontent.com/3173176/106507903-ec6f9e80-6488-11eb-88a8-78e5b7aacfd6.png">
+&lt;h2 id="indexing-performance-disk-space">Indexing performance: Disk space&lt;/h2>
+&lt;p>The database contains 9,720,910 files totalling 82.07 GiB:&lt;/p>
+&lt;pre>&lt;code>postgres=# select count(filepath) from files;
+count
+---------
+9720910
+(1 row)
+postgres=# select SUM(octet_length(contents)) from files;
+sum
+-------------
+88123563320
+(1 row)
+&lt;/code>&lt;/pre>&lt;p>&lt;strong>Before indexing&lt;/strong>, we find that all of Postgres is consuming 54G:&lt;/p>
+&lt;pre>&lt;code>$ du -sh .postgres/
+54G .postgres/
+&lt;/code>&lt;/pre>&lt;p>After &lt;code>CREATE INDEX&lt;/code>, Postgres uses:&lt;/p>
+&lt;pre>&lt;code>$ du -sh .postgres/
+73G .postgres/
+&lt;/code>&lt;/pre>&lt;p>Thus, the index size for 82 GiB of text is 19 GiB (or 23% of the data size.)&lt;/p>
+&lt;h2 id="database-startup-times">Database startup times&lt;/h2>
+&lt;p>From an operational standpoint, it is worth noting that if Postgres is starting clean (i.e. previous shutdown was graceful) then startup time is almost instantaneous: it begins accepting connections immediately and loads the index as needed.&lt;/p>
+&lt;p>However, if Postgres experienced a non-graceful termination during e.g. startup, it can take a hefty ~10 minutes with this dataset to start as it goes through an automated recovery process.&lt;/p>
+&lt;h2 id="queries-executed">Queries executed&lt;/h2>
+&lt;p>In total, we executed 19,936 search queries against the index. We chose queries which we expect give reasonably varying amounts of coverage over the trigram index (that is, queries whose trigrams are more or less likely to occur in many files):&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Regexp query&lt;/th>
+&lt;th>Matching # files in entire dataset&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>var&lt;/code>&lt;/td>
+&lt;td>unknown (2m+ suspected)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>error&lt;/code>&lt;/td>
+&lt;td>1,479,452&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>123456789&lt;/code>&lt;/td>
+&lt;td>59,841&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Error&lt;/code>&lt;/td>
+&lt;td>127,895&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Println&lt;/code>&lt;/td>
+&lt;td>22,876&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>bytes.Buffer&lt;/code>&lt;/td>
+&lt;td>34,554&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Print.*&lt;/code>&lt;/td>
+&lt;td>37,319&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ac8ac5d63b66b83b90ce41a2d4061635&lt;/code>&lt;/td>
+&lt;td>0&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>d97f1d3ff91543[e-f]49.8b07517548877&lt;/code>&lt;/td>
+&lt;td>0&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;details>
+&lt;summary>Detailed breakdown&lt;/summary>
+&lt;div markdown="1">
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Query&lt;/th>
+&lt;th>Result Limit&lt;/th>
+&lt;th>Times executed&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>var&lt;/code>&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>var&lt;/code>&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>var&lt;/code>&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>100&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>var&lt;/code>&lt;/td>
+&lt;td>unlimited&lt;/td>
+&lt;td>4&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>error'&lt;/code>&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>2000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>error'&lt;/code>&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>2000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>error'&lt;/code>&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>200&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>error'&lt;/code>&lt;/td>
+&lt;td>unlimited&lt;/td>
+&lt;td>18&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>123456789&lt;/code>&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>123456789&lt;/code>&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>123456789&lt;/code>&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>100&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>123456789&lt;/code>&lt;/td>
+&lt;td>unlimited&lt;/td>
+&lt;td>2&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Error&lt;/code>&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Error&lt;/code>&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Error&lt;/code>&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>100&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Error&lt;/code>&lt;/td>
+&lt;td>unlimited&lt;/td>
+&lt;td>2&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Println&lt;/code>&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Println&lt;/code>&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Println&lt;/code>&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>100&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Println&lt;/code>&lt;/td>
+&lt;td>unlimited&lt;/td>
+&lt;td>2&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>bytes.Buffer&lt;/code>&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>4&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>bytes.Buffer&lt;/code>&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>4&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>bytes.Buffer&lt;/code>&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>4&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>bytes.Buffer&lt;/code>&lt;/td>
+&lt;td>unlimited&lt;/td>
+&lt;td>2&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Print.*&lt;/code>&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Print.*&lt;/code>&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Print.*&lt;/code>&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>100&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fmt\.Print.*&lt;/code>&lt;/td>
+&lt;td>unlimited&lt;/td>
+&lt;td>2&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ac8ac5d63b66b83b90ce41a2d4061635&lt;/code>&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ac8ac5d63b66b83b90ce41a2d4061635&lt;/code>&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ac8ac5d63b66b83b90ce41a2d4061635&lt;/code>&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>100&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ac8ac5d63b66b83b90ce41a2d4061635&lt;/code>&lt;/td>
+&lt;td>unlimited&lt;/td>
+&lt;td>2&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>d97f1d3ff91543[e-f]49.8b07517548877&lt;/code>&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>d97f1d3ff91543[e-f]49.8b07517548877&lt;/code>&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>d97f1d3ff91543[e-f]49.8b07517548877&lt;/code>&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>100&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>d97f1d3ff91543[e-f]49.8b07517548877&lt;/code>&lt;/td>
+&lt;td>unlimited&lt;/td>
+&lt;td>2&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;/div>
+&lt;/details>
+&lt;h2 id="query-performance">Query performance&lt;/h2>
+&lt;p>In total, we executed 19,936 search queries against the database (linearly, not in parallel) which completed in the following times:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Time bucket&lt;/th>
+&lt;th>Percentage of queries&lt;/th>
+&lt;th>Number of queries&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Under 50ms&lt;/td>
+&lt;td>30%&lt;/td>
+&lt;td>5,933&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Under 250ms&lt;/td>
+&lt;td>41%&lt;/td>
+&lt;td>8,088&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Under 500ms&lt;/td>
+&lt;td>52%&lt;/td>
+&lt;td>10,275&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Under 750ms&lt;/td>
+&lt;td>63%&lt;/td>
+&lt;td>12,473&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Under 1s&lt;/td>
+&lt;td>68%&lt;/td>
+&lt;td>13,481&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Under 1.5s&lt;/td>
+&lt;td>74%&lt;/td>
+&lt;td>14,697&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Under 3s&lt;/td>
+&lt;td>79%&lt;/td>
+&lt;td>15,706&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Under 25s&lt;/td>
+&lt;td>79%&lt;/td>
+&lt;td>15,708&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Under 30s&lt;/td>
+&lt;td>99%&lt;/td>
+&lt;td>19,788&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2 id="query-performance-vs-planning-time">Query performance vs. planning time&lt;/h2>
+&lt;p>The following scatter plot shows how 79% of queries executed in under 3s (Y axis, in ms), while Postgres&amp;rsquo;s query planner had planned them for execution in under 100-250ms generally (X axis, in ms):&lt;/p>
+&lt;img width="1252" alt="image" src="https://user-images.githubusercontent.com/3173176/107848471-ef379100-6db0-11eb-8396-4d156a179aae.png">
+&lt;p>If we expand the view to include all queries, we start to get a picture of just how outlier these 21% of queries are (note that the small block of dots in the bottom left represents the same diagram shown above):&lt;/p>
+&lt;img width="1250" alt="image" src="https://user-images.githubusercontent.com/3173176/107848517-3cb3fe00-6db1-11eb-9652-e65d7d88fe36.png">
+&lt;h2 id="query-time-vs-cpu--memory-usage">Query time vs. CPU &amp;amp; Memory usage&lt;/h2>
+&lt;p>The following image shows:&lt;/p>
+&lt;ul>
+&lt;li>(top) Query time in milliseconds&lt;/li>
+&lt;li>(middle) CPU usage percentage (e.g. 801% refers to 8 out of 16 virtual CPU cores being consumed)&lt;/li>
+&lt;li>(bottom) Memory usage in MiB.&lt;/li>
+&lt;/ul>
+&lt;img width="1255" alt="image" src="https://user-images.githubusercontent.com/3173176/107848716-efd12700-6db2-11eb-8e8b-a8141a6bdb0b.png">
+&lt;p>Notable insights from this are:&lt;/p>
+&lt;ul>
+&lt;li>The large increase in resource usage towards the end is when we began executing queries with no &lt;code>LIMIT&lt;/code>.&lt;/li>
+&lt;li>CPU usage does not exceed 138%, until the spike at the end.&lt;/li>
+&lt;li>Memory usage does not exceed 42 MiB, until the spike at the end.&lt;/li>
+&lt;/ul>
+&lt;p>We suspect &lt;code>pg_trgm&lt;/code> is single-threaded within the scope of a single table, but with &lt;a href="https://www.postgresql.org/docs/10/ddl-partitioning.html">table data partitioning&lt;/a> (or splitting data into multiple tables with subsets of the data), we suspect better parallelism could be achieved.&lt;/p>
+&lt;h2 id="investigating-slow-queries">Investigating slow queries&lt;/h2>
+&lt;p>If we plot the number of index rechecks (X axis) vs. execution time (Y axis), we can clearly see one of the most significant aspects of slow queries is that they have many more index rechecks:&lt;/p>
+&lt;img width="1036" alt="image" src="https://user-images.githubusercontent.com/3173176/107849660-fc0cb280-6db9-11eb-9c10-cb7e74366ab7.png">
+&lt;p>And if we look at &lt;a href="https://github.com/hexops/pgtrgm_emperical_measurements/blob/main/query_logs/query-run-3.log#L3-L24">the &lt;code>EXPLAIN ANALYZE&lt;/code> output for one of these queries&lt;/a> we can also confirm &lt;code>Parallel Bitmap Heap Scan&lt;/code> is slow due to &lt;code>Rows Removed by Index Recheck&lt;/code>.&lt;/p>
+&lt;h2 id="table-splitting">Table splitting&lt;/h2>
+&lt;p>Splitting up the search index into multiple smaller tables seems like an obvious approach to getting &lt;code>pg_trgm&lt;/code> to use multiple CPU cores. We tried this by taking the same exact data set and splitting it into 200 tables, and found numerous benefits:&lt;/p>
+&lt;h3 id="benefit-1-incremental-indexing">Benefit 1: Incremental indexing&lt;/h3>
+&lt;p>If indexing fails after 11-27 hours, as happened to us twice in the non-splitting approach, all progress is not lost.&lt;/p>
+&lt;h3 id="benefit-2-parallel-indexing">Benefit 2: Parallel indexing&lt;/h3>
+&lt;p>Unlike our first non-splitting approach, which showed we were only able to utilize 1.5-2 virtual CPU cores, with multiple tables we are able to utilize 8-9 virtual CPU cores:&lt;/p>
+&lt;img width="1143" alt="image" src="https://user-images.githubusercontent.com/3173176/108118901-3b5a2e00-705c-11eb-86d1-a7828517b2e8.png">
+&lt;h3 id="benefit-3-indexing-is-84-faster">Benefit 3: Indexing is 84% faster&lt;/h3>
+&lt;p>Unlike our first attempt which took 22 hours in total, parallel indexing completed in only 3h27m.&lt;/p>
+&lt;h3 id="benefit-4-indexing-uses-69-less-memory">Benefit 4: Indexing uses 69% less memory&lt;/h3>
+&lt;p>With non-splitting we saw peak memory usage up to 12 GiB. With the same exact Postgres configuration, we were able to index with only 3.7 GiB peak memory usage:&lt;/p>
+&lt;img width="1140" alt="image" src="https://user-images.githubusercontent.com/3173176/108119244-bd4a5700-705c-11eb-949b-69828acd7c7c.png">
+&lt;h2 id="benefit-4-parallel-querying">Benefit 4: Parallel querying&lt;/h2>
+&lt;p>Previously, we saw CPU utilization of only 138% (1.3 virtual CPU cores), with table splitting we see CPU utilization during queries of 1600% (16 virtual CPU cores) showing we are doing work fully in parallel:&lt;/p>
+&lt;img width="1144" alt="image" src="https://user-images.githubusercontent.com/3173176/108114005-79078880-7055-11eb-9f55-bc4ca65c4808.png">
+&lt;p>Similarly, we saw memory usage average around ~380 MiB, compared to only ~42 MiB before:&lt;/p>
+&lt;img width="1143" alt="image" src="https://user-images.githubusercontent.com/3173176/108115193-04354e00-7057-11eb-9782-8d3125c122e1.png">
+&lt;h2 id="benefit-5-query-performance">Benefit 5: Query performance&lt;/h2>
+&lt;p>We reran the same exact set of search queries, but a smaller number of times overall (350 queries, instead of 19.9k - which we found to still be a representative enough sample.)&lt;/p>
+&lt;p>As we can see below, table splitting in general led to a 200-300% improvement in query time for heavier queries that previously took 20-30s, now taking only 7-15s thanks to parallel querying (top chart is before, bottom is after, both in milliseconds):&lt;/p>
+&lt;img width="1143" alt="image" src="https://user-images.githubusercontent.com/3173176/108156053-3d90ac80-709d-11eb-8f81-b93456b54a41.png">
+&lt;p>We also grouped queries based on the &lt;code>LIMIT&lt;/code> specified in the query and placed them into time buckets (&amp;ldquo;how many queries completed in under 50ms?&amp;quot;) - comparing the two shows that less complex queries and/or queries for fewer results were negatively affected slightly, while larger queries were helped substantially:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Change (positive is good)&lt;/th>
+&lt;th>Results limit&lt;/th>
+&lt;th>Bucket&lt;/th>
+&lt;th>&lt;strong>Queries in bucket before&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Queries in bucket after&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>-33%&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>&amp;lt;50ms&lt;/td>
+&lt;td>33%&lt;/td>
+&lt;td>0%&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>+13%&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>&amp;lt;250ms&lt;/td>
+&lt;td>44%&lt;/td>
+&lt;td>57%&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>+33%&lt;/td>
+&lt;td>10&lt;/td>
+&lt;td>&amp;lt;1s&lt;/td>
+&lt;td>77%&lt;/td>
+&lt;td>100%&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-29%&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>&amp;lt;100ms&lt;/td>
+&lt;td>29%&lt;/td>
+&lt;td>0%&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>+20%&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>&amp;lt;500ms&lt;/td>
+&lt;td>50%&lt;/td>
+&lt;td>70%&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>+19%&lt;/td>
+&lt;td>100&lt;/td>
+&lt;td>&amp;lt;10s&lt;/td>
+&lt;td>80%&lt;/td>
+&lt;td>99%&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-12%&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>&amp;lt;250ms&lt;/td>
+&lt;td>12%&lt;/td>
+&lt;td>0%&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-13%&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>&amp;lt;2.5s&lt;/td>
+&lt;td>77%&lt;/td>
+&lt;td>64%&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>+23%&lt;/td>
+&lt;td>1000&lt;/td>
+&lt;td>&amp;lt;20s&lt;/td>
+&lt;td>77%&lt;/td>
+&lt;td>100%&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>+4%&lt;/td>
+&lt;td>none&lt;/td>
+&lt;td>&amp;lt;20s&lt;/td>
+&lt;td>0%&lt;/td>
+&lt;td>4%&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>+18%&lt;/td>
+&lt;td>none&lt;/td>
+&lt;td>&amp;lt;60s&lt;/td>
+&lt;td>0%&lt;/td>
+&lt;td>18%&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>Detailed comparisons are available below for those interested:&lt;/p>
+&lt;details>
+&lt;summary>Queries with `LIMIT 10`&lt;/summary>
+&lt;div markdown="1">
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Time bucket&lt;/th>
+&lt;th>Percentage of queries (before)&lt;/th>
+&lt;th>Percentage of queries (after splitting)&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>50ms&lt;/td>
+&lt;td>33.00% (2999 of 9004)&lt;/td>
+&lt;td>0% (0 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>100ms&lt;/td>
+&lt;td>33.00% (2999 of 9004)&lt;/td>
+&lt;td>1.00% (1 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>250ms&lt;/td>
+&lt;td>44.00% (3999 of 9004)&lt;/td>
+&lt;td>57.00% (57 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>500ms&lt;/td>
+&lt;td>55.00% (4999 of 9004)&lt;/td>
+&lt;td>79.00% (79 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>1000ms&lt;/td>
+&lt;td>77.00% (6998 of 9004)&lt;/td>
+&lt;td>80.00% (80 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2500ms&lt;/td>
+&lt;td>77.00% (7003 of 9004)&lt;/td>
+&lt;td>80.00% (80 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>5000ms&lt;/td>
+&lt;td>77.00% (7004 of 9004)&lt;/td>
+&lt;td>80.00% (80 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10000ms&lt;/td>
+&lt;td>77.00% (7004 of 9004)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>20000ms&lt;/td>
+&lt;td>77.00% (7004 of 9004)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>30000ms&lt;/td>
+&lt;td>99.00% (8985 of 9004)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>40000ms&lt;/td>
+&lt;td>99.00% (9003 of 9004)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>50000ms&lt;/td>
+&lt;td>100.00% (9004 of 9004)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>60000ms&lt;/td>
+&lt;td>100.00% (9004 of 9004)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;/div>
+&lt;/details>
+&lt;details>
+&lt;summary>Queries with `LIMIT 100`&lt;/summary>
+&lt;div markdown="1">
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Time bucket&lt;/th>
+&lt;th>Percentage of queries (before)&lt;/th>
+&lt;th>Percentage of queries (after splitting)&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>50ms&lt;/td>
+&lt;td>29.00% (2934 of 10000)&lt;/td>
+&lt;td>0% (0 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>100ms&lt;/td>
+&lt;td>29.00% (2978 of 10000)&lt;/td>
+&lt;td>0% (0 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>250ms&lt;/td>
+&lt;td>39.00% (3975 of 10000)&lt;/td>
+&lt;td>31.00% (31 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>500ms&lt;/td>
+&lt;td>50.00% (5000 of 10000)&lt;/td>
+&lt;td>70.00% (70 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>1000ms&lt;/td>
+&lt;td>59.00% (5984 of 10000)&lt;/td>
+&lt;td>79.00% (79 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2500ms&lt;/td>
+&lt;td>79.00% (7996 of 10000)&lt;/td>
+&lt;td>80.00% (80 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>5000ms&lt;/td>
+&lt;td>80.00% (8000 of 10000)&lt;/td>
+&lt;td>80.00% (80 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10000ms&lt;/td>
+&lt;td>80.00% (8000 of 10000)&lt;/td>
+&lt;td>99.00% (99 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>20000ms&lt;/td>
+&lt;td>80.00% (8000 of 10000)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>30000ms&lt;/td>
+&lt;td>99.00% (9999 of 10000)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>40000ms&lt;/td>
+&lt;td>100.00% (10000 of 10000)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>50000ms&lt;/td>
+&lt;td>100.00% (10000 of 10000)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>60000ms&lt;/td>
+&lt;td>100.00% (10000 of 10000)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;/div>
+&lt;/details>
+&lt;details>
+&lt;summary>Queries with `LIMIT 1000`&lt;/summary>
+&lt;div markdown="1">
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Time bucket&lt;/th>
+&lt;th>Percentage of queries (before)&lt;/th>
+&lt;th>Percentage of queries (after splitting)&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>50ms&lt;/td>
+&lt;td>0% (0 of 904)&lt;/td>
+&lt;td>0% (0 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>100ms&lt;/td>
+&lt;td>0% (1 of 904)&lt;/td>
+&lt;td>0% (0 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>250ms&lt;/td>
+&lt;td>12.00% (114 of 904)&lt;/td>
+&lt;td>0% (0 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>500ms&lt;/td>
+&lt;td>30.00% (276 of 904)&lt;/td>
+&lt;td>21.00% (21 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>1000ms&lt;/td>
+&lt;td>55.00% (499 of 904)&lt;/td>
+&lt;td>41.00% (41 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2500ms&lt;/td>
+&lt;td>77.00% (700 of 904)&lt;/td>
+&lt;td>64.00% (64 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>5000ms&lt;/td>
+&lt;td>77.00% (704 of 904)&lt;/td>
+&lt;td>77.00% (77 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10000ms&lt;/td>
+&lt;td>77.00% (704 of 904)&lt;/td>
+&lt;td>98.00% (98 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>20000ms&lt;/td>
+&lt;td>77.00% (704 of 904)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>30000ms&lt;/td>
+&lt;td>88.00% (804 of 904)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>40000ms&lt;/td>
+&lt;td>99.00% (901 of 904)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>50000ms&lt;/td>
+&lt;td>99.00% (903 of 904)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>60000ms&lt;/td>
+&lt;td>100.00% (904 of 904)&lt;/td>
+&lt;td>100.00% (100 of 100)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;/div>
+&lt;/details>
+&lt;details>
+&lt;summary>Queries with no limit`&lt;/summary>
+&lt;div markdown="1">
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Time bucket&lt;/th>
+&lt;th>Percentage of queries (before)&lt;/th>
+&lt;th>Percentage of queries (after splitting)&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>50ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>0% (0 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>100ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>0% (0 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>250ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>0% (0 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>500ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>0% (0 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>1000ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>0% (0 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2500ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>0% (0 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>5000ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>0% (0 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>10000ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>0% (0 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>20000ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>4.00% (2 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>30000ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>16.00% (8 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>40000ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>16.00% (8 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>50000ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>18.00% (9 of 50)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>60000ms&lt;/td>
+&lt;td>0% (0 of 28)&lt;/td>
+&lt;td>18.00% (9 of 50)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;/div>
+&lt;/details>
+&lt;h2 id="postgres-in-docker-vs-native-postgres">Postgres-in-Docker vs. native Postgres&lt;/h2>
+&lt;p>&lt;small>Addition made Feb 20, 2021&lt;/small>&lt;/p>
+&lt;p>In our original article we did not clarify the performance impacts of running Postgres inside of Docker with a volume bind mount. This was raised as a potential source of IO performance difference to us by &lt;a href="https://twitter.com/thorstenball">Thorsten Ball&lt;/a>.&lt;/p>
+&lt;p>We ran all tests above with Postgres in Docker, using a volume bind mount (the osxfs driver, not the experimental FUSE gRPC driver.)&lt;/p>
+&lt;p>We additionally ran the same table-splitting benchmarks on a native Postgres server (&lt;a href="https://github.com/hexops/pgtrgm_emperical_measurements#native-postgres-tests">reproduction steps here&lt;/a>) and found the following key changes:&lt;/p>
+&lt;h3 id="cpu-usage--memory-usage-approximately-the-same">CPU usage &amp;amp; memory usage: approximately the same&lt;/h3>
+&lt;p>CPU and memory usage was approximately the same as in our Docker Postgres tests.&lt;/p>
+&lt;p>We anticipated this would be the case as the Macbook does have VT-x virtualization enabled (default on all i7/i9 Macbooks, and confirmed through &lt;code>sysctl kern.hv_support&lt;/code>)&lt;/p>
+&lt;h3 id="indexing-speed-was-88-faster">Indexing speed was ~88% faster&lt;/h3>
+&lt;p>Running the statements to split up the large table into multiple smaller ones, i.e.:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sql" data-lang="sql">&lt;span class="k">CREATE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">TABLE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">files_000&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">AS&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">SELECT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">files&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">WHERE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">&amp;gt;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">AND&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">50000&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">CREATE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">TABLE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">files_001&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">AS&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">SELECT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">FROM&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">files&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">WHERE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">&amp;gt;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">50000&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">AND&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">100000&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">...&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Was much faster in native Postgres, taking about 2-8s for each table instead of 20-40s previously, and taking only 15m in total instead of 2h before.&lt;/p>
+&lt;p>Parallel creation of the Trigram indexes using e.g.:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sql" data-lang="sql">&lt;span class="k">CREATE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">INDEX&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">IF&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">NOT&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">EXISTS&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">files_000_contents_trgm_idx&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">ON&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">files&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">USING&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">GIN&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">contents&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">gin_trgm_ops&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Was also much faster, taking only 23m compared to ~3h with Docker.&lt;/p>
+&lt;h3 id="query-performance-is-12-99-faster-depending-on-query">Query performance is 12-99% faster, depending on query&lt;/h3>
+&lt;p>We re-ran the same 350 queries as in our earlier table-splitting benchmark, and found the following substantial improvements:&lt;/p>
+&lt;ol>
+&lt;li>Queries that were previously very slow noticed a ~12% improvement. This is likely due to IO operations needed when interfacing with the 200 separate tables.&lt;/li>
+&lt;li>Queries that were previously in the middle-ground noticed meager ~5% improvements.&lt;/li>
+&lt;li>Queries that were previously fairly fast (likely searching only over a one or two tables before returning) noticed substantial 16-99% improvements.&lt;/li>
+&lt;/ol>
+&lt;details>
+&lt;summary>Exhaustive comparison details (negative change is good)&lt;/summary>
+&lt;div markdown="1">
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Change&lt;/th>
+&lt;th>Time bucket&lt;/th>
+&lt;th>Queries under bucket &lt;strong>before&lt;/strong>&lt;/th>
+&lt;th>Queries under bucket &lt;strong>after&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>0%&lt;/td>
+&lt;td>500s&lt;/td>
+&lt;td>350 of 350&lt;/td>
+&lt;td>350 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-12%&lt;/td>
+&lt;td>100s&lt;/td>
+&lt;td>309 of 350&lt;/td>
+&lt;td>350 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-12%&lt;/td>
+&lt;td>50s&lt;/td>
+&lt;td>309 of 350&lt;/td>
+&lt;td>350 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-12%&lt;/td>
+&lt;td>40s&lt;/td>
+&lt;td>308 of 350&lt;/td>
+&lt;td>350 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-12%&lt;/td>
+&lt;td>30s&lt;/td>
+&lt;td>308 of 350&lt;/td>
+&lt;td>349 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-7%&lt;/td>
+&lt;td>25s&lt;/td>
+&lt;td>307 of 350&lt;/td>
+&lt;td>330 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-7%&lt;/td>
+&lt;td>25s&lt;/td>
+&lt;td>307 of 350&lt;/td>
+&lt;td>330 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-8%&lt;/td>
+&lt;td>20s&lt;/td>
+&lt;td>302 of 350&lt;/td>
+&lt;td>330 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-8%&lt;/td>
+&lt;td>20s&lt;/td>
+&lt;td>302 of 350&lt;/td>
+&lt;td>330 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-5%&lt;/td>
+&lt;td>10s&lt;/td>
+&lt;td>297 of 350&lt;/td>
+&lt;td>311 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-26%&lt;/td>
+&lt;td>5s&lt;/td>
+&lt;td>237 of 350&lt;/td>
+&lt;td>319 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-7%&lt;/td>
+&lt;td>2500ms&lt;/td>
+&lt;td>224 of 350&lt;/td>
+&lt;td>240 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-9%&lt;/td>
+&lt;td>2000ms&lt;/td>
+&lt;td>219 of 350&lt;/td>
+&lt;td>240 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-9%&lt;/td>
+&lt;td>1500ms&lt;/td>
+&lt;td>219 of 350&lt;/td>
+&lt;td>240 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-16%&lt;/td>
+&lt;td>1000ms&lt;/td>
+&lt;td>200 of 350&lt;/td>
+&lt;td>237 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-14%&lt;/td>
+&lt;td>750ms&lt;/td>
+&lt;td>190 of 350&lt;/td>
+&lt;td>221 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-23%&lt;/td>
+&lt;td>500ms&lt;/td>
+&lt;td>170 of 350&lt;/td>
+&lt;td>220 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-59%&lt;/td>
+&lt;td>250ms&lt;/td>
+&lt;td>88 of 350&lt;/td>
+&lt;td>217 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-99%&lt;/td>
+&lt;td>100ms&lt;/td>
+&lt;td>1 of 350&lt;/td>
+&lt;td>168 of 350&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-99%&lt;/td>
+&lt;td>50ms&lt;/td>
+&lt;td>1 of 350&lt;/td>
+&lt;td>168 of 350&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;/div>
+&lt;/details>
+&lt;h2 id="conclusions">Conclusions&lt;/h2>
+&lt;p>We think the following learnings are most important:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>.git&lt;/code> directories, even with &lt;code>--depth=1&lt;/code> clones, account for 30% of a repositories size on disk (at least in top 10,000 GitHub repositories.)&lt;/li>
+&lt;li>Files &amp;gt; 1 MiB (often binaries) account for another 51% of the data size on disk of repositories.&lt;/li>
+&lt;li>On only a Macbook Pro, it is possible to get Postgres Trigram regex search over 10,000 repositories to run most reasonable queries in under 5s - and certainly much faster with more hardware.&lt;/li>
+&lt;li>&lt;code>pg_trgm&lt;/code> performs single-threaded indexing and querying, unless you split your data up into multiple tables.&lt;/li>
+&lt;li>By default, a Postgres &lt;code>text&lt;/code> colum will be compressed by Postgres on disk out of the box - resulting in a 23% reduction in size (with the files we inserted.)&lt;/li>
+&lt;li>&lt;code>pg_trgm&lt;/code> GIN indexes take around 26% the size of your data on disk. So if indexing 1 GiB of raw text, expect Postgres to store that text in around ~827 MiB plus 279 MiB for the GIN trigram index.&lt;/li>
+&lt;li>Splitting your data into multiple tables if using &lt;code>pg_trgm&lt;/code> is an obvious win, as it allows for paralle indexing which can be the difference between 4h vs 22h. It also reduces the risk of an indexing failure after 22h due to e.g. lack of memory and uses much less peak memory overall.&lt;/li>
+&lt;li>Docker bind mounts (not volumes) are quite slow outside of Linux host environments (there are many other articles on this subject.)&lt;/li>
+&lt;/ul>
+&lt;p>If you are looking for fast regexp or code search today, consider:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://sourcegraph.com">Sourcegraph&lt;/a> (disclaimer: the author works here, but this article is not endorsed or affiliated in any way)&lt;/li>
+&lt;li>&lt;a href="https://github.com/google/zoekt">Zoekt&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/BurntSushi/ripgrep">Ripgrep&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>Follow this devlog for updates as we continue investigating faster ways to do regexp &amp;amp; ngram search at large scales.&lt;/p></description></item><item><title>Postgres Trigram search learnings</title><link>https://devlog.hexops.com/2021/postgres-trigram-search-learnings/</link><pubDate>Tue, 26 Jan 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/postgres-trigram-search-learnings/</guid><description>&lt;p>In this article I talk about learnings I have from trying to use pg_trgm as the backend for a search engine, Tridex, which aims to be a competitor to Google&amp;rsquo;s &lt;a href="https://github.com/google/zoekt">Zoekt&lt;/a> (&amp;ldquo;Fast trigram based code search&amp;rdquo;)&lt;/p>
+&lt;h2 id="background">Background&lt;/h2>
+&lt;p>I work @ &lt;a href="https://sourcegraph.com">Sourcegraph&lt;/a>, which provides code search, code intelligence, and other developer tooling. (If you&amp;rsquo;re one of my Sourcegraph co-workers, hey! Hexops is the name of my GitHub organization for after-hours experiments and what I hope will one day in the distant future become a successful game development company.)&lt;/p>
+&lt;p>Over the past ~8 months I have been exploring the intersection between game development and my work at Sourcegraph, and finding interesting overlap between the two. I have been working on a competitor to Google&amp;rsquo;s &lt;a href="https://github.com/google/zoekt">zoekt&lt;/a> (&amp;ldquo;Fast trigram based code search&amp;rdquo;), which is one of the search backends used by Sourcegraph with a few goals in mind:&lt;/p>
+&lt;ol>
+&lt;li>Produce a search backend I can use for Hexops, to provide search functionality for a user-voice type platform (think GitHub issues, but with duplicate issue removal and upvote/downvote capability), and other social-network type features in games I hope to one day create. i.e. not just code search&lt;/li>
+&lt;li>Learn more about search in hopes of being able to bring some of those learnings to Sourcegraph (I really want our commit/diff search to be indexed, and wish we could index more things in general.) It would also be cool to solve the ominous and difficult &lt;a href="https://github.com/google/zoekt/issues/86">Zoekt memory usage problem&lt;/a> we have had at Sourcegraph for as long as I can remember.&lt;/li>
+&lt;li>Provide a foundation for more bleeding-edge &amp;ldquo;here&amp;rsquo;s a whacky idea&amp;rdquo; type experiments that are cool surrounding developer tools, but that are not necessarily guaranteed wins / anything I could reasonable pitch elsewhere.&lt;/li>
+&lt;/ol>
+&lt;h2 id="indexing-every-character-is-different-than-regular-fts">Indexing every character is different than regular FTS&lt;/h2>
+&lt;p>First, it&amp;rsquo;s important to note that my usage of pg_trgm is not the same as general FTS (Full Text Search) usage of pg_trgm in general. My usage (and the use case of code search) cares about every character being indexed, and being able to do regex searches - this is different than traditional FTS where only words matter.&lt;/p>
+&lt;h2 id="pg_trgm-indexes-apply-to-all-data-in-that-column">pg_trgm indexes apply to all data in that column&lt;/h2>
+&lt;p>This sounds obvious, but in practice has interesting/weird implications when trying to build a code search engine like Zoekt.&lt;/p>
+&lt;p>For example, Zoekt builds indexes of repositories code in chunks (from what I understand) and then concurrently, in an unordered fashion, searches those repository code chunks (inverted trigram indexes). This plays a key role in the strategy of pagination that Zoekt implements: you can search over those chunks and give up searching further chunks after you&amp;rsquo;ve found enough results.&lt;/p>
+&lt;p>With pg_trgm, a naive approach would be to have a &lt;code>file_contents&lt;/code> column with a pg_trgm GIN index over it, and put every file from every repository into that column. But that index would apply to &lt;em>all&lt;/em> file contents across every repository, so when you want to LIMIT search over that column you are searching over one giant trigram GIN index instead of many smaller ones. It&amp;rsquo;s faster if your aim is to search the entire index, but if your aim is &amp;ldquo;get enough results and then get out&amp;rdquo; it&amp;rsquo;s much slower, because you have to deal with the entire index instead of multiple smaller indexes. But, I have not tested this empirically - so take this statement with a grain or two of salt. It&amp;rsquo;s possible I am wrong here.&lt;/p>
+&lt;p>There is an obvious way to counteract this effect, though: use one pg_trgm GIN index (i.e. a distinct table or column) per repository. You now have a distinct GIN trigram index per repository chunk. Of course, when there are thousands of repositories this introduces major complexity in schema management, query execution, etc. as you might imagine having thousands of tables/columns not exactly being great either.&lt;/p>
+&lt;p>It is possible that Postgres' &lt;a href="https://www.postgresql.org/docs/10/ddl-partitioning.html">table data partitioning&lt;/a> could interoperate with pg_trgm nicely to solve this problem, but I didn&amp;rsquo;t explore this in-depth and found no information on the subject. Importantly, you would need to partition tables based on repository (or better, file-size-based chunks.) It is worth exploring this approach more.&lt;/p>
+&lt;h2 id="naive-usage-of-pg_trgm-is-competitive">Naive usage of pg_trgm is competitive!&lt;/h2>
+&lt;p>The good news is that even with the naive approach previously described, pg_trgm turns out to be approximately competitive with Zoekt, I assume due to it using a GIN index for trigram matching instead of an inverted index like Zoekt:&lt;/p>
+&lt;p>I don&amp;rsquo;t have empirical measurements of this that I can share, you&amp;rsquo;ll just have to take my word for it, but approximately on a 2020 Macbook pro with several thousand source code repositories:&lt;/p>
+&lt;ul>
+&lt;li>Query time performance is roughly the same for needle-in-the-haystack and haystack-full-of-needles queries over all repositories file contents.&lt;/li>
+&lt;li>Pagination can be quite slow towards the tail end of the table, each subset being fetched requires a full search of the index to find the results at the end of the table. A streaming approach rather than traditional SQL pagination would be ideal.&lt;/li>
+&lt;li>On-disk data size is quite small compared to Zoekt&amp;rsquo;s, Postgres trigram GIN indexes appear to be quite small and its on-by-default data compression works really well with text.&lt;/li>
+&lt;li>Postgres uses MUCH less memory than Zoekt. Like several orders of magnitude less.&lt;/li>
+&lt;/ul>
+&lt;p>Interestingly, however, Postgres uses MUCH less memory. The choice of using an inverted trigram index in Zoekt, &lt;a href="https://github.com/google/zoekt/issues/86">as I understand it&lt;/a>, is also one of the reasons that its memory usage is so large (among other things, like Go being fairly relaxed about returning memory to the OS.) I also suggest reading &lt;a href="https://news.ycombinator.com/item?id=18584294">these Hacker News comments from 2018&lt;/a> and the linked article from Russ Cox about Google Code Search, from which Zoekt was ultimately born.&lt;/p>
+&lt;h2 id="horizontally-scaling-pg_trgm-is-hard">Horizontally scaling pg_trgm is hard&lt;/h2>
+&lt;p>Once your data no longer fits into a single machine / Postgres instance, things get tricky. How do you scale pg_trgm across multiple machines?&lt;/p>
+&lt;p>Postgres &lt;a href="https://www.postgresql.org/docs/current/high-availability.html">supports a nauseating amount of complex High Availability deployment options&lt;/a> for scaling horizontally, and ideally for a search engine you would want something like data partitioning where data is split across multiple hosts but also with the possibility of replication across multiple hosts (for the event a host goes down.)&lt;/p>
+&lt;p>One of the options it supports is horizontal data partitioning through splitting tables into multiple smaller tables, and then using a foreign data wrapper (postgres_fdw) to execute queries that access all of those tables across the network. This is described in a bit more depth &lt;a href="https://www.highgo.ca/2019/08/08/horizontal-scalability-with-sharding-in-postgresql-where-it-is-going-part-2-of-3/">in this blog post&lt;/a>. This could be a good approach, but I decided not to explore this option further.&lt;/p>
+&lt;p>Ultimately I decided to go with a multiple-table approach, with each table representing a type of data (e.g. repository code) and performing horizontal sharding and scaling at the application layer outside of the DB entirely. I will explain why I took this approach in the next section.&lt;/p>
+&lt;h2 id="deploying-and-tuning-postgres-configuration-is-hard">Deploying and tuning Postgres configuration is hard&lt;/h2>
+&lt;p>In stark contrast to Zoekt, which uses a ridiculous amount of memory, with Postgres I was left with a different problem: I could not get it to use all available memory/CPU to perform search queries faster.&lt;/p>
+&lt;p>Raising &lt;code>shared_buffers = 128MB&lt;/code> (default &lt;code>32MB&lt;/code>) helped a fair amount, but still a similar issue. Ultimately I believe the majority of query time is spent not on CPU latency, but rather a combination of RAM lookups / L3 cache misses and IO latency.&lt;/p>
+&lt;p>Nonetheless, this introduced a new problem for me: I wanted this search engine to be as simple to deploy as possible, and the idea of having Postgres tuning being a requirement did not appeal to me. I have also seen in the field how many use Amazon RDS, which does not allow for tuning (and is often a several-years-outdated Postgres version anyway.)&lt;/p>
+&lt;p>With all of this in mind, I ended up going with deploying Docker containers with my own Postgres binary and configuration built-in and managing Postgres on behalf of the user. This ended up being interesting for other reasons I won&amp;rsquo;t get into (think automatic zero-downtime upgrades from Postgres 12 -&amp;gt; 13.)&lt;/p>
+&lt;h2 id="ultra-large-scales">Ultra large scales&lt;/h2>
+&lt;p>Although using pg_trgm is competitive (much better than?) Zoekt - it&amp;rsquo;s still not enough to be able to efficiently scale up to a massive scale such as Google. The index is still relatively large (in the hundreds of MB for thousands of repositories) well outside the bounds of CPU caches and that makes it kind of slow at truly large scales where the index grows near-linearly.&lt;/p>
+&lt;p>Ultimately.. Once you add in deployment pains, configuration tuning, trigram index splitting, horizontal scaling, etc. it&amp;rsquo;s a lot less like using Postgres to build a search engine - and a lot more like using Postgres as a trigram index provider. It&amp;rsquo;s interesting, and works, but there may be better options.&lt;/p>
+&lt;h2 id="future-exploration">Future exploration&lt;/h2>
+&lt;p>A more fruitful direction may be to explore effectively the same architecture (i.e. roll-your-own-search-engine), but replacing pg_trgm and Postgres entirely with a custom ngram index built on top of the bloom-filter successor which is more L3-cache-friendly, &lt;a href="https://lemire.me/blog/2019/12/19/xor-filters-faster-and-smaller-than-bloom-filters/">xor filters&lt;/a>.&lt;/p>
+&lt;p>I believe with this approach you could achieve scales/performance similar to Google, Bing, etc. while providing full regex search and more. This idea is not completely unfounded, it has been &lt;a href="https://github.com/BurntSushi/ripgrep/issues/1518">suggested for indexing in ripgrep, for example&lt;/a> (although &lt;a href="https://github.com/BurntSushi/ripgrep/issues/1497">it appears they&amp;rsquo;ll be going with an inverted trigram index similar to Zoekt&lt;/a> instead.)&lt;/p>
+&lt;h2 id="closing-thoughts">Closing thoughts&lt;/h2>
+&lt;p>In Tridex (the search engine I am working on), we&amp;rsquo;re planning on exploring this avenue by replacing Postgres and pg_trgm with a custom trigram index based on xor-filters, and will likely write it in Zig. I only realized the opportunity here in a late-night conversation with a coworker who has an affinity for bloom filters, so perhaps I am misguided and this will turn up no fruit.&lt;/p>
+&lt;p>Follow this devlog for updates.&lt;/p></description></item></channel></rss>
