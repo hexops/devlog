@@ -1,0 +1,22 @@
+baseURL = 'https://devlog.hexops.com'
+languageCode = 'en-us'
+title = "Hexops' devlog"
+theme = "minimal"
+paginate = 5
+
+[markup.goldmark.renderer]
+unsafe = true
+
+[outputFormats]
+[outputFormats.RSS]
+mediatype = "application/rss"
+baseName = "feed"
+
+[markup.highlight]
+noClasses=false
+
+[params]
+mainSections = ['2021', '2022']
+
+[taxonomies]
+category = "categories"
