@@ -453,11 +453,13 @@ Remember how I said earlier it was important that the mapping of table names -> 
 const ptr: Pointer = entities.entities.get(entity_id).?;
 ```
 
-Now we know exactly which table and row it's stored in, and can lookup the table, or component values, which simple O(1) array access operations using the `ptr.archetype_index` and `ptr.row_index`, e.g.:
+Now we know exactly which table and row it's stored in, and can lookup the table, or component values, with simple O(1) array access operations. e.g. to get the archetype table the entity is stored in:
 
 ```zig
 var archetype = entities.archetypes.entries.get(ptr.archetype_index);
 ```
+
+Here, `entities.archetypes.entries` is our `AutoArrayHashMapUnmanaged` mapping table names to their `ArchetypeStorage` - but we access the array inside the hash map directly instead of using a hash map lookup.
 
 ## Creating an entity
 
