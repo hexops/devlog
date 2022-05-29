@@ -3,6 +3,7 @@ languageCode = 'en-us'
 title = "Hexops' devlog"
 theme = "minimal"
 paginate = 5
+disablePathToLower=true
 
 [markup.goldmark.renderer]
 unsafe = true
