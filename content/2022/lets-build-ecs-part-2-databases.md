@@ -56,7 +56,7 @@ Imagine you'd like to have your physics system operate on every entity with `vel
 ```zig
 var players: MultiArrayList(Player) = .{};   // all players
 var monsters: MultiArrayList(Monster) = .{}; // all monsters
-var cameras: MultiArrayList(Camera) = .{};   // all monsters
+var cameras: MultiArrayList(Camera) = .{};   // all cameras
 var lights: MultiArrayList(Light) = .{};     // all lights
 ```
 
