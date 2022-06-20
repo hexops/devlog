@@ -14,7 +14,7 @@ images: ["https://user-images.githubusercontent.com/3173176/149644281-df5a7846-e
 ---
 
 <p>
-  <img alt="ECS connected to databases and data oriented design" style="height: 20rem; float: left; padding-right: 1rem;" src="https://user-images.githubusercontent.com/3173176/166091237-6e9455df-ede9-4e34-a606-451b0c0c3f2a.png">
+  <img alt="ECS connected to databases and data oriented design" class="color-auto-light" style="height: 20rem; float: left; padding-right: 1rem;" src="https://user-images.githubusercontent.com/3173176/166091237-6e9455df-ede9-4e34-a606-451b0c0c3f2a.png">
   <br><br>
   In this series we build the <a href="https://machengine.org">Mach engine</a> Entity Component System from scratch in <a href="https://ziglang.org">the Zig programming language</a>.
   <br><br>
