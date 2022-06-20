@@ -21,7 +21,7 @@ Software engineering is one of the most lucrative careers of our era. Most in ou
 
 The sheer scale of money pouring into SV and other tech hubs worldwide is unfathomable even to many making six-figure salaries in tech, there is more money than there are good ideas-and it shows (looking at you, [Juicera](https://www.juicera.com/).)
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/142679500-29ebcaf2-9d57-4dad-8e35-c1a60bffd793.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/142679500-29ebcaf2-9d57-4dad-8e35-c1a60bffd793.png">
 
 ## How the aviation industry eerily reflects the tech industry
 
@@ -33,11 +33,11 @@ This industry-wide push came about because the aerospace industry realized their
 
 If you think Boeing’s 747 MAX disaster was the downfall of the aerospace industry, you need to think again. There are things you’re not going to find in the news that happened much earlier according to people that were there.
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/142681033-f26e31ea-8384-4034-83e0-17c293c10422.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/142681033-f26e31ea-8384-4034-83e0-17c293c10422.png">
 
 (Despite my mother’s internship being 30 years ago, she is still hesitant to publicly name the company involved and at her request I redacted the name.)
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/142681141-eabbdae3-8f3d-4af4-be8a-1d88a81f1e5e.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/142681141-eabbdae3-8f3d-4af4-be8a-1d88a81f1e5e.png">
 
 The stress my father’s job imposed upon him changed him (or rather, brought out another side of him.) Most of my memories with him involved verbal and heavily emotional fights, as well as arguments between him, myself, and family members. Most of the time I spent with him in public, he was making some poor customer service worker’s life a living hell (and he enjoyed it.)
 
@@ -51,7 +51,7 @@ When I look at the state of the tech industry today and see pushes for location-
 
 ## Have we reached a plateau?
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/142683055-c24a21ce-542a-400f-9c5a-04188d8d31e2.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/142683055-c24a21ce-542a-400f-9c5a-04188d8d31e2.png">
 
 Major economic forces have been pushing the idea that everyone should learn to code for many, many years now, [Gates and Zuckerberg were pushing the idea that every child should learn to code back in 2013](https://www.cnn.com/2013/02/27/tech/innovation/code-video-gates-zuckerberg/index.html) and likely long before that. (Awkward disclaimer, my day job is at a startup focused on this too)
 
@@ -69,7 +69,7 @@ We have a representation of what being a coder could look like in the future: th
 
 The future of being a coder, I think, looks an awful lot like being a game developer looks like today.
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/142684131-097dbaa9-1843-4aa6-aacf-5089600bbb0f.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/142684131-097dbaa9-1843-4aa6-aacf-5089600bbb0f.png">
 
 Enter a behemoth organization and hope to achieve anything noteworthy among the swaths of so many other coders that your contributions are nearly worthless, or go to a smaller company because you are young, bubbly-eyed, and believe there is a family to be had there all while it being demanded you achieve unreasonable amounts of work with a high likelihood that the company fails in the end. You get to choose. You wish you could go at it alone, you have dreams and aspirations of doing just that, but you need to pay the bills somehow. Perhaps you’re just out of school, and so you manage Active Directory for a company instead.
 
@@ -79,7 +79,7 @@ Maybe you do have a truly good idea, but you don’t have access to investors an
 
 The squashing of independent ideas and independent business models creates opportunities for monopolistic enterprises to effectively _own people_ and _own their success_ while divesting risk fully to individuals.
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/142683218-8f4949aa-7937-4e58-b2bc-5862ae68b2fa.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/142683218-8f4949aa-7937-4e58-b2bc-5862ae68b2fa.png">
 
 Once the plateau for any of these markets is reached (or if platforms realize that we’re not going to see a winner-take-all market for that area?), then profit extraction should begin and we will see middlemen shift to maximal extraction of taxes from their platform while producers only begin to realize how minute they have become. New platforms will appear, such as the YouTube competitors pushed by creators today, but they’ll mostly be in-vain attempts to regain some control of the customers they now realize they have no untaxed access to.
 
@@ -87,7 +87,7 @@ This approach of tech business is accelerating. When we hear “every company is
 
 ## Does capitalism necessarily have to be bad for society?
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/142684228-bf1d41e5-ca25-4497-978c-d82c29c7682e.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/142684228-bf1d41e5-ca25-4497-978c-d82c29c7682e.png">
 
 At this point, you probably think I hold deeply anti-capitalistic views. I don’t, I hold more nuanced views than that. But I do despise the monopolistic tendencies of corporations. It’s the lack of distributed opportunity within a capitalist society that I believe is bad.
 

@@ -35,7 +35,7 @@ In this article, we'll mostly go over the problem space, data oriented design, t
 
 ## Motivation
 
-<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png"><img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png"></a>
+<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png"><img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png"></a>
 
 I've used and written more traditional [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming) [scene graphs](https://en.wikipedia.org/wiki/Scene_graph) in the past. These are often the core engine architecture used to represent everything in game worlds: they're used in Unity historically (which is now migrating to ECS due to popular demand) and even [in other modern engines such as Godot](https://godotengine.org/article/why-isnt-godot-ecs-based-game-engine).
 
@@ -48,7 +48,7 @@ For [Mach engine](https://hexops.com/mach), however, we're adopting an ECS as ou
 
 The key point here is that, personally, I find it useful to intentionally avoid looking directly at code for the implementations themselves. 
 
-<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png"><img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png"></a>
+<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png"><img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png"></a>
 
 I've used this approach to [to great success before](https://github.com/hexops/vecty): the nice thing about this is that the end result really _fits the language_, using patterns and features specific to the language - it doesn't just end up feeling like a port of some other language's implementation.
 
@@ -56,7 +56,7 @@ I've researched a bit about ECS in general, and have chatted with people familia
 
 ## What really is an entity component system, anyway?
 
-<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png"><img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png"></a>
+<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png"><img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png"></a>
 
 I've found the Rust project [Bevy ECS to have a great succinct explanation](https://bevyengine.org/learn/book/getting-started/ecs/#bevy-ecs), which I further simplify here:
 
@@ -70,13 +70,13 @@ There is one other concept of an ECS that I think is particularly important:
 
 * **Archetype**: A _chosen set of components_ that an entity of a certain type will have.
 
-<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png"><img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png"></a>
+<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png"><img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png"></a>
 
 ## What problems does an ECS solve?
 
 I've identified two problems it solves.
 
-<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png"><img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png"></a>
+<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png"><img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png"></a>
 
 First and foremost is _making it easy for game developers to architect their code_ compared to them doing it manually. If it's easier for someone to structure their code themselves, manually, then such a system is not useful at all! Of course, as complexity and the scale of software increases then a _consistent_ system is _far more useful_ than a bunch of ad-hoc systems.
 
@@ -84,7 +84,7 @@ The second problem ECS solves, I believe, is making your software architecture _
 
 ## Start with data oriented design
 
-<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png"><img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png"></a>
+<a class="imglink" href="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png"><img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png"></a>
 
 ECS overlaps with [_data oriented design_](https://dataorienteddesign.com/site.php) in many ways (although it's [roots are _much_ earlier](https://github.com/hexops/mach/issues/127#issuecomment-1014176503)). There are many talks about data oriented design including [Mike Acton's at CppCon](https://www.youtube.com/watch?v=rX0ItVEVjHc), and my personal favorite ["A Practical Guide to Applying Data-Oriented Design"](https://media.handmade-seattle.com/practical-data-oriented-design/) by Andrew Kelley. You don't have to watch either, I'll cover the important concepts we use here. But I highly suggest **every** developer watch Andrew Kelley's talk above. It's eye opening no matter what kind of programming you are doing.
 

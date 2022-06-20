@@ -38,11 +38,11 @@ In this article we will be exploring what [parser combinators](https://en.wikipe
 
 A parser parses some text to produce a result:
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110372092-1c234080-800b-11eb-8095-654c3c81354d.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110372092-1c234080-800b-11eb-8095-654c3c81354d.png">
 
 A [parser combinator](https://en.wikipedia.org/wiki/Parser_combinator) is a [higher-order function](https://en.wikipedia.org/wiki/Higher-order_function) which _takes parsers as input_ and _produces a new parser_ as output:
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110372575-b4b9c080-800b-11eb-9ef8-58f3ee0e1f1d.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110372575-b4b9c080-800b-11eb-9ef8-58f3ee0e1f1d.png">
 
 ## Why are parser combinators useful?
 
@@ -50,7 +50,7 @@ Let's say we want to parse the syntax which describes a regular expression: `a[b
 
 We can define some _parsers_ to help us parse this syntax (e.g. into tokens or AST nodes):
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110375065-b1740400-800e-11eb-987e-b5a7c5a3381b.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110375065-b1740400-800e-11eb-987e-b5a7c5a3381b.png">
 
 Suppose that for `a[bc].*abc`:
 
@@ -62,7 +62,7 @@ Suppose that for `a[bc].*abc`:
 
 Now that we have these _parsers_, we can define _parser combinators_ to help us parse the full regular expression. First, we need something to parse a string `abc` which we can define as:
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110413375-fa49ae00-804a-11eb-8311-64e737513000.png">
+<img class="color-autoc="https://user-images.githubusercontent.com/3173176/110413375-fa49ae00-804a-11eb-8311-64e737513000.png">
 
 What is `OneOrMore`, though? That's our first parser combinator!
 
@@ -70,13 +70,13 @@ It takes a single parser as input (in this case, `RegexLiteralParser`) and uses 
 
 Now if we want to parse the `[bc]` part of our regex, let's say it can only contain a literal like `bc` (of course, real regex allows far more than this) we can e.g. reuse our new `RegexStringLiteralParser`:
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110413643-780db980-804b-11eb-8fe5-8ca97b2e96ca.png">
+<img class="color-autoc="https://user-images.githubusercontent.com/3173176/110413643-780db980-804b-11eb-8fe5-8ca97b2e96ca.png">
 
 In this case, `Sequence` is a parser combinator which takes multiple parsers and tries to parse them one-after-the-other in order, requiring all to succeed or failing otherwise.
 
 Building upon this basic idea, we can use parser combinators to build a full regex syntax parser:
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110414508-2ebe6980-804d-11eb-9422-0888208fac19.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110414508-2ebe6980-804d-11eb-9422-0888208fac19.png">
 
 ## Going deeper: _runtime parser generation_
 
@@ -84,7 +84,7 @@ From before, our _parser combinator_ `RegexSyntaxParser` is built out of multipl
 
 We can use the same combinatorial principle here to introduce a new _parser generator_ called `RegexParser` which uses `RegexSyntaxParser` to create a _brand new parser at runtime_ that is capable of parsing the actual semantics the regex describes - forming a full regex engine:
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110528627-94eecf00-80d5-11eb-8fb6-f6bb051d9394.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110528627-94eecf00-80d5-11eb-8fb6-f6bb051d9394.png">
 
 ## A note about traditional regex engines
 
@@ -114,7 +114,7 @@ Since we'll be dealing with heap allocations, our parser will not be able to run
 
 We need an interface in Zig which describes a _parser_ as we previously mentioned:
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110372092-1c234080-800b-11eb-8095-654c3c81354d.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110372092-1c234080-800b-11eb-8095-654c3c81354d.png">
 
 Here it is - there's a lot to unpack here so we'll walk through it step-by-step:
 
@@ -166,13 +166,13 @@ This is the same pattern used by the Zig [`std.mem.Allocator` interface](https:/
 
 In our case here, the returned struct has a method that consumers of the interface would invoke called `parse` - and the function pointer field that implementors will set to get a callback is the `_parse` field:
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110578739-ad390b00-8122-11eb-816c-09e1e281db9d.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110578739-ad390b00-8122-11eb-816c-09e1e281db9d.png">
 
 ### Type parameters
 
 Let's look at some of the data types going around here:
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110578578-60553480-8122-11eb-897b-e52e2d45eede.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110578578-60553480-8122-11eb-897b-e52e2d45eede.png">
 
 A few other notes:
 
@@ -341,7 +341,7 @@ const self = @fieldParentPtr(Self, "parser", parser);
 
 To understand this, first let's get a look at what these parameters are referring to:
 
-<img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110593977-7b7f6e80-8139-11eb-8ecc-41dff5766ec2.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110593977-7b7f6e80-8139-11eb-8ecc-41dff5766ec2.png">
 
 We can see from the Zig documentation that this function operates as follows:
 

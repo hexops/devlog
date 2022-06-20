@@ -79,7 +79,7 @@ Our infrastructure produces binary releases so you don't even have to wait the h
 
 [mach/gpu](https://github.com/hexops/mach/tree/main/gpu) is our Zig interface to WebGPU and comes in at just over 250 commits.
 
-<img class="img-center color-inverted" style="max-height: 125px;" src="https://user-images.githubusercontent.com/3173176/160261203-505aa417-e990-45bb-8a3d-17e224f1506c.png">
+<img class="img-center color-auto" style="max-height: 125px;" src="https://user-images.githubusercontent.com/3173176/160261203-505aa417-e990-45bb-8a3d-17e224f1506c.png">
 
 It provides a `gpu.Interface`, similar to how Zig provides a `std.mem.Allocator` interface, it's backed by any implementation:
 

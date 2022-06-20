@@ -4,10 +4,15 @@ html, body {
     margin: 0;
     padding: 0;
 
-    background: #0f0f0f;
-    color: #ccc;
+    background: white;
+    color: #0f0f0f;
     font-family: Orbitron;
     line-height: 1.3;
+
+    @media (prefers-color-scheme: dark) {
+        background: #0f0f0f;
+        color: #ccc;
+    }
 }
 body {
     display: flex;
@@ -28,7 +33,11 @@ a, a:hover, a:visited {
     color: #c18004;
 }
 blockquote {
-    color: grey;
+    color: #646464;
+
+    @media (prefers-color-scheme: dark) {
+        color: grey;
+    }
 }
 
 h1,h2,h3,h4,h5,h6 {
@@ -44,6 +53,18 @@ p {
 
 .color-inverted {
     filter: invert(100%);
+}
+
+.color-auto {
+    @media (prefers-color-scheme: dark) {
+        filter: invert(100%);
+    }
+}
+
+.color-auto-light {
+    @media (prefers-color-scheme: light) {
+        filter: invert(100%);
+    }
 }
 
 .navbar {
@@ -69,11 +90,11 @@ p {
             text-decoration: none;
         }
         .logo, .logo:hover, .logo:visited {
-            color: #d7d7d7 !important;
+            color: #7a7a7a !important;
         }
         .logo>img {
             vertical-align: middle;
-            filter: invert(100%);
+            @extend .color-auto;
             height: 30px;
         }
         &>div>a {
@@ -83,7 +104,11 @@ p {
             padding-right: 1rem;
             padding-left: 1rem;
             &:hover, &:active {
-                background: #515151;
+                background: #ccc;
+                
+                @media (prefers-color-scheme: dark) {
+                    background: #515151;
+                }
             }
         }
     }
@@ -174,9 +199,13 @@ main {
 }
 
 article>.title>a {
-    color: #ccc;
+    color: #0f0f0f;
     font-size: 36px;
     text-decoration: none;
+                
+    @media (prefers-color-scheme: dark) {
+        color: #ccc;
+    }
 }
 article>.title>a:hover {
     color: #c18004;
@@ -188,11 +217,19 @@ article .description {
     padding-bottom: 0.5rem;
 }
 article .description, p {
-    color: #ccc;
+    color: #0f0f0f;
+
+    @media (prefers-color-scheme: dark) {
+        color: #ccc;
+    }
 }
 article>.post-footer {
-    color: #b4b4b4;
+    color: #6d6d6d;
     font-size: 14px;
+
+    @media (prefers-color-scheme: dark) {
+        color: #b4b4b4;
+    }
 }
 article .category {
     text-decoration: none;
@@ -246,8 +283,12 @@ article .category:hover {
     margin-top: 1rem;
 }
 .single>.header .metadata {
-    color: #b4b4b4;
+    color: #6d6d6d;
     font-size: 14px;
+
+    @media (prefers-color-scheme: dark) {
+        color: #b4b4b4;
+    }
 }
 .hanchor {
     text-decoration: none;
@@ -257,12 +298,15 @@ code {
     text-align: left;
     border-radius: 4px;
     font-size: 14px;
-    padding: 0.15rem;
     padding-left: 0.3rem;
     padding-right: 0.3rem;
 
-    background: black;
+    background: white;
     border: 1px solid #3b3c38;
+
+    @media (prefers-color-scheme: dark) {
+        background: black;
+    }
 }
 h2>code {
     font-size: unset;
@@ -292,6 +336,10 @@ pre {
     background: black !important;
     overflow: auto;
     border: 1px solid #3b3c38;
+    
+    @media (prefers-color-scheme: light) {
+        color: white;
+    }
 }
 details {
     margin-top: 1rem;
@@ -346,7 +394,11 @@ td, th {
     padding: 0.5rem;
 }
 tr:nth-child(even) {
-    background: #3b3c38;
+    background: white;
+    
+    @media (prefers-color-scheme: dark) {
+        background: #3b3c38;
+    }
 }
 th {
     padding-top: 1rem;
