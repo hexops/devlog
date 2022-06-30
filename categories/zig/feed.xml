@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>zig on Hexops' devlog</title><link>https://devlog.hexops.com/categories/zig/</link><description>Recent content in zig on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 28 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/zig/feed.xml" rel="self" type="application/rss+xml"/><item><title>Let's build an Entity Component System (part 2): databases</title><link>https://devlog.hexops.com/2022/lets-build-ecs-part-2-databases/</link><pubDate>Sat, 28 May 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/lets-build-ecs-part-2-databases/</guid><description>&lt;p>
-&lt;img alt="ECS connected to databases and data oriented design" style="height: 20rem; float: left; padding-right: 1rem;" src="https://user-images.githubusercontent.com/3173176/166091237-6e9455df-ede9-4e34-a606-451b0c0c3f2a.png">
+&lt;img alt="ECS connected to databases and data oriented design" class="color-auto-light" style="height: 20rem; float: left; padding-right: 1rem;" src="https://user-images.githubusercontent.com/3173176/166091237-6e9455df-ede9-4e34-a606-451b0c0c3f2a.png">
 &lt;br>&lt;br>
 In this series we build the &lt;a href="https://machengine.org">Mach engine&lt;/a> Entity Component System from scratch in &lt;a href="https://ziglang.org">the Zig programming language&lt;/a>.
 &lt;br>&lt;br>
@@ -908,7 +908,7 @@ Maybe even a game server has made this decision, or a scripting language. We did
 &lt;li>&lt;a href="#next-up-starting-our-ecs-implementation">Next up: starting our ECS implementation&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;h2 id="motivation">Motivation&lt;/h2>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png">&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149648955-ab99ff6f-79e6-4b03-9ca2-3f31fb000203.png">&lt;/a>&lt;/p>
 &lt;p>I&amp;rsquo;ve used and written more traditional &lt;a href="https://en.wikipedia.org/wiki/Object-oriented_programming">OOP&lt;/a> &lt;a href="https://en.wikipedia.org/wiki/Scene_graph">scene graphs&lt;/a> in the past. These are often the core engine architecture used to represent everything in game worlds: they&amp;rsquo;re used in Unity historically (which is now migrating to ECS due to popular demand) and even &lt;a href="https://godotengine.org/article/why-isnt-godot-ecs-based-game-engine">in other modern engines such as Godot&lt;/a>.&lt;/p>
 &lt;p>For &lt;a href="https://hexops.com/mach">Mach engine&lt;/a>, however, we&amp;rsquo;re adopting an ECS as our core architecture. ECS has gained great momentum in recent years for its composition and performance benefits.&lt;/p>
 &lt;h2 id="my-approach-to-complex-software-architecture">My approach to complex software architecture&lt;/h2>
@@ -917,11 +917,11 @@ Maybe even a game server has made this decision, or a scripting language. We did
 &lt;li>How does the proposed architecture &lt;em>typically&lt;/em> solve such problems?&lt;/li>
 &lt;/ol>
 &lt;p>The key point here is that, personally, I find it useful to intentionally avoid looking directly at code for the implementations themselves.&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png">&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149651958-a9c1d50e-77be-4098-ae91-4ed14dd95794.png">&lt;/a>&lt;/p>
 &lt;p>I&amp;rsquo;ve used this approach to &lt;a href="https://github.com/hexops/vecty">to great success before&lt;/a>: the nice thing about this is that the end result really &lt;em>fits the language&lt;/em>, using patterns and features specific to the language - it doesn&amp;rsquo;t just end up feeling like a port of some other language&amp;rsquo;s implementation.&lt;/p>
 &lt;p>I&amp;rsquo;ve researched a bit about ECS in general, and have chatted with people familiar with ECS, but haven&amp;rsquo;t read any other&amp;rsquo;s code. No doubt, initially, I&amp;rsquo;ll get some aspects wrong! As this series of articles progresses over the coming months, though, you&amp;rsquo;ll see how this can be a winning tactic as we learn together!&lt;/p>
 &lt;h2 id="what-really-is-an-entity-component-system-anyway">What really is an entity component system, anyway?&lt;/h2>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png">&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149679322-f17012b1-4aed-484e-a27e-4b7823354912.png">&lt;/a>&lt;/p>
 &lt;p>I&amp;rsquo;ve found the Rust project &lt;a href="https://bevyengine.org/learn/book/getting-started/ecs/#bevy-ecs">Bevy ECS to have a great succinct explanation&lt;/a>, which I further simplify here:&lt;/p>
 &lt;ul>
 &lt;li>&lt;strong>Entities&lt;/strong>: a unique integer&lt;/li>
@@ -933,14 +933,14 @@ Maybe even a game server has made this decision, or a scripting language. We did
 &lt;ul>
 &lt;li>&lt;strong>Archetype&lt;/strong>: A &lt;em>chosen set of components&lt;/em> that an entity of a certain type will have.&lt;/li>
 &lt;/ul>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png">&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149679390-e0a680f4-3299-4f96-b5b0-2165f390dbfb.png">&lt;/a>&lt;/p>
 &lt;h2 id="what-problems-does-an-ecs-solve">What problems does an ECS solve?&lt;/h2>
 &lt;p>I&amp;rsquo;ve identified two problems it solves.&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png">&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149681141-eeed2594-fa40-46b7-8327-ca2a6143d98f.png">&lt;/a>&lt;/p>
 &lt;p>First and foremost is &lt;em>making it easy for game developers to architect their code&lt;/em> compared to them doing it manually. If it&amp;rsquo;s easier for someone to structure their code themselves, manually, then such a system is not useful at all! Of course, as complexity and the scale of software increases then a &lt;em>consistent&lt;/em> system is &lt;em>far more useful&lt;/em> than a bunch of ad-hoc systems.&lt;/p>
 &lt;p>The second problem ECS solves, I believe, is making your software architecture &lt;em>efficient&lt;/em> without you really having to think too much about it. You don&amp;rsquo;t have to think about how to structure all your code &amp;amp; data for logic first, &lt;em>and then for performance&lt;/em>, but rather get good performance by nature of following patterns.&lt;/p>
 &lt;h2 id="start-with-data-oriented-design">Start with data oriented design&lt;/h2>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png">&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png">&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/149683974-e33f05b9-c1ad-46e1-9634-7996f39e18b8.png">&lt;/a>&lt;/p>
 &lt;p>ECS overlaps with &lt;a href="https://dataorienteddesign.com/site.php">&lt;em>data oriented design&lt;/em>&lt;/a> in many ways (although it&amp;rsquo;s &lt;a href="https://github.com/hexops/mach/issues/127#issuecomment-1014176503">roots are &lt;em>much&lt;/em> earlier&lt;/a>). There are many talks about data oriented design including &lt;a href="https://www.youtube.com/watch?v=rX0ItVEVjHc">Mike Acton&amp;rsquo;s at CppCon&lt;/a>, and my personal favorite &lt;a href="https://media.handmade-seattle.com/practical-data-oriented-design/">&amp;ldquo;A Practical Guide to Applying Data-Oriented Design&amp;rdquo;&lt;/a> by Andrew Kelley. You don&amp;rsquo;t have to watch either, I&amp;rsquo;ll cover the important concepts we use here. But I highly suggest &lt;strong>every&lt;/strong> developer watch Andrew Kelley&amp;rsquo;s talk above. It&amp;rsquo;s eye opening no matter what kind of programming you are doing.&lt;/p>
 &lt;p>Let&amp;rsquo;s work forwards, not backwards: We&amp;rsquo;re not starting by building an ECS, we&amp;rsquo;re starting by building a proper data oriented design for CPU cache and memory efficiency, and then we&amp;rsquo;re working towards &amp;ldquo;how do we make that easier for people to do by default?&amp;rdquo; and looking to existing ECS architectures for inspiration.&lt;/p>
 &lt;h2 id="what-would-data-oriented-design-look-like-code-starts-here">What would data oriented design look like? (code starts here!)&lt;/h2>
@@ -1246,11 +1246,11 @@ Process 6516 stopped
 &lt;p>All key Mach engine developments will be posted here, with incremental updates on Twitter &lt;a href="https://twitter.com/machengine">@machengine&lt;/a>.&lt;/p>
 &lt;p>Follow &lt;a href="https://github.com/hexops/mach">Mach engine on GitHub&lt;/a>, and if you like what I&amp;rsquo;m doing please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a>.&lt;/p></description></item><item><title>Mach Engine: The future of graphics (with Zig)</title><link>https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig/</link><pubDate>Sun, 17 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig/</guid><description>&lt;p>In the coming months, we&amp;rsquo;ll begin to have truly cross-platform low-level graphics, with the ability to cross compile GPU-accelerated applications written in Zig from any OS and deploy to desktop, mobile, and (in the future) web.&lt;/p>
 &lt;h2 id="mach-engine">Mach engine&lt;/h2>
-&lt;img class="color-inverted" alt="Mach: Game engine &amp; graphics toolkit for the future" src="https://user-images.githubusercontent.com/3173176/137651926-3734c3b2-4875-47de-b42f-0ece854756f7.png">
+&lt;img class="color-auto" alt="Mach: Game engine &amp; graphics toolkit for the future" src="https://user-images.githubusercontent.com/3173176/137651926-3734c3b2-4875-47de-b42f-0ece854756f7.png">
 &lt;p>I&amp;rsquo;ve been working on &lt;a href="https://github.com/hexops/mach">Mach Engine&lt;/a> for about 4 months now, although it as a project is many years in the making, and I believe in the next 4-6 months we&amp;rsquo;ll have completion of the first key milestone: truly cross platform graphics and seamless cross compilation.&lt;/p>
 &lt;h2 id="vision">Vision&lt;/h2>
 &lt;p>Today, I share only the first milestone: Mach engine core. I&amp;rsquo;ve been working on this for around 1 year now, and we&amp;rsquo;re close (maybe 4-6 months away) from completion:&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137649720-072ff7fe-323d-49c6-ae88-51344e04e3e5.png">&lt;img class="color-inverted" alt="Zero fuss installation, out of the box cross compilation, and a truly cross-platform graphics API" src="https://user-images.githubusercontent.com/3173176/137649720-072ff7fe-323d-49c6-ae88-51344e04e3e5.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137649720-072ff7fe-323d-49c6-ae88-51344e04e3e5.png">&lt;img class="color-auto" alt="Zero fuss installation, out of the box cross compilation, and a truly cross-platform graphics API" src="https://user-images.githubusercontent.com/3173176/137649720-072ff7fe-323d-49c6-ae88-51344e04e3e5.png">&lt;/a>&lt;/p>
 &lt;h2 id="zero-fuss-installation--cross-compilation">Zero fuss installation &amp;amp; cross compilation&lt;/h2>
 &lt;p>Only &lt;code>zig&lt;/code> and &lt;code>git&lt;/code> are needed to build from any OS and produce binaries for every OS. You do &lt;strong>not&lt;/strong> need any system dependencies, C libraries, SDKs (Xcode, etc.), C compilers or anything else.&lt;/p>
 &lt;p>We&amp;rsquo;re able to achieve this thanks to two things:&lt;/p>
@@ -1261,11 +1261,11 @@ Process 6516 stopped
 &lt;h2 id="truly-cross-platform-graphics-api">Truly cross-platform graphics API&lt;/h2>
 &lt;h3 id="directx-12-metal-vulkan--opengl">DirectX 12, Metal, Vulkan &amp;amp; OpenGL&lt;/h3>
 &lt;p>Imagine a low-level, little to no overhead graphics API that unifies DirectX, Metal, Vulkan, and OpenGL (if no others are available):&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137646296-72ba698e-c710-4daf-aa75-222f8d717d00.png">&lt;img class="color-inverted" alt="Simple, low-level unified graphics API mapping to DirectX 12, Metal, Vulkan, and OpenGL" src="https://user-images.githubusercontent.com/3173176/137646296-72ba698e-c710-4daf-aa75-222f8d717d00.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137646296-72ba698e-c710-4daf-aa75-222f8d717d00.png">&lt;img class="color-auto" alt="Simple, low-level unified graphics API mapping to DirectX 12, Metal, Vulkan, and OpenGL" src="https://user-images.githubusercontent.com/3173176/137646296-72ba698e-c710-4daf-aa75-222f8d717d00.png">&lt;/a>&lt;/p>
 &lt;p>&lt;em>This isn&amp;rsquo;t anything new:&lt;/em> all modern engines provide this, Godot has been working towards this for &lt;em>years&lt;/em> (and still is), and there exist abstraction layers for Vulkan over most of these APIs as well.&lt;/p>
 &lt;h3 id="vendor-support">Vendor support&lt;/h3>
 &lt;p>&lt;strong>An API is only as good as the momentum behind it.&lt;/strong> What modern API can target the largest array of platforms with the most vendor backing?&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137647361-3340e33a-9b2f-4c0d-aba5-6bb99ffd1cd8.png">&lt;img class="color-inverted" alt="Google to Vulkan, Microsoft to DirectX, Apple to Metal, AMD and NVidia to everything." src="https://user-images.githubusercontent.com/3173176/137647361-3340e33a-9b2f-4c0d-aba5-6bb99ffd1cd8.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137647361-3340e33a-9b2f-4c0d-aba5-6bb99ffd1cd8.png">&lt;img class="color-auto" alt="Google to Vulkan, Microsoft to DirectX, Apple to Metal, AMD and NVidia to everything." src="https://user-images.githubusercontent.com/3173176/137647361-3340e33a-9b2f-4c0d-aba5-6bb99ffd1cd8.png">&lt;/a>&lt;/p>
 &lt;ul>
 &lt;li>&lt;strong>Microsoft sees DirectX as the future, not Vulkan.&lt;/strong> (DirectX 13 is coming by the end of 2022.)&lt;/li>
 &lt;li>&lt;strong>Apple sees Metal as the future, not Vulkan.&lt;/strong> OpenGL and OpenCL are deprecated, and private legal arguments with Khoronos make it unlikely we&amp;rsquo;ll ever see OpenGL or Vulkan on Apple hardware ever again.&lt;/li>
@@ -1273,12 +1273,12 @@ Process 6516 stopped
 &lt;li>&lt;strong>NVIDIA, AMD, and Intel generally support as many graphics APIs as possible&lt;/strong>, they want to sell hardware.&lt;/li>
 &lt;/ul>
 &lt;h3 id="one-api-that-apple-microsoft-and-google-can-all-agree-on">One API that Apple, Microsoft, and Google can all agree on&lt;/h3>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137647342-abf2bde6-a8bb-4276-b072-95c279c5d92f.png">&lt;img class="color-inverted" alt="Mozilla, Google, Microsoft, Apple, and Intel all to WebGPU" src="https://user-images.githubusercontent.com/3173176/137647342-abf2bde6-a8bb-4276-b072-95c279c5d92f.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137647342-abf2bde6-a8bb-4276-b072-95c279c5d92f.png">&lt;img class="color-auto" alt="Mozilla, Google, Microsoft, Apple, and Intel all to WebGPU" src="https://user-images.githubusercontent.com/3173176/137647342-abf2bde6-a8bb-4276-b072-95c279c5d92f.png">&lt;/a>&lt;/p>
 &lt;p>Outside the bounds of traditional graphics APIs there exists an attempt to provide a unified API across all platforms, &lt;a href="https://en.wikipedia.org/wiki/WebGPU">WebGPU&lt;/a> (not to be confused with the much older &lt;em>WebGL&lt;/em>).&lt;/p>
 &lt;p>Mozilla, Google, Apple, and Microsoft all got together to build an abstraction layer over the modern graphics APIs - finding the common ground between Direct3D 12, Metal, and Vulkan - plus a safe way to expose that functionality in browsers.&lt;/p>
 &lt;p>The name &lt;em>WebGPU&lt;/em> might lead you to believe that this is only for browsers, and that it may not be low-level or fast - but this really couldn&amp;rsquo;t be further from the truth.&lt;/p>
 &lt;h3 id="apple--googles-role-is-what-makes-webgpu-unique-and-why-we-chose-it">Apple &amp;amp; Google&amp;rsquo;s role is what makes WebGPU unique, and why we chose it&lt;/h3>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137648560-e15820d7-6427-4ebd-95bb-c7c9f026477a.png">&lt;img class="color-inverted" alt="Khronos group out of the piture in the future" src="https://user-images.githubusercontent.com/3173176/137648560-e15820d7-6427-4ebd-95bb-c7c9f026477a.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137648560-e15820d7-6427-4ebd-95bb-c7c9f026477a.png">&lt;img class="color-auto" alt="Khronos group out of the piture in the future" src="https://user-images.githubusercontent.com/3173176/137648560-e15820d7-6427-4ebd-95bb-c7c9f026477a.png">&lt;/a>&lt;/p>
 &lt;p>What is new about WebGPU in my view is the vendors playing key roles in its development, and the fact that it grew outside the Khronos Group.&lt;/p>
 &lt;p>Although abstraction layers over modern graphics APIs are nothing new - as Apple, Google, and Microsoft continue to get more into manufacturing their own hardware (it&amp;rsquo;s clear this is a strategic move for them) we should ask ourselves how this will change the landscape, and WebGPU is the first cross-vendor API to be produced by this new ecosystem.&lt;/p>
 &lt;h3 id="webgpu-extended-thoughts">WebGPU extended thoughts&lt;/h3>
@@ -1309,7 +1309,7 @@ Process 6516 stopped
 &lt;/details>
 &lt;h2 id="what-progress-has-been-made-so-far-on-mach-engine">What progress has been made so far on Mach Engine?&lt;/h2>
 &lt;p>Today, we have cross-compilation of GLFW on all desktop OSs working out of the box with nothing more than &lt;code>zig&lt;/code> and &lt;code>git&lt;/code>:&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png">&lt;img class="color-inverted" alt="Cross compilation from Mac, Linux, and Windows to eachother on all major architectures." src="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png">&lt;/a>&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png">&lt;img class="color-auto" alt="Cross compilation from Mac, Linux, and Windows to eachother on all major architectures." src="https://user-images.githubusercontent.com/3173176/137650099-cd370046-eb43-4fe4-a72a-f54ebe3153c1.png">&lt;/a>&lt;/p>
 &lt;p>This involved:&lt;/p>
 &lt;ul>
 &lt;li>&lt;a href="https://github.com/hexops/sdk-macos-11.3">Packaging MacOS SDKs&lt;/a> and &lt;a href="https://github.com/hexops/sdk-linux-x86_64">Linux system X11/Wayland libraries&lt;/a> into SDKs, and creating Zig build scripts that could merely &lt;code>git clone&lt;/code> them and utilize them for cross-compilation.&lt;/li>
@@ -2044,13 +2044,13 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;/ul>
 &lt;h2 id="what-are-parser-combinators">What are parser combinators?&lt;/h2>
 &lt;p>A parser parses some text to produce a result:&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110372092-1c234080-800b-11eb-8095-654c3c81354d.png">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110372092-1c234080-800b-11eb-8095-654c3c81354d.png">
 &lt;p>A &lt;a href="https://en.wikipedia.org/wiki/Parser_combinator">parser combinator&lt;/a> is a &lt;a href="https://en.wikipedia.org/wiki/Higher-order_function">higher-order function&lt;/a> which &lt;em>takes parsers as input&lt;/em> and &lt;em>produces a new parser&lt;/em> as output:&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110372575-b4b9c080-800b-11eb-9ef8-58f3ee0e1f1d.png">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110372575-b4b9c080-800b-11eb-9ef8-58f3ee0e1f1d.png">
 &lt;h2 id="why-are-parser-combinators-useful">Why are parser combinators useful?&lt;/h2>
 &lt;p>Let&amp;rsquo;s say we want to parse the syntax which describes a regular expression: &lt;code>a[bc].*abc&lt;/code>&lt;/p>
 &lt;p>We can define some &lt;em>parsers&lt;/em> to help us parse this syntax (e.g. into tokens or AST nodes):&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110375065-b1740400-800e-11eb-987e-b5a7c5a3381b.png">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110375065-b1740400-800e-11eb-987e-b5a7c5a3381b.png">
 &lt;p>Suppose that for &lt;code>a[bc].*abc&lt;/code>:&lt;/p>
 &lt;ul>
 &lt;li>&lt;code>RegexLiteralParser&lt;/code> can parse &lt;code>a&lt;/code>, &lt;code>b&lt;/code>, and &lt;code>c&lt;/code>, but not &lt;code>abc&lt;/code> (the string.)&lt;/li>
@@ -2060,18 +2060,18 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;li>&lt;code>RegexRepetitionParser&lt;/code> can parse the &lt;code>*&lt;/code> repetition operator.&lt;/li>
 &lt;/ul>
 &lt;p>Now that we have these &lt;em>parsers&lt;/em>, we can define &lt;em>parser combinators&lt;/em> to help us parse the full regular expression. First, we need something to parse a string &lt;code>abc&lt;/code> which we can define as:&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110413375-fa49ae00-804a-11eb-8311-64e737513000.png">
+&lt;p>&amp;lt;img class=&amp;ldquo;color-autoc=&amp;ldquo;&lt;a href="https://user-images.githubusercontent.com/3173176/110413375-fa49ae00-804a-11eb-8311-64e737513000.png%22%3E">https://user-images.githubusercontent.com/3173176/110413375-fa49ae00-804a-11eb-8311-64e737513000.png&amp;quot;&amp;gt;&lt;/a>&lt;/p>
 &lt;p>What is &lt;code>OneOrMore&lt;/code>, though? That&amp;rsquo;s our first parser combinator!&lt;/p>
 &lt;p>It takes a single parser as input (in this case, &lt;code>RegexLiteralParser&lt;/code>) and uses it to parse the input one or more times. If it succeeded once, the parser combinator succeeded. Otherwise, it failed to parse anything.&lt;/p>
 &lt;p>Now if we want to parse the &lt;code>[bc]&lt;/code> part of our regex, let&amp;rsquo;s say it can only contain a literal like &lt;code>bc&lt;/code> (of course, real regex allows far more than this) we can e.g. reuse our new &lt;code>RegexStringLiteralParser&lt;/code>:&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110413643-780db980-804b-11eb-8fe5-8ca97b2e96ca.png">
+&lt;p>&amp;lt;img class=&amp;ldquo;color-autoc=&amp;ldquo;&lt;a href="https://user-images.githubusercontent.com/3173176/110413643-780db980-804b-11eb-8fe5-8ca97b2e96ca.png%22%3E">https://user-images.githubusercontent.com/3173176/110413643-780db980-804b-11eb-8fe5-8ca97b2e96ca.png&amp;quot;&amp;gt;&lt;/a>&lt;/p>
 &lt;p>In this case, &lt;code>Sequence&lt;/code> is a parser combinator which takes multiple parsers and tries to parse them one-after-the-other in order, requiring all to succeed or failing otherwise.&lt;/p>
 &lt;p>Building upon this basic idea, we can use parser combinators to build a full regex syntax parser:&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110414508-2ebe6980-804d-11eb-9422-0888208fac19.png">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110414508-2ebe6980-804d-11eb-9422-0888208fac19.png">
 &lt;h2 id="going-deeper-_runtime-parser-generation_">Going deeper: &lt;em>runtime parser generation&lt;/em>&lt;/h2>
 &lt;p>From before, our &lt;em>parser combinator&lt;/em> &lt;code>RegexSyntaxParser&lt;/code> is built out of multiple parsers (&lt;code>Regex...Parser&lt;/code>) and ultimately produces an AST describing the syntax for a given regex.&lt;/p>
 &lt;p>We can use the same combinatorial principle here to introduce a new &lt;em>parser generator&lt;/em> called &lt;code>RegexParser&lt;/code> which uses &lt;code>RegexSyntaxParser&lt;/code> to create a &lt;em>brand new parser at runtime&lt;/em> that is capable of parsing the actual semantics the regex describes - forming a full regex engine:&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110528627-94eecf00-80d5-11eb-8fb6-f6bb051d9394.png">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110528627-94eecf00-80d5-11eb-8fb6-f6bb051d9394.png">
 &lt;h2 id="a-note-about-traditional-regex-engines">A note about traditional regex engines&lt;/h2>
 &lt;p>&lt;small>&lt;em>Revised Mar 10, 2021&lt;/em> to clarify a misunderstanding I had about about the difference between DFA and NFA regex engines. Thanks &lt;a href="https://news.ycombinator.com/item?id=26419048">@burntsushi&lt;/a> for helping me to learn!&lt;/small>&lt;/p>
 &lt;p>Production grade regex engines are either &lt;em>finite automata based&lt;/em> or &lt;em>backtracking based&lt;/em>, and are described in great detail in &lt;a href="https://swtch.com/~rsc/regexp/regexp1.html">Russ Cox&amp;rsquo;s article here&lt;/a> and &lt;a href="https://swtch.com/~rsc/regexp/regexp2.html">his second article here&lt;/a> covering the virtual-machine approach commonly used in regex engines.&lt;/p>
@@ -2088,7 +2088,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;p>Since we&amp;rsquo;ll be dealing with heap allocations, our parser will not be able to run at comptime for now. Once &lt;a href="https://github.com/ziglang/zig/issues/1291">Zig gets comptime heap allocations&lt;/a> this should be possible and opens up interesting new opportunities.&lt;/p>
 &lt;h3 id="the-parser-interface">The parser interface&lt;/h3>
 &lt;p>We need an interface in Zig which describes a &lt;em>parser&lt;/em> as we previously mentioned:&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110372092-1c234080-800b-11eb-8095-654c3c81354d.png">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110372092-1c234080-800b-11eb-8095-654c3c81354d.png">
 &lt;p>Here it is - there&amp;rsquo;s a lot to unpack here so we&amp;rsquo;ll walk through it step-by-step:&lt;/p>
 &lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">pub&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">fn&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Parser&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kr">comptime&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Value&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">type&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">comptime&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Reader&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">type&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">type&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
 &lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">return&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
@@ -2126,10 +2126,10 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;p>Basically, if someone wants to implement our interface they just need to create a new instance of &lt;code>Parser&lt;/code> and populate the fields (callbacks) so their implementation is called when the interface is used.&lt;/p>
 &lt;p>This is the same pattern used by the Zig &lt;a href="https://sourcegraph.com/github.com/ziglang/zig/-/blob/lib/std/mem/Allocator.zig">&lt;code>std.mem.Allocator&lt;/code> interface&lt;/a>.&lt;/p>
 &lt;p>In our case here, the returned struct has a method that consumers of the interface would invoke called &lt;code>parse&lt;/code> - and the function pointer field that implementors will set to get a callback is the &lt;code>_parse&lt;/code> field:&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110578739-ad390b00-8122-11eb-816c-09e1e281db9d.png">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110578739-ad390b00-8122-11eb-816c-09e1e281db9d.png">
 &lt;h3 id="type-parameters">Type parameters&lt;/h3>
 &lt;p>Let&amp;rsquo;s look at some of the data types going around here:&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110578578-60553480-8122-11eb-897b-e52e2d45eede.png">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110578578-60553480-8122-11eb-897b-e52e2d45eede.png">
 &lt;p>A few other notes:&lt;/p>
 &lt;ul>
 &lt;li>&lt;code>Error!?Value&lt;/code> is just describing the function can return an &lt;code>Error&lt;/code> OR no value OR a &lt;code>Value&lt;/code> type. See Zig&amp;rsquo;s &lt;a href="https://ziglang.org/documentation/master/#Error-Union-Type">error union types&lt;/a> and &lt;a href="https://ziglang.org/documentation/master/#Optionals">optional types&lt;/a>.&lt;/li>
@@ -2236,7 +2236,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;p>This is where some Zig magic comes in: on obscure builtin function we can use inside of our &lt;code>parse&lt;/code> method:&lt;/p>
 &lt;pre>&lt;code>const self = @fieldParentPtr(Self, &amp;quot;parser&amp;quot;, parser);
 &lt;/code>&lt;/pre>&lt;p>To understand this, first let&amp;rsquo;s get a look at what these parameters are referring to:&lt;/p>
-&lt;img class="color-inverted" src="https://user-images.githubusercontent.com/3173176/110593977-7b7f6e80-8139-11eb-8ecc-41dff5766ec2.png">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110593977-7b7f6e80-8139-11eb-8ecc-41dff5766ec2.png">
 &lt;p>We can see from the Zig documentation that this function operates as follows:&lt;/p>
 &lt;blockquote>
 &lt;p>Given a pointer to a field, returns the base pointer of a struct.&lt;/p>
