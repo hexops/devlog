@@ -128,7 +128,7 @@ Note that [`@sizeOf`](https://ziglang.org/documentation/master/#sizeOf) may incl
 
 ## Explicit backing integers for packed structs
 
-It's worth noting that in Zig 0.11 (shipping in Nov), the new self-hosted compiler has support for [explicit backing integers for packed structs](https://github.com/ziglang/zig/pull/12379) which will simplify this even further.
+It's worth noting that in Zig 0.10 (shipping in Nov), the new self-hosted compiler has support for [explicit backing integers for packed structs](https://github.com/ziglang/zig/pull/12379) which will simplify this even further.
 
 Instead of manually adding padding to make up 32 bits, one could simply write `packed struct(u32)`:
 
