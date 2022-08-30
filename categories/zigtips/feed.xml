@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>zigtips on Hexops' devlog</title><link>https://devlog.hexops.com/categories/zigtips/</link><description>Recent content in zigtips on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 29 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/zigtips/feed.xml" rel="self" type="application/rss+xml"/><item><title>Packed structs in Zig make bit/flag sets trivial</title><link>https://devlog.hexops.com/2022/packed-structs-in-zig/</link><pubDate>Mon, 29 Aug 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/packed-structs-in-zig/</guid><description>&lt;p>As we&amp;rsquo;ve been building &lt;a href="https://machengine.org/">Mach engine&lt;/a>, we&amp;rsquo;ve been using a neat little pattern in Zig that enables writing flag sets more nicely in Zig than in other languages.&lt;/p>
+&lt;h2 id="what-is-a-flag-set">What is a flag set?&lt;/h2>
+&lt;p>We&amp;rsquo;ve been rewriting &lt;code>mach/gpu&lt;/code> (WebGPU bindings for Zig) from scratch recently, so let&amp;rsquo;s take a flag set from the WebGPU C API:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="k">typedef&lt;/span> &lt;span class="kt">uint32_t&lt;/span> &lt;span class="n">WGPUFlags&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="k">typedef&lt;/span> &lt;span class="n">WGPUFlags&lt;/span> &lt;span class="n">WGPUColorWriteMaskFlags&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Effectively, &lt;code>WGPUColorWriteMaskFlags&lt;/code> here is a 32-bit unsigned integer where you can set specific bits in it to represent whether or not to write certain colors:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="k">typedef&lt;/span> &lt;span class="k">enum&lt;/span> &lt;span class="n">WGPUColorWriteMask&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">WGPUColorWriteMask_None&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x00000000&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">WGPUColorWriteMask_Red&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x00000001&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">WGPUColorWriteMask_Green&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x00000002&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">WGPUColorWriteMask_Blue&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x00000004&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">WGPUColorWriteMask_Alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x00000008&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">WGPUColorWriteMask_All&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x0000000F&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">WGPUColorWriteMask_Force32&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x7FFFFFFF&lt;/span>
+&lt;span class="p">}&lt;/span> &lt;span class="n">WGPUColorWriteMask&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then to use it you&amp;rsquo;d use the various bit operations with those masks, e.g.:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="n">WGPUColorWriteMaskFlags&lt;/span> &lt;span class="n">mask&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">WGPUColorWriteMask_Red&lt;/span> &lt;span class="o">|&lt;/span> &lt;span class="n">WGPUColorWriteMask_Green&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;span class="n">mask&lt;/span> &lt;span class="o">|=&lt;/span> &lt;span class="n">WGPUColorWriteMask_Blue&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">// set blue bit
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This all works, people have been doing it for years in C, C++, Java, Rust, and more. In Zig, we can do better.&lt;/p>
+&lt;h2 id="zig-packed-structs">Zig packed structs&lt;/h2>
+&lt;p>&lt;img class="color-auto" style="max-height: 300px;" src="https://user-images.githubusercontent.com/3173176/184735519-cc78d19d-73e8-4914-8f3d-fc3a15d00bb7.png" />&lt;/p>
+&lt;p>Zig has &lt;code>packed struct&lt;/code>s: these let us pack memory tightly, where a &lt;code>bool&lt;/code> is actually a single bit (in most other languages, this is not true.) Zig also has arbitrary bit-width integers, like &lt;code>u28&lt;/code>, &lt;code>u1&lt;/code> and so on.&lt;/p>
+&lt;p>We can write &lt;code>WGPUColorWriteMaskFlags&lt;/code> from earlier in Zig using:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">pub&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ColorWriteMaskFlags&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">packed&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">red&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">green&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">blue&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">alpha&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">_padding&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">u28&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This is still just 32 bits of memory, and so can be passed to the same C APIs that expect a &lt;code>WGPUColorWriteMaskFlags&lt;/code> - but interacting with it is much nicer:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">mask&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ColorWriteMaskFlags&lt;/span>&lt;span class="p">{.&lt;/span>&lt;span class="n">red&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">green&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="n">mask&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">blue&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// set blue bit
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In C you would need to write code like this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">mask&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="n">WGPUColorWriteMask_Alpha&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="c1">// alpha is set..
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">mask&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">WGPUColorWriteMask_Alpha&lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="n">WGPUColorWriteMask_Blue&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="c1">// alpha and blue are set..
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;span class="k">if&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="n">mask&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="n">WGPUColorWriteMask_Green&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="c1">// green not set
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In Zig it&amp;rsquo;s just:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="k">if&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mask&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">alpha&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// alpha is set..
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">if&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mask&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">alpha&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">and&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">mask&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">blue&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// alpha is set..
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">if&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="n">mask&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">green&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// green not set
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="comptime-validation">Comptime validation&lt;/h2>
+&lt;p>Making sure that our &lt;code>ColorWriteMaskFlags&lt;/code> ends up being the same size could be a bit tricky: what if we count the number of &lt;code>bool&lt;/code> wrong? Or what if we accidently get the padding size wrong? Then it might not be the same size as a &lt;code>uint32&lt;/code> anymore.&lt;/p>
+&lt;p>Luckily, we can verify our expectations at comptime:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">pub&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ColorWriteMaskFlags&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">packed&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">red&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">green&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">blue&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">alpha&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">_padding&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">u28&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">comptime&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">debug&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">assert&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">@sizeOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">@This&lt;/span>&lt;span class="p">())&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">==&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nb">@sizeOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">u32&lt;/span>&lt;span class="p">));&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">debug&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">assert&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">@bitSizeOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">@This&lt;/span>&lt;span class="p">())&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">==&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nb">@bitSizeOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">u32&lt;/span>&lt;span class="p">));&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The Zig compiler will take care of running the &lt;code>comptime&lt;/code> code block here for us when building, and it will verify that the byte size of &lt;code>@This()&lt;/code> (the type we&amp;rsquo;re inside of, the &lt;code>ColorWriteMaskFlags&lt;/code> struct in this case) matches the &lt;code>@sizeOf(u32)&lt;/code>.&lt;/p>
+&lt;p>Similarly we could check the &lt;code>@bitSizeOf&lt;/code> both types if we like.&lt;/p>
+&lt;p>Note that &lt;a href="https://ziglang.org/documentation/master/#sizeOf">&lt;code>@sizeOf&lt;/code>&lt;/a> may include the size of padding for more complex types, while &lt;a href="https://ziglang.org/documentation/master/#bitSizeOf">&lt;code>@bitSizeOf&lt;/code>&lt;/a> returns the number of bits it takes to store &lt;code>T&lt;/code> in memory &lt;em>if the type were a field in a packed struct/union&lt;/em>. For flag sets like this, it doesn&amp;rsquo;t matter and either will do. For more complex types, be sure to recall this.&lt;/p>
+&lt;h2 id="thanks-for-reading">Thanks for reading&lt;/h2>
+&lt;p>&lt;img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
+Be sure to join the new &lt;a href="https://discord.gg/XNG3NZgCqp">Mach engine Discord server&lt;/a> where we&amp;rsquo;re building the future of Zig game development.
+&lt;br>&lt;br>
+You can also &lt;a href="https://github.com/sponsors/slimsag">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p></description></item><item><title>Zig hashmaps explained</title><link>https://devlog.hexops.com/2022/zig-hashmaps-explained/</link><pubDate>Sat, 29 Jan 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/zig-hashmaps-explained/</guid><description>&lt;p>If you just got started with &lt;a href="https://ziglang.org">Zig&lt;/a>, you might quickly want to use a hashmap. Zig provides good defaults, with a lot of customization options.&lt;/p>
+&lt;p>Here I will try to guide you into choosing the right hashmap type.&lt;/p>
+&lt;h2 id="60-second-explainer">60-second explainer&lt;/h2>
+&lt;p>You probably want:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">StringHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Or if you do not have string keys, you can use an &lt;code>Auto&lt;/code> hashmap instead:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Where &lt;code>K&lt;/code> and &lt;code>V&lt;/code> are your key and value data types, respectively. e.g. &lt;code>[]const u8&lt;/code> for a string.&lt;/p>
+&lt;p>You can then use these APIs:&lt;/p>
+&lt;h3 id="insert-a-value">Insert a value&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">put&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="insert-a-value-assert-entry-does-not-already-exist">Insert a value, assert entry does not already exist&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">putNoClobber&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Note &lt;code>putNoClobber&lt;/code> may be renamed to something like &lt;code>putAssumeNoEntry&lt;/code> in the near future: &lt;a href="https://github.com/ziglang/zig/issues/10736">ziglang/zig#10736&lt;/a>&lt;/p>
+&lt;h3 id="get-a-value">Get a value&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">if&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="o">|&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// got value &amp;#34;v&amp;#34;
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">else&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// doesn&amp;#39;t exist
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="get-a-value-insert-if-not-exist">Get a value, insert if not exist&lt;/h3>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">getOrPut&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">if&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">found_existing&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// We inserted an entry, specify the new value
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// This is a conditional in case creating the new value is expensive
+&lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">value_ptr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;my value&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">value&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">value_ptr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// use the value
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can find more APIs &lt;a href="https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig#L342">by going here&lt;/a> and using your browser&amp;rsquo;s builtin search for &lt;code>pub fn&lt;/code>.&lt;/p>
+&lt;h2 id="about-key-data-types">About key data types&lt;/h2>
+&lt;p>Zig hash map types start with the data type of the key:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>std.StringHashMap&lt;/code> - uses a good default hashing function for string keys&lt;/li>
+&lt;li>&lt;code>std.AutoHashMap&lt;/code> - uses a good default hashing function for most data types&lt;/li>
+&lt;li>&lt;code>std.HashMap&lt;/code> - the &amp;ldquo;bring your own hashing function&amp;rdquo; option&lt;/li>
+&lt;/ul>
+&lt;p>Note: &lt;code>AutoHashMap&lt;/code> does not support &lt;em>slices&lt;/em>, such as &lt;code>[]const u8&lt;/code> string slices, because that is a pointer to an array and it is ambiguous whether or not you intend to hash &lt;em>the array elements&lt;/em> or &lt;em>the pointer itself&lt;/em>. You can use the generic &lt;code>std.HashMap&lt;/code> for any slice type, you just have to provide your own hash functions.&lt;/p>
+&lt;h2 id="hashmaps-are-also-sets">Hashmaps are also sets&lt;/h2>
+&lt;p>A set in Zig is just a hashmap with a &lt;code>void&lt;/code> value:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">put&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{});&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// `{}` is a value of type `void`
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="advanced-usages">Advanced usages&lt;/h2>
+&lt;p>If you&amp;rsquo;re just getting started with Zig, don&amp;rsquo;t worry too much about the below. Just know that you have options available should you need to reduce memory usage or optimize your use of hashmaps in the future.&lt;/p>
+&lt;h3 id="managed-vs-unmanaged-hashmaps">Managed vs. unmanaged hashmaps&lt;/h3>
+&lt;p>You can add &lt;code>Unmanaged&lt;/code> to the end of a Zig hashmap data type, e.g. &lt;code>std.StringHashMapUnmanaged&lt;/code> in order to get the &lt;em>unmanaged&lt;/em> version.&lt;/p>
+&lt;p>This merely doesn&amp;rsquo;t carry an &lt;code>allocator&lt;/code> internally, instead you must pass the allocator into every method of the hashmap. While only a few bytes, this can be a useful optimization if you&amp;rsquo;re storing many hashmaps for example.&lt;/p>
+&lt;p>Managed:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">StringHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Unmanaged:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">StringHashMapUnmanaged&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">){};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="array-hash-maps">Array hash maps&lt;/h3>
+&lt;p>Zig actually provides &lt;a href="https://github.com/ziglang/zig/pull/5999">&lt;em>two hashmap implementations&lt;/em>&lt;/a> in the standard library&lt;/p>
+&lt;p>&lt;code>std.HashMap&lt;/code>, perfect for every-day use cases:&lt;/p>
+&lt;ul>
+&lt;li>Optimized for lookup times primarily&lt;/li>
+&lt;li>Optimized for insertion/removal times secondarily&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>std.ArrayHashMap&lt;/code>, useful in &lt;em>some&lt;/em> situations:&lt;/p>
+&lt;ul>
+&lt;li>Iterating over the hashmap is an order of magnitude faster (a contiguous array)&lt;/li>
+&lt;li>Insertion order is preserved.&lt;/li>
+&lt;li>You can index into the underlying data like an array if you like&lt;/li>
+&lt;li>Deletions can be performed one of two ways, mirroring the &lt;code>ArrayList&lt;/code> API:
+&lt;ul>
+&lt;li>&lt;code>swapRemove&lt;/code>: swaps the target element with the last element in the list to remove it&lt;/li>
+&lt;li>&lt;code>orderedRemove&lt;/code>: removes target element by shifting all elements forward, maintaining current ordering&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="hashmap-context">Hashmap context&lt;/h3>
+&lt;p>If you choose to use &lt;code>std.HashMap&lt;/code> or &lt;code>std.ArrayHashMap&lt;/code> directly (without the &lt;code>String&lt;/code> or &lt;code>Auto&lt;/code> prefix), then you&amp;rsquo;ll find it wants a &lt;em>context&lt;/em> parameter and &lt;em>max load percentage&lt;/em>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_hash_map&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">HashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">V&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AutoContext&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">K&lt;/span>&lt;span class="p">),&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">hash_map&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">default_max_load_percentage&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;em>context&lt;/em> parameter lets you embed some of your own data within the hash map type. This can be useful for &lt;a href="https://zig.news/andrewrk/how-to-use-hash-map-contexts-to-save-memory-when-doing-a-string-table-3l33">reducing the amount of memory that a hash map takes up when doing a string table&lt;/a>.&lt;/p>
+&lt;h3 id="pick-your-hashmap">Pick your hashmap&lt;/h3>
+&lt;p>Regular implementation:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Key type&lt;/th>
+&lt;th>Managed?&lt;/th>
+&lt;th>How to initialize&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.StringHashMap(V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.AutoHashMap(K, V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.StringHashMapUnmanaged(V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.AutoHashMapUnmanaged(K, V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>&lt;code>ArrayHashMap&lt;/code> implementation:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Key type&lt;/th>
+&lt;th>Managed?&lt;/th>
+&lt;th>How to initialize&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.StringArrayHashMap(V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>yes&lt;/td>
+&lt;td>&lt;code>std.AutoArrayHashMap(K, V).init(allocator)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.StringArrayHashMapUnmanaged(V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>Auto&lt;/code>&lt;/td>
+&lt;td>&lt;code>Unmanaged&lt;/code>&lt;/td>
+&lt;td>&lt;code>std.AutoArrayHashMapUnmanaged(K, V){}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="learn-more">Learn more&lt;/h3>
+&lt;p>The source code is very readable:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig">&lt;code>std.HashMap&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/ziglang/zig/blob/master/lib/std/hash_map.zig">&lt;code>std.ArrayHashMap&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="help-improve-this-page">Help improve this page&lt;/h3>
+&lt;p>I wrote this article quickly because I needed to explain my choice of hashmaps in the &lt;a href="https://devlog.hexops.com/categories/build-an-ecs/">&amp;ldquo;Let&amp;rsquo;s build an Entity Component System from scratch&amp;rdquo;&lt;/a> series and there was no better source of this info. I&amp;rsquo;m sure there are things that can be improved.&lt;/p>
+&lt;p>&lt;a href="https://github.com/hexops/devlog/blob/main/_posts/2022-01-29-zig-hashmaps-explained.md">Feel free to send a PR!&lt;/a>&lt;/p></description></item></channel></rss>
