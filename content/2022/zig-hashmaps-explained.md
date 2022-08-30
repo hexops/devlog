@@ -5,7 +5,7 @@ date: "2022-01-29"
 draft: false
 categories:
 - zig
-- hashmaps
+- zigtips
 description: "If you just got started with Zig, you might quickly want to use a hashmap. Zig provides good defaults, with a lot of customization options."
 images: ["/img/hexops-opengraph.png"]
 ---
