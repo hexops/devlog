@@ -126,6 +126,20 @@ Similarly we could check the `@bitSizeOf` both types if we like.
 
 Note that [`@sizeOf`](https://ziglang.org/documentation/master/#sizeOf) may include the size of padding for more complex types, while [`@bitSizeOf`](https://ziglang.org/documentation/master/#bitSizeOf) returns the number of bits it takes to store `T` in memory _if the type were a field in a packed struct/union_. For flag sets like this, it doesn't matter and either will do. For more complex types, be sure to recall this.
 
+## Explicit backing integers for packed structs
+
+It's worth noting that in Zig 0.11 (shipping in Nov), the new self-hosted compiler has support for [explicit backing integers for packed structs](https://github.com/ziglang/zig/pull/12379) which will simplify this even further.
+
+Instead of manually adding padding to make up 32 bits, one could simply write `packed struct(u32)`:
+
+```zig
+pub const ColorWriteMaskFlags = packed struct(u32) {
+    red: bool = false,
+    green: bool = false,
+    blue: bool = false,
+    alpha: bool = false,
+}
+```
 
 ## Thanks for reading
 
