@@ -303,6 +303,6 @@ From this, you can easily gather that storing entities is actually only a small 
 
 As this series develops, all the code is being developed in the Mach repository's `ecs` subfolder [on GitHub](https://github.com/hexops/mach/tree/main/ecs). The articles will lag slightly behind.
 
-[As more articles come out, you can find them here](https://devlog.hexops.com/categories/lets-build-an-ecs). Join us in developing it, give us advice, etc. [on Matrix chat](https://matrix.to/#/#ecs:matrix.org) or [follow updates on Twitter](https://twitter.com/machengine).
+[As more articles come out, you can find them here](https://devlog.hexops.com/categories/build-an-ecs). Join us in developing it, give us advice, etc. [on Matrix chat](https://matrix.to/#/#ecs:matrix.org) or [follow updates on Twitter](https://twitter.com/machengine).
 
 If you like what I'm doing, you can [sponsor me on GitHub](https://github.com/sponsors/slimsag).
