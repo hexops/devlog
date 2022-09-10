@@ -147,3 +147,28 @@ pub const ColorWriteMaskFlags = packed struct(u32) {
 Be sure to join the new [Mach engine Discord server](https://discord.gg/XNG3NZgCqp) where we're building the future of Zig game development.
 <br><br>
 You can also [sponsor my work](https://github.com/sponsors/slimsag) if you like what I'm doing! :)
+
+## "But C has had bitfields since forever!"
+
+Shortly after posting this article I was inundated with comments proclaiming "But C has had bitfields since forever!"
+
+First, I'd like to say I was not aware of C bitfields at the time of writing - I simply had not ever come across usage of them. Secondly, I'd like to question: if C has bitfields, then why do seemingly all modern C APIs not use? Why do they all expose integer types instead?
+
+And then I found the answer in the TC3 C specification:
+
+<img width="803" alt="image" src="https://user-images.githubusercontent.com/3173176/189488251-738931cc-820a-4cd8-84d4-7320e3d870e6.png">
+
+As [this user writes](https://news.ycombinator.com/item?id=32648232):
+
+> The in-memory representation of bit fields is implementation-defined. Therefore, if you're calling into an external API that takes a uint32_t like in the example without an explicit remapping, you may or may not like the results.
+>
+> In practice, everything you're likely to come across will be little endian nowadays, and the ABI you're using will most likely order your struct from top to bottom in memory, so they will look the same most of the time. However, it's still technically not portable.
+
+My intention behind this article wasn't to say C is bad; but rather to say that I find Zig's packed structs quite nice. I actually come from a background mostly in Go - which absolutely does not have bitfields, packed structs, or arbitrary bit-width integers. Having never come across them in C either, my claims against C bitfields today could be summarized as:
+
+* C's bitfields are more implementation-defined than Zig's.
+* C's bitfields being so implementation-defined, tend not to be used in modern APIs - so the fact that Zig has come up with a variant which _is used in practice in most APIs_ is very important.
+
+In any case, I am not an expert in C bitfields! I just hate masking to check if bits are set, and the [insane number of ways](https://news.ycombinator.com/item?id=32646998) that exact same logic can be written - both correctly and incorrectly. We deserve nicer syntax to check if a bit field is set out of the box, Zig provides that and I am happier for it.
+
+Please stop messaging me about how C has bitfields :)
