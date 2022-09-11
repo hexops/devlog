@@ -22,7 +22,7 @@ $ zig build example-boids -Dtarget=aarch64-macos.12
 &lt;/code>&lt;/pre>&lt;p>But this is old news! We released this 6 months ago-so what&amp;rsquo;s new since?&lt;/p>
 &lt;h2 id="zig--webgpu-showcase-10-examples">Zig + WebGPU showcase (10+ examples)&lt;/h2>
 &lt;p>The new &lt;a href="https://machengine.org/gpu">Zig WebGPU demo showcase&lt;/a> has 12+ examples you can try on your own machine to begin learning Zig and WebGPU quickly:&lt;/p>
-&lt;p>&lt;video autoplay loop controls style="height: 40rem;" >&lt;/p>
+&lt;video style="height: 40rem;" autoplay loop controls>
 &lt;source src="https://user-images.githubusercontent.com/3173176/189518244-5a44ed7f-bb11-4c98-9a84-9fdc5613aec4.mp4" type="video/mp4">
 &lt;/video>
 &lt;h2 id="mach-core-vs-mach-engine">Mach core vs. Mach engine&lt;/h2>
