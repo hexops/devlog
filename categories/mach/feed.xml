@@ -26,7 +26,9 @@ $ zig build example-boids -Dtarget=aarch64-macos.12
 &lt;source src="https://user-images.githubusercontent.com/3173176/189518244-5a44ed7f-bb11-4c98-9a84-9fdc5613aec4.mp4" type="video/mp4">
 &lt;/video>
 &lt;h2 id="mach-core-vs-mach-engine">Mach core vs. Mach engine&lt;/h2>
-&lt;p>&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/184719710-ebae4fbd-af14-4b2f-80ad-11527c5f3e8f.png" />&lt;/p>
+&lt;p align="center">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/184719710-ebae4fbd-af14-4b2f-80ad-11527c5f3e8f.png" />
+&lt;/p>
 &lt;p>Mach has a choose-your-journey development strategy, where you don&amp;rsquo;t even have to adopt the entire engine to benefit from it. All the WebGPU examples we provide are &lt;em>Mach core apps&lt;/em>: they rely on Mach for window creation, user input, and setting up the WebGPU API - nothing else. Using &lt;em>Mach core&lt;/em>, you write your own engine!&lt;/p>
 &lt;p>Why use this over, say, GLFW and WebGPU on your own? The benefit is that this will work on Desktop, WebAssembly (soon), Mobile (future), and consoles (long term.) You can write Mach core apps in Zig, or other languages via &lt;code>libmach&lt;/code> (more on this later.) Think of Mach core as &lt;em>a competitor to SDL/GLFW.&lt;/em>&lt;/p>
 &lt;p>In the future we&amp;rsquo;ll offer &lt;em>Mach engine&lt;/em> apps, where you buy into our ECS, Unity/Unreal-like editor, and other composable building-blocks that make up the engine at your choosing. But this isn&amp;rsquo;t ready today.&lt;/p>
