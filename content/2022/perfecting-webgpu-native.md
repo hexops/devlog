@@ -56,8 +56,8 @@ But this is old news! We released this 6 months ago-so what's new since?
 
 The new [Zig WebGPU demo showcase](https://machengine.org/gpu) has 12+ examples you can try on your own machine to begin learning Zig and WebGPU quickly:
 
-<video autoplay loop controls style="height: 40rem;" >
-<source src="https://user-images.githubusercontent.com/3173176/189518244-5a44ed7f-bb11-4c98-9a84-9fdc5613aec4.mp4" type="video/mp4">
+<video style="height: 40rem;" autoplay loop controls>
+    <source src="https://user-images.githubusercontent.com/3173176/189518244-5a44ed7f-bb11-4c98-9a84-9fdc5613aec4.mp4" type="video/mp4">
 </video>
 
 ## Mach core vs. Mach engine
