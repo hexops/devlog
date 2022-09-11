@@ -21,3 +21,11 @@ mainSections = ['2021', '2022']
 
 [taxonomies]
 category = "categories"
+
+[mediaTypes]
+  [mediaTypes.'video/mp4']
+    suffixes = ['mp4']
+  [mediaTypes.'video/ogg']
+    suffixes = ['ogv']
+  [mediaTypes.'video/webm']
+    suffixes = ['webm']

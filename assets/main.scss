@@ -267,14 +267,36 @@ article .category:hover {
 .single .imglink>img {
     margin: 0;
 }
-.single img {
+.single picture img {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+}
+.single img, .single picture {
     align-self: center;
     margin-bottom: 0;
     margin-top: 1rem;
     max-height: 25rem;
     max-width: 80%;
+}
+.single picture {
+    width: 100%;
+    height: 100%;
+}
+.single img {
     height: auto;
     width: auto;
+}
+.video-container {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+}
+.single video {
+    align-self: center;
+    margin-top: 1rem;
+    max-height: 25rem;
+    max-width: 80%;
 }
 .single iframe, .twitter-tweet {
     width: 720px;
