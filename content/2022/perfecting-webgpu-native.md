@@ -62,7 +62,9 @@ The new [Zig WebGPU demo showcase](https://machengine.org/gpu) has 12+ examples 
 
 ## Mach core vs. Mach engine
 
-<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/184719710-ebae4fbd-af14-4b2f-80ad-11527c5f3e8f.png" />
+<p align="center">
+    <img class="color-auto" src="https://user-images.githubusercontent.com/3173176/184719710-ebae4fbd-af14-4b2f-80ad-11527c5f3e8f.png" />
+</p>
 
 Mach has a choose-your-journey development strategy, where you don't even have to adopt the entire engine to benefit from it. All the WebGPU examples we provide are _Mach core apps_: they rely on Mach for window creation, user input, and setting up the WebGPU API - nothing else. Using _Mach core_, you write your own engine!
 
