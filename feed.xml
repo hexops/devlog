@@ -52,8 +52,8 @@ frame #0: 0x0000000100033634 model3d-tests`m3d_load(data=&amp;quot;\xc3.:&amp;gt
 &lt;p>[&amp;hellip;] So the decision I had to make here was: keep UBSan happy but create crappy and slow code, or don&amp;rsquo;t care about UBSan and take advantage of modern CPU features. I&amp;rsquo;ve decided on the latter.&lt;/p>
 &lt;/blockquote>
 &lt;p>Which is a quite compelling argument for this just being noise for our purposes. :)&lt;/p>
-&lt;h1 id="risc-v-a-notable-exception">RISC-V: a notable exception&lt;/h1>
-&lt;p>It was pointed out to me by someone more knowledgable that RISC-V cores lack hardware support for unaligned accesses[0][1] (&amp;lsquo;if sifive doesn&amp;rsquo;t do this in hardware (unalignment) there&amp;rsquo;s no way any other risc-v cores do [&amp;hellip;due to sifive&amp;rsquo;s sheer popularity in the space]'), unalignment is done by trap handlers instead:&lt;/p>
+&lt;h3 id="risc-v-a-notable-exception">RISC-V: a notable exception&lt;/h3>
+&lt;p>It&amp;rsquo;s worth noting (as was pointed out to me by someone much more knowledgable) that RISC-V cores lack hardware support for unaligned accesses[0][1] (&amp;lsquo;if sifive doesn&amp;rsquo;t do this in hardware (unalignment) there&amp;rsquo;s no way any other risc-v cores do [&amp;hellip;due to sifive&amp;rsquo;s sheer popularity in the space]'), unalignment is done by trap handlers instead:&lt;/p>
 &lt;p>&lt;img src="https://user-images.githubusercontent.com/3173176/201804903-5584f318-5832-4c76-9f1a-45a32ce10348.png" alt="image">&lt;/p>
 &lt;blockquote>
 &lt;p>Officially, programs running in any mode but M-Mode on risc-v are allowed to do unaligned accesses but that doesn&amp;rsquo;t mean it can&amp;rsquo;t be pretty painful&lt;/p>
