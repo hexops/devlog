@@ -109,9 +109,9 @@ Many times, UBSan will catch undefined behavior that in practice isn't really ha
 
 Which is a quite compelling argument for this just being noise for our purposes. :)
 
-# RISC-V: a notable exception
+### RISC-V: a notable exception
 
-It was pointed out to me by someone more knowledgable that RISC-V cores lack hardware support for unaligned accesses[0][1] ('if sifive doesn't do this in hardware (unalignment) there's no way any other risc-v cores do [...due to sifive's sheer popularity in the space]'), unalignment is done by trap handlers instead:
+It's worth noting (as was pointed out to me by someone much more knowledgable) that RISC-V cores lack hardware support for unaligned accesses[0][1] ('if sifive doesn't do this in hardware (unalignment) there's no way any other risc-v cores do [...due to sifive's sheer popularity in the space]'), unalignment is done by trap handlers instead:
 
 ![image](https://user-images.githubusercontent.com/3173176/201804903-5584f318-5832-4c76-9f1a-45a32ce10348.png)
 
