@@ -1,4 +1,78 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hexops' devlog</title><link>https://devlog.hexops.com/</link><description>Recent content on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 11 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/feed.xml" rel="self" type="application/rss+xml"/><item><title>Perfecting WebGPU/Dawn native graphics for Zig</title><link>https://devlog.hexops.com/2022/perfecting-webgpu-native/</link><pubDate>Sun, 11 Sep 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/perfecting-webgpu-native/</guid><description>&lt;picture>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hexops' devlog</title><link>https://devlog.hexops.com/</link><description>Recent content on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 14 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/feed.xml" rel="self" type="application/rss+xml"/><item><title>Debugging undefined behavior caught by Zig</title><link>https://devlog.hexops.com/2022/debugging-undefined-behavior/</link><pubDate>Mon, 14 Nov 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/debugging-undefined-behavior/</guid><description>&lt;p>&lt;a href="https://machengine.org/">Mach engine&lt;/a> uses &lt;a href="https://ziglang.org">Zig&lt;/a> as the C/C++ compiler for almost everything. Unlike other toolchains, Zig enables many more safety checks by default - such as clang&amp;rsquo;s undefined behavior sanitizer.&lt;/p>
+&lt;p>Using Zig, we&amp;rsquo;ve caught undefined behavior in established projects like GLFW[&lt;a href="https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior/">1&lt;/a>], the DirectX Shader Compiler[&lt;a href="https://github.com/microsoft/DirectXShaderCompiler/pull/4178#discussion_r780733405">2&lt;/a>], and more. Undefined behavior is everywhere, often relatively innocuous, and hard to catch.&lt;/p>
+&lt;p>Professional C/C++ developers know to run UBSan fuzzers as part of their test suite, but even with that we&amp;rsquo;ve found e.g. Google Chrome&amp;rsquo;s fuzzers weren&amp;rsquo;t running normally at one point, and we caught undefined behavior in Chrome&amp;rsquo;s implementation of WebGPU as a result[&lt;a href="https://dawn-review.googlesource.com/c/dawn/+/87380">3&lt;/a>].&lt;/p>
+&lt;p>Zig having UBSan enabled by default is valuable, but it can also lead to tricky to debug errors that are a bit annoying to interpret today. And so this article is a walkthrough of how to debug such an error when it arises using Zig and LLDB.&lt;/p>
+&lt;h2 id="the-situation">The situation&lt;/h2>
+&lt;p>We&amp;rsquo;re looking at using &lt;a href="https://bztsrc.gitlab.io/model3d/">model3d&lt;/a> in Mach. Model3D is an up-and-coming compact, featureful, universal model format that tries to address the shortcomings of existing formats (yes, including glTF - see &lt;a href="https://gitlab.com/bztsrc/model3d/#rationale">their rationale&lt;/a>.) It is a small, zero-dependency single-header C implementation which in Zig we can simply import.&lt;/p>
+&lt;p>As we&amp;rsquo;ve been testing it with various models, though, we found our Zig program just crashes when we use it:&lt;/p>
+&lt;pre>&lt;code>% zig build test 2&amp;gt;&amp;amp;1|cat
+1/1 test_0... The following command terminated unexpectedly:
+cd /mach/libs/model3d &amp;amp;&amp;amp; /mach/libs/model3d/zig-cache/o/26c4104a1643fed2068dfa9244dfe90e/model3d-tests /Users/slimsag/zig-macos-aarch64-0.11.0-dev.38+b40fc7018/zig
+error: the following build command failed with exit code 1:
+/mach/libs/model3d/zig-cache/o/679e494577315c1bcc3749ee7068ea2f/build /Users/slimsag/zig-macos-aarch64-0.11.0-dev.38+b40fc7018/zig /mach/libs/model3d /mach/libs/model3d/zig-cache /Users/slimsag/.cache/zig test
+&lt;/code>&lt;/pre>&lt;p>As you can see, we&amp;rsquo;re not getting much info here on why our tests crashed. This is a telltale sign of undefined behavior in Zig (and &lt;a href="https://github.com/ziglang/zig/issues/5163">there&amp;rsquo;s an open issue to make this error messaging way more clear&lt;/a>). When we compile our program with &lt;code>-Drelease-fast&lt;/code>, which disables safety checks, we find it runs as expected - which confirms our suspicion about it being a safety check.&lt;/p>
+&lt;h2 id="debugging-with-lldb">Debugging with LLDB&lt;/h2>
+&lt;p>In the output above, we can grab the path to the executable &lt;code>model3d-tests&lt;/code>. We can debug it using lldb (I think we should find a nicer way to invoke &lt;code>lldb&lt;/code> via &lt;code>zig build test&lt;/code> though!):&lt;/p>
+&lt;pre>&lt;code>lldb -- /mach/libs/model3d/zig-cache/o/26c4104a1643fed2068dfa9244dfe90e/model3d-tests
+&lt;/code>&lt;/pre>&lt;p>Next we just enter the &lt;code>run&lt;/code> command at the &lt;code>(lldb)&lt;/code> prompt:&lt;/p>
+&lt;pre>&lt;code>(lldb) run
+Process 6830 launched: '/mach/libs/model3d/zig-cache/o/26c4104a1643fed2068dfa9244dfe90e/model3d-tests' (arm64)
+Process 6830 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = EXC_BREAKPOINT (code=1, subcode=0x100033634)
+frame #0: 0x0000000100033634 model3d-tests`m3d_load(data=&amp;quot;\xc3.:&amp;gt;&amp;quot;, readfilecb=0x0000000000000000, freecb=0x0000000000000000, mtllib=0x0000000000000000) at m3d.h:3356:56
+3353 model-&amp;gt;tmap[i].v = (M3D_FLOAT)(*((uint16_t*)(data+2))) / (M3D_FLOAT)65535.0;
+3354 break;
+3355 case 4:
+-&amp;gt; 3356 model-&amp;gt;tmap[i].u = (M3D_FLOAT)(*((float*)(data+0)));
+3357 model-&amp;gt;tmap[i].v = (M3D_FLOAT)(*((float*)(data+4)));
+3358 break;
+3359 case 8:
+&lt;/code>&lt;/pre>&lt;p>If you squint, you can see &lt;code>stop reason = EXC_BREAKPOINT&lt;/code> in the output. This is the sign I was looking for: it tells me that UBSan likely inserted a breakpoint for undefined behavior, and we hit it. There&amp;rsquo;s &lt;em>some&lt;/em> form of undefined behavior going on here!&lt;/p>
+&lt;p>Thanks to lldb, we also got an exact line number, and see the source code where the crash occurred. Sometimes you may not get this much, in which case you may need to run the lldb &lt;code>up&lt;/code> command until you get to a line you can make sense of.&lt;/p>
+&lt;p>In this instance, we&amp;rsquo;re running code inside of a for loop - and so one question I have is: what iteration of that loop are we at? We can get this info easily using &lt;code>p i&lt;/code> to inspect the &lt;code>i&lt;/code> variable:&lt;/p>
+&lt;pre>&lt;code>(lldb) p i
+(unsigned int) $1 = 0
+&lt;/code>&lt;/pre>&lt;p>This shows us that the &lt;code>i&lt;/code> variable is an unsigned 32-bit int with the value &lt;code>0&lt;/code>. It crashed on the first iteration.&lt;/p>
+&lt;p>(Note: we could also use &lt;code>frame variables&lt;/code> to get a list of variables in the local frame (i.e. our function), but in this case it&amp;rsquo;s quite a few and so I didn&amp;rsquo;t find that useful.)&lt;/p>
+&lt;p>Next, I wanted to find out: what would the float at that address actually look like? Luckily, the LLDB &lt;code>p &amp;lt;expr&amp;gt;&lt;/code> command actually interprets C-like expressions for us. It&amp;rsquo;s rather easy to write the C expression for that:&lt;/p>
+&lt;pre>&lt;code>(lldb) p *(float*)(data+0)
+(float) $2 = 0.181819007
+&lt;/code>&lt;/pre>&lt;p>Here we can see the float at the address of &lt;code>data&lt;/code> is &lt;code>0.181819007&lt;/code> - which is within the normalized range I&amp;rsquo;d expect for a UV coordinate. It seems correct. My next question was.. is the pointer address aligned? I know UBSan has a check for pointer alignment, so I looked at it:&lt;/p>
+&lt;pre>&lt;code>(lldb) p data
+(unsigned char *) $3 = 0x0000000101008251 &amp;quot;\xc3.:&amp;gt;&amp;quot;
+&lt;/code>&lt;/pre>&lt;p>Since we&amp;rsquo;re accessing a float at this address, we&amp;rsquo;d expect it to be aligned to 4 bytes. We can check this easily by plopping the address into Python and dividing by 4. If there&amp;rsquo;s a remainder, it&amp;rsquo;s not aligned:&lt;/p>
+&lt;pre>&lt;code>&amp;gt;&amp;gt;&amp;gt; 0x0000000101008251 % 4
+1
+&lt;/code>&lt;/pre>&lt;h2 id="what-are-the-consequences">What are the consequences?&lt;/h2>
+&lt;p>Many times, UBSan will catch undefined behavior that in practice isn&amp;rsquo;t really harmful on modern machines you might care about. I wasn&amp;rsquo;t sure about the consequences of unaligned pointer accesses like this, so I asked someone smarter than myself and &lt;a href="https://gitlab.com/bztsrc/model3d/-/issues/19">filed an issue on model3d&lt;/a> which led to some very interesting insights &lt;a href="https://gitlab.com/bztsrc/model3d/-/issues/19#note_1171783061">from @bztsrc&lt;/a>.&lt;/p>
+&lt;blockquote>
+&lt;p>Short answer: the bug is in UBSan&lt;/p>
+&lt;p>Long answer: it is true that in ancient times there were CPUs that couldn&amp;rsquo;t handle unaligned access. However that&amp;rsquo;s not the case with today mainstream processors: x86, ARM, RISC-V, etc. all handle unaligned access out-of-the-box. (Ok, for ARM it&amp;rsquo;s not out-of-the-box, you have to enable MMU which is surely done by the OS kernel otherwise virtual memory mapping would be impossible.)&lt;/p>
+&lt;p>[&amp;hellip;] The reason for the unaligned access is pretty simple. In the binary bit-chunk that a compressed model file is, there&amp;rsquo;s obviously no guarantee that a value is aligned. Such compactness is absolutely needed for small file sizes, padding with zeros would insanely increase the required storage requirements.&lt;/p>
+&lt;p>[&amp;hellip;] So the decision I had to make here was: keep UBSan happy but create crappy and slow code, or don&amp;rsquo;t care about UBSan and take advantage of modern CPU features. I&amp;rsquo;ve decided on the latter.&lt;/p>
+&lt;/blockquote>
+&lt;p>Which is a quite compelling argument for this just being noise for our purposes. :)&lt;/p>
+&lt;h1 id="risc-v-a-notable-exception">RISC-V: a notable exception&lt;/h1>
+&lt;p>It was pointed out to me by someone more knowledgable that RISC-V cores lack hardware support for unaligned accesses[0][1] (&amp;lsquo;if sifive doesn&amp;rsquo;t do this in hardware (unalignment) there&amp;rsquo;s no way any other risc-v cores do [&amp;hellip;due to sifive&amp;rsquo;s sheer popularity in the space]'), unalignment is done by trap handlers instead:&lt;/p>
+&lt;p>&lt;img src="https://user-images.githubusercontent.com/3173176/201804903-5584f318-5832-4c76-9f1a-45a32ce10348.png" alt="image">&lt;/p>
+&lt;blockquote>
+&lt;p>Officially, programs running in any mode but M-Mode on risc-v are allowed to do unaligned accesses but that doesn&amp;rsquo;t mean it can&amp;rsquo;t be pretty painful&lt;/p>
+&lt;/blockquote>
+&lt;p>[0] &lt;a href="https://forums.sifive.com/t/ld-sd-alignment/5530/6">https://forums.sifive.com/t/ld-sd-alignment/5530/6&lt;/a>&lt;/p>
+&lt;p>[1] &lt;a href="https://patchwork.kernel.org/project/linux-riscv/patch/60c1f087-1e8b-8f22-7d25-86f5f3dcee3f@gmail.com/#24313195">https://patchwork.kernel.org/project/linux-riscv/patch/60c1f087-1e8b-8f22-7d25-86f5f3dcee3f@gmail.com/#24313195&lt;/a>&lt;/p>
+&lt;p>I don&amp;rsquo;t have any RISC-V hardware to test on, so this doesn&amp;rsquo;t affect us at present, but I figured it worth noting.&lt;/p>
+&lt;h2 id="disabling-the-sanitizer">Disabling the sanitizer&lt;/h2>
+&lt;p>In our case, we can just disable the alignment sanitizer for this one function:&lt;/p>
+&lt;pre>&lt;code>+__attribute__((no_sanitize(&amp;quot;alignment&amp;quot;)))
+m3d_t *m3d_load(unsigned char *data, m3dread_t readfilecb, m3dfree_t freecb, m3d_t *mtllib)
+&lt;/code>&lt;/pre>&lt;p>And with this, our tests pass. And we continue to get all the other benefits and safety checks of UBSan elsewhere.&lt;/p>
+&lt;p>In this case, though, I opted to just disable alignment sanitization entirely when building model3d by &lt;a href="https://github.com/hexops/mach/commit/c96ff64958c241249041856a8ea0e8a4349050a6">adding&lt;/a> the &lt;code>-fno-sanitize=alignment&lt;/code> compiler flag to our &lt;code>build.zig&lt;/code> to avoid this surprising us in other model3d functions.&lt;/p>
+&lt;h2 id="thanks-for-reading">Thanks for reading&lt;/h2>
+&lt;p>If you&amp;rsquo;re writing Zig, C, or C++ code - then I hope this &lt;code>zig: Tip&lt;/code> helps you! You can find &lt;a href="https://devlog.hexops.com/categories/zigtips/">other &lt;code>zig: Tips&lt;/code> here&lt;/a>.&lt;/p>
+&lt;p>&lt;img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
+Be sure to join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach engine Discord&lt;/a> where we&amp;rsquo;re building the future of Zig game development.
+&lt;br>&lt;br>
+You can also &lt;a href="https://github.com/sponsors/slimsag">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p></description></item><item><title>Perfecting WebGPU/Dawn native graphics for Zig</title><link>https://devlog.hexops.com/2022/perfecting-webgpu-native/</link><pubDate>Sun, 11 Sep 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/perfecting-webgpu-native/</guid><description>&lt;picture>
 &lt;source srcset="https://raw.githubusercontent.com/hexops/media/839b04fa5a72428052733d2095726894ff93466a/gpu/logo_dark.svg" media="(prefers-color-scheme: dark)">
 &lt;img style="height: 100px;" src="https://raw.githubusercontent.com/hexops/media/839b04fa5a72428052733d2095726894ff93466a/gpu/logo_light.svg">
 &lt;/picture>
