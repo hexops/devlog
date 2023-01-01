@@ -1,6 +1,6 @@
 ---
 author: "Stephen Gutekanst"
-title: "2022 ends in an hour, and new opportunities open"
+title: "2022 Reflecting on a year in life & game development"
 date: "2022-12-31"
 draft: false
 categories:
@@ -9,7 +9,7 @@ description: "2022 ends in an hour, and new opportunities open. I am filled with
 images: ["https://user-images.githubusercontent.com/3173176/210161169-08829568-8c69-4654-9df1-9d7e3ed9f291.png"]
 ---
 
-![](https://user-images.githubusercontent.com/3173176/210161169-08829568-8c69-4654-9df1-9d7e3ed9f291.png)
+<img src="https://user-images.githubusercontent.com/3173176/210161169-08829568-8c69-4654-9df1-9d7e3ed9f291.png">
 
 2022 ends in an hour, and new opportunities open. I am filled with optimism, pessimism, fear, and excitement. A walking, talking contradiction of life at your service.
 
