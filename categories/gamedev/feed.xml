@@ -1046,7 +1046,7 @@ $ zig build -Dtarget&lt;span class="o">=&lt;/span>aarch64-macos.12
 &lt;ul>
 &lt;li>&lt;a href="#comptime-sparse-data">Comptime sparse data&lt;/a>&lt;/li>
 &lt;li>&lt;a href="#runtime-sparse-data">Runtime sparse data&lt;/a>&lt;/li>
-&lt;li>&lt;a href="#avoiding-unity-software-patents--improving-performance-while-doing-it">Avoiding Unity software patents &amp;amp; improving performance while doing it&lt;/a>&lt;/li>
+&lt;li>&lt;a href="#improving-performance">Improving performance&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>&lt;a href="#archetype-storage">Archetype storage&lt;/a>
@@ -1166,7 +1166,7 @@ $ zig build -Dtarget&lt;span class="o">=&lt;/span>aarch64-macos.12
 &lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players_with_weapons&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">AutoHashMap&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Entity&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Weapon&lt;/span>&lt;span class="p">).&lt;/span>&lt;span class="n">init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">allocator&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now we&amp;rsquo;ve got a mapping of player Entity IDs -&amp;gt; their nicknames and weapons. We only pay the cost of storing this information for players that do actually have these specialties - not for every player.&lt;/p>
 &lt;p>I call this type of data &lt;em>runtime sparse data&lt;/em>.&lt;/p>
-&lt;h3 id="avoiding-unity-software-patents--improving-performance-while-doing-it">Avoiding Unity software patents &amp;amp; improving performance while doing it&lt;/h3>
+&lt;h3 id="improving-performance">Improving performance&lt;/h3>
 &lt;p>Consider our player storage as it stands right now:&lt;/p>
 &lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
 &lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// a string / byte slice
@@ -1177,8 +1177,7 @@ $ zig build -Dtarget&lt;span class="o">=&lt;/span>aarch64-macos.12
 &lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
 &lt;/span>&lt;span class="w">
 &lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">players&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Player&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// all players
-&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In a perfect world, software patents wouldn&amp;rsquo;t exist. But, in our world, however, Unity makes 20 claims in their software patent covering ECS, including all code we&amp;rsquo;ve written above to this point. Luckily, &lt;a href="https://www.reddit.com/r/rust/comments/pjtpkj/unity_files_patent_for_ecs_in_game_engines_that/hbzaz61/">as the Bevy authors suggest here&lt;/a> entity component systems which store components in separate arrays are not affected by this (this is not legal advice)&lt;/p>
-&lt;p>Additionally, because of the way structs get laid out in memory with padding, our players array above would end up having a larger memory footprint than needed. So we actually benefit from using a separate array for every type of data (thanks, Unity!):&lt;/p>
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Because of the way structs get laid out in memory with padding, our players array above would end up having a larger memory footprint than needed. So we actually benefit from using a separate array for every type of data (thanks, Unity!):&lt;/p>
 &lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_names&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">([]&lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">u8&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
 &lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_locations&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
 &lt;/span>&lt;span class="w">&lt;/span>&lt;span class="kr">var&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player_velocities&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ArrayList&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Vec3&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{};&lt;/span>&lt;span class="w">
@@ -1227,9 +1226,8 @@ team: Team,
 &lt;/ul>
 &lt;p>Additionally, these are the design principles I&amp;rsquo;ve come up with:&lt;/p>
 &lt;ul>
-&lt;li>Clean-room implementation (I&amp;rsquo;ve not read any other ECS implementation code.)&lt;/li>
+&lt;li>Clean-room implementation (I&amp;rsquo;ve not read any other ECS implementation code), just working from first-principles as an engineer&lt;/li>
 &lt;li>Solve the problems ECS solves, in a way that is natural to Zig and leverages Zig comptime.&lt;/li>
-&lt;li>Avoid patent infringement upon Unity ECS patent claims.&lt;/li>
 &lt;li>Fast. Optimal for CPU caches, multi-threaded, leverage comptime as much as is reasonable.&lt;/li>
 &lt;li>Simple. Small API footprint, should be natural and fun - not like you&amp;rsquo;re writing boilerplate.&lt;/li>
 &lt;li>Enable other libraries to provide tracing, editors, visualizers, profilers, etc.&lt;/li>
