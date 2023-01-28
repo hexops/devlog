@@ -26,7 +26,7 @@ In this article, we'll mostly go over the problem space, data oriented design, t
 - [Sparse data storage](#sparse-data-storage)
   - [Comptime sparse data](#comptime-sparse-data)
   - [Runtime sparse data](#runtime-sparse-data)
-  - [Avoiding Unity software patents & improving performance while doing it](#avoiding-unity-software-patents--improving-performance-while-doing-it)
+  - [Improving performance](#improving-performance)
 - [Archetype storage](#archetype-storage)
   - [Comptime archetype storage](#comptime-archetype-storage)
   - [Runtime archetype storage](#runtime-archetype-storage)
@@ -189,7 +189,7 @@ Now we've got a mapping of player Entity IDs -> their nicknames and weapons. We 
 
 I call this type of data _runtime sparse data_.
 
-### Avoiding Unity software patents & improving performance while doing it
+### Improving performance
 
 Consider our player storage as it stands right now:
 
@@ -205,9 +205,7 @@ const Player = struct {
 var players: ArrayList(Player) = .{}; // all players
 ```
 
-In a perfect world, software patents wouldn't exist. But, in our world, however, Unity makes 20 claims in their software patent covering ECS, including all code we've written above to this point. Luckily, [as the Bevy authors suggest here](https://www.reddit.com/r/rust/comments/pjtpkj/unity_files_patent_for_ecs_in_game_engines_that/hbzaz61/) entity component systems which store components in separate arrays are not affected by this (this is not legal advice)
-
-Additionally, because of the way structs get laid out in memory with padding, our players array above would end up having a larger memory footprint than needed. So we actually benefit from using a separate array for every type of data (thanks, Unity!):
+Because of the way structs get laid out in memory with padding, our players array above would end up having a larger memory footprint than needed. So we actually benefit from using a separate array for every type of data (thanks, Unity!):
 
 ```zig
 var player_names: ArrayList([]const u8) = .{};
@@ -290,9 +288,8 @@ We now start to see _some_ of the things our ECS architecture should solve:
 
 Additionally, these are the design principles I've come up with:
 
-* Clean-room implementation (I've not read any other ECS implementation code.)
+* Clean-room implementation (I've not read any other ECS implementation code), just working from first-principles as an engineer
 * Solve the problems ECS solves, in a way that is natural to Zig and leverages Zig comptime.
-* Avoid patent infringement upon Unity ECS patent claims.
 * Fast. Optimal for CPU caches, multi-threaded, leverage comptime as much as is reasonable.
 * Simple. Small API footprint, should be natural and fun - not like you're writing boilerplate.
 * Enable other libraries to provide tracing, editors, visualizers, profilers, etc.
