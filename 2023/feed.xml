@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>2023s on Hexops' devlog</title><link>https://devlog.hexops.com/2023/</link><description>Recent content in 2023s on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 13 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/2023/feed.xml" rel="self" type="application/rss+xml"/><item><title>Zig tips: v0.11 std.build API / package manager changes</title><link>https://devlog.hexops.com/2023/zig-0-11-breaking-build-changes/</link><pubDate>Mon, 13 Feb 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/zig-0-11-breaking-build-changes/</guid><description>&lt;p>We&amp;rsquo;ve just updated &lt;a href="https://machengine.org/">Mach engine&lt;/a> to use the latest Zig nightly version, which includes a fair amount of improvements and breaking changes to the &lt;code>std.build&lt;/code> API used in &lt;code>build.zig&lt;/code> files, and figured now would be a good time to share the general changes you may need to make if you want to update your own code.&lt;/p>
+&lt;h2 id="package-manager-incoming">Package manager: incoming!&lt;/h2>
+&lt;p>Zig is finally starting to see its package manager and build system shape up, some notable mentions:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>std.http.Client&lt;/code> and &lt;code>std.crypto.tls&lt;/code> were added (&lt;a href="https://github.com/ziglang/zig/pull/13980">#13980&lt;/a>)&lt;/li>
+&lt;li>The package manager MVP landed almost a month ago and has seen steady improvements since (&lt;a href="https://github.com/ziglang/zig/pull/14265">#14265&lt;/a>)&lt;/li>
+&lt;li>Zig packages can now expose C headers are part of their public API (&lt;a href="https://github.com/ziglang/zig/pull/14449">#14449&lt;/a>)&lt;/li>
+&lt;li>Transitive dependencies are now handled better (&lt;a href="https://github.com/ziglang/zig/pull/14392">#14392&lt;/a>)&lt;/li>
+&lt;li>&amp;ldquo;zig build: The breakings will continue until morale improves.&amp;rdquo; (&lt;a href="https://github.com/ziglang/zig/pull/14498">#14498&lt;/a>)&lt;/li>
+&lt;li>Zig Object Notation (ZON, an alternative to JSON) was introduced (&lt;a href="https://github.com/ziglang/zig/pull/14523">#14523&lt;/a>)&lt;/li>
+&lt;li>The caching system is being moved from the compiler to the std lib to start using it in the bulid system (&lt;a href="https://github.com/ziglang/zig/pull/14571">#14571&lt;/a>)&lt;/li>
+&lt;li>Zig plans to run the build system in a sandboxed WASM environment (&lt;a href="https://github.com/ziglang/zig/issues/14286">#14286&lt;/a>)&lt;/li>
+&lt;/ul>
+&lt;p>You can get an overview of progress on the package manager on this &lt;a href="https://github.com/ziglang/zig/projects/4">GitHub project board&lt;/a>&lt;/p>
+&lt;p>Mach isn&amp;rsquo;t yet using the new package manager: it&amp;rsquo;s improving rapidly, and we plan to make use of it soon, but things are still changing so we&amp;rsquo;ve held off for now. What we have done, though, is updated to the latest API and want to share those changes with you.&lt;/p>
+&lt;h2 id="release-options-have-been-renamed-to-optimization">Release options have been renamed to optimization&lt;/h2>
+&lt;p>Previously you would&amp;rsquo;ve used &lt;code>b.standardReleaseOptions()&lt;/code> which would provide your &lt;code>zig build&lt;/code> command with multiple options like &lt;code>zig build -Drelease-fast=true&lt;/code>, &lt;code>zig build -Drelease-safe=true&lt;/code>, etc.&lt;/p>
+&lt;p>It&amp;rsquo;s been renamed to &lt;code>b.standardOptimizeOption(.{})&lt;/code> and now exposes a single build option &lt;code>zig build -Doptimize=ReleaseFast&lt;/code>, &lt;code>zig build -Doptimize=ReleaseSafe&lt;/code>, etc. instead.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="gd">-pub fn build(b: *std.build.Builder) void {
+&lt;/span>&lt;span class="gd">- const mode = b.standardReleaseOptions();
+&lt;/span>&lt;span class="gd">- const target = b.standardTargetOptions(.{});
+&lt;/span>&lt;span class="gd">&lt;/span>&lt;span class="gi">+pub fn build(b: *std.Build) void {
+&lt;/span>&lt;span class="gi">+ const optimize = b.standardOptimizeOption(.{});
+&lt;/span>&lt;span class="gi">+ const target = b.standardTargetOptions(.{});
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="gd">-mode: std.builtin.Mode
+&lt;/span>&lt;span class="gd">&lt;/span>&lt;span class="gi">+optimize: std.builtin.OptimizeMode
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="gd">-step.build_mode
+&lt;/span>&lt;span class="gd">&lt;/span>&lt;span class="gi">+step.optimize
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="creating-tests-libraries-and-executables">Creating tests, libraries, and executables&lt;/h2>
+&lt;p>Creating tests, libraries, and executables now takes a struct with options as the parameter instead of using a setter API:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="gd">-const exe = b.addExecutable(&amp;#34;example&amp;#34;, &amp;#34;src/main.zig&amp;#34;);
+&lt;/span>&lt;span class="gd">-exe.setBuildMode(mode);
+&lt;/span>&lt;span class="gd">-exe.setTarget(target);
+&lt;/span>&lt;span class="gd">&lt;/span>&lt;span class="gi">+const exe = b.addExecutable(.{
+&lt;/span>&lt;span class="gi">+ .name = &amp;#34;example&amp;#34;,
+&lt;/span>&lt;span class="gi">+ .root_source_file = &amp;#34;src/main.zig&amp;#34;,
+&lt;/span>&lt;span class="gi">+ .target = target,
+&lt;/span>&lt;span class="gi">+ .optimize = optimize,
+&lt;/span>&lt;span class="gi">+});
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;details>
+&lt;summary>See more examples&lt;/summary>
+&lt;p>Tests:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="gd">-const main_tests = b.addTestExe(&amp;#34;glfw-tests&amp;#34;, sdkPath(&amp;#34;/src/main.zig&amp;#34;));
+&lt;/span>&lt;span class="gd">-main_tests.setBuildMode(mode);
+&lt;/span>&lt;span class="gd">-main_tests.setTarget(target);
+&lt;/span>&lt;span class="gd">&lt;/span>&lt;span class="gi">+const main_tests = b.addTest(.{
+&lt;/span>&lt;span class="gi">+ .name = &amp;#34;glfw-tests&amp;#34;,
+&lt;/span>&lt;span class="gi">+ .kind = .test_exe,
+&lt;/span>&lt;span class="gi">+ .root_source_file = .{ .path = sdkPath(&amp;#34;/src/main.zig&amp;#34;) },
+&lt;/span>&lt;span class="gi">+ .target = target,
+&lt;/span>&lt;span class="gi">+ .optimize = optimize,
+&lt;/span>&lt;span class="gi">+});
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Shared libraries:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="gd">-const lib = b.addSharedLibrary(&amp;#34;glfw&amp;#34;, null, .unversioned)
+&lt;/span>&lt;span class="gd">-lib.setTarget(target);
+&lt;/span>&lt;span class="gd">-lib.setBuildMode(mode);
+&lt;/span>&lt;span class="gd">&lt;/span>&lt;span class="gi">+b.addSharedLibrary(.{ .name = &amp;#34;glfw&amp;#34;, .target = target, .optimize = optimize })
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="gd">-const lib = b.addSharedLibrary(&amp;#34;machcore&amp;#34;, &amp;#34;src/platform/libmachcore.zig&amp;#34;, .unversioned);
+&lt;/span>&lt;span class="gd">-lib.setTarget(target);
+&lt;/span>&lt;span class="gd">-lib.setBuildMode(mode);
+&lt;/span>&lt;span class="gd">&lt;/span>&lt;span class="gi">+const lib = b.addSharedLibrary(.{
+&lt;/span>&lt;span class="gi">+ .name = &amp;#34;machcore&amp;#34;,
+&lt;/span>&lt;span class="gi">+ .root_source_file = &amp;#34;src/platform/libmachcore.zig&amp;#34;,
+&lt;/span>&lt;span class="gi">+ .target = target,
+&lt;/span>&lt;span class="gi">+ .optimize = optimize
+&lt;/span>&lt;span class="gi">+});
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Static libraries:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-diff" data-lang="diff">&lt;span class="gd">-const lib = b.addStaticLibrary(&amp;#34;basisu-transcoder&amp;#34;, null);
+&lt;/span>&lt;span class="gd">-lib.setTarget(target);
+&lt;/span>&lt;span class="gd">-lib.setMode(mode);
+&lt;/span>&lt;span class="gd">&lt;/span>&lt;span class="gi">+const lib = b.addStaticLibrary(.{
+&lt;/span>&lt;span class="gi">+ .name = &amp;#34;basisu-transcoder&amp;#34;,
+&lt;/span>&lt;span class="gi">+ .target = target,
+&lt;/span>&lt;span class="gi">+ .optimize = optimize,
+&lt;/span>&lt;span class="gi">+});
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/details>
+&lt;h2 id="renamings">Renamings&lt;/h2>
+&lt;ul>
+&lt;li>&lt;code>std.build.LibExeObjStep&lt;/code> has been renamed to just &lt;code>std.build.CompileStep&lt;/code> (beautiful!)&lt;/li>
+&lt;li>&lt;code>*std.build.Builder&lt;/code> has been renamed to just &lt;code>*std.Build&lt;/code> (nice, this is used extensively everywhere!)&lt;/li>
+&lt;/ul>
+&lt;h2 id="modules">Modules&lt;/h2>
+&lt;p>Units of code you &lt;code>@import(&amp;quot;foo&amp;quot;)&lt;/code> (previously known as &lt;em>packages&lt;/em>) are now known as &lt;em>modules&lt;/em>, and &lt;em>packages&lt;/em> now refers to a piece of code you download/depend on using the Zig package manager. &lt;em>Libraries&lt;/em> is reserved for referring to C-style libraries, &lt;code>.dll&lt;/code>s, etc.&lt;/p>
+&lt;p>These units of code used to be declared as a &lt;code>std.build.Pkg&lt;/code> struct:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">pub&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_pkg&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">build&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Pkg&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;earcut&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">source&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;src/main.zig&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">},&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">};&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>And added as a dependency using e.g. &lt;code>exe.addPackage(my_pkg);&lt;/code>&lt;/p>
+&lt;p>Now, these are called &lt;em>modules&lt;/em> and can be created in a few ways. One is using &lt;code>b.createModule&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">my_module&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">b&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">createModule&lt;/span>&lt;span class="p">(.{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">source_file&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;src/main.zig&amp;#34;&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">},&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">dependencies&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="p">.{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;core&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">module&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">core&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">module&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">b&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">},&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;ecs&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">module&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ecs&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">module&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">b&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">},&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.{&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;sysaudio&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">module&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">sysaudio&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">module&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">b&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">},&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">},&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">});&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>And then depend on that module using e.g. &lt;code>exe.addModule(&amp;quot;earcut&amp;quot;, my_module);&lt;/code>&lt;/p>
+&lt;p>Notably, modules are created at &lt;em>runtime&lt;/em> via the &lt;code>*std.Build&lt;/code> now - so you may have some reworking to do if you previously depended on &lt;code>std.build.Pkg&lt;/code> being a global constant you could rely on at comptime.&lt;/p>
+&lt;p>Another option, which may be preferred, is via &lt;a href="https://github.com/ziglang/zig/blob/fc48467a97021cb872ff2a947f96e882274c39c1/lib/std/Build.zig#L547-L558">&lt;code>addModule&lt;/code>&lt;/a>. It will make the module available to other packages which depend on this package.&lt;/p>
+&lt;p>You may also like to know that a &lt;em>pair of dependency name + the module&lt;/em> can be represented as &lt;a href="https://github.com/ziglang/zig/blob/fc48467a97021cb872ff2a947f96e882274c39c1/lib/std/Build.zig#L560-L563">&lt;code>std.Build.ModuleDependency&lt;/code>&lt;/a> now.&lt;/p>
+&lt;p>We&amp;rsquo;ve just gone for an initial 1:1 translation in our code, but adoption of the package manager will likely mean structuring your code a bit differently than the above, and the package manager is still a work-in-progress.&lt;/p>
+&lt;h2 id="thanks-for-reading">Thanks for reading&lt;/h2>
+&lt;p>As we work towards Mach v0.2, we&amp;rsquo;re getting more serious about what &lt;em>stability&lt;/em> means for us. Our intent is to enable us to move quickly, while also helping you to update your code. We will be achieving this through articles like this which help you understand &amp;amp; update your code to the latest APIs. Hopefully this has helped you! You can find other &lt;em>zig: Tips&lt;/em> &lt;a href="https://devlog.hexops.com/categories/zigtips/">here&lt;/a>.&lt;/p>
+&lt;p>&lt;img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
+Be sure to join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach engine Discord&lt;/a> where we&amp;rsquo;re building the future of Zig game development.
+&lt;br>&lt;br>
+You can also &lt;a href="https://github.com/sponsors/slimsag">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p></description></item></channel></rss>
