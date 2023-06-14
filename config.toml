@@ -18,6 +18,7 @@ noClasses=false
 
 [params]
 mainSections = ['2021', '2022', '2023']
+rss = true
 
 [taxonomies]
 category = "categories"
