@@ -124,4 +124,4 @@ Please send your hate to [@slimsag](https://twitter.com/slimsag) on Twitter or t
 
 If you liked this, you might also like:
 
-* [My game development journey & why I'm increasing my contribution to Zig to $200/mo](2021-04-10-increasing-my-contribution-to-zig-to-200-a-month.md)
+* [My game development journey & why I'm increasing my contribution to Zig to $200/mo](/2021/increasing-my-contribution-to-zig-to-200-a-month)

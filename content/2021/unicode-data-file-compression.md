@@ -37,7 +37,7 @@ I don't personally have any prior experience working with the lower level detail
 
 ## Problem
 
-As I stumbled into the wondrous world that is Unicode text sorting (see also my article: [Unicode sorting is hard & why browsers added special emoji matching to regexp](2021-06-27-unicode-sorting-why-browsers-added-special-emoji-matching.md)) and began using Ziglyph, I came across an issue: the standard Unicode collation algorithm, which Ziglyph implements, depends on some large Unicode data tables for normalization and sort keys - even gzipped these were fairly large:
+As I stumbled into the wondrous world that is Unicode text sorting (see also my article: [Unicode sorting is hard & why browsers added special emoji matching to regexp](/2021/unicode-sorting-why-browsers-added-special-emoji-matching)) and began using Ziglyph, I came across an issue: the standard Unicode collation algorithm, which Ziglyph implements, depends on some large Unicode data tables for normalization and sort keys - even gzipped these were fairly large:
 
 ```sh
 hexops-mac:zorex slimsag$ du -sh asset/*
