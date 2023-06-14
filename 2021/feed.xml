@@ -322,7 +322,7 @@ Process 6516 stopped
 &lt;p>Please send your hate to &lt;a href="https://twitter.com/slimsag">@slimsag&lt;/a> on Twitter or to the comments section wherever this ends up, I&amp;rsquo;ll see you there! 😉&lt;/p>
 &lt;p>If you liked this, you might also like:&lt;/p>
 &lt;ul>
-&lt;li>&lt;a href="2021-04-10-increasing-my-contribution-to-zig-to-200-a-month.md">My game development journey &amp;amp; why I&amp;rsquo;m increasing my contribution to Zig to $200/mo&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month">My game development journey &amp;amp; why I&amp;rsquo;m increasing my contribution to Zig to $200/mo&lt;/a>&lt;/li>
 &lt;/ul></description></item><item><title>Unicode data file compression: achieving 40-70% reduction over gzip alone</title><link>https://devlog.hexops.com/2021/unicode-data-file-compression/</link><pubDate>Sat, 03 Jul 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/unicode-data-file-compression/</guid><description>&lt;p>A little story about how writing a domain-specific compression algorithm in a few days can sometimes yield big benefits, why it&amp;rsquo;s sometimes worth giving it a shot, and how to tell when you should try. Note: this is about Unicode spec data files, not general purpose text compression.&lt;/p>
 &lt;ul>
 &lt;li>&lt;a href="#background">Background&lt;/a>&lt;/li>
@@ -355,7 +355,7 @@ Process 6516 stopped
 &lt;p>Two weeks ago, I began using &lt;a href="https://github.com/jecolon/ziglyph">Ziglyph&lt;/a> (&amp;ldquo;Unicode processing with Zig, and a UTF-8 string type: Zigstr.&amp;quot;) - an awesome library by &lt;a href="https://github.com/jecolon">@jecolon&lt;/a>, for grapheme cluster sorting in &lt;a href="https://github.com/hexops/zorex">Zorex, an omnipotent regexp engine&lt;/a>.&lt;/p>
 &lt;p>I don&amp;rsquo;t personally have any prior experience working with the lower level details of Unicode, or compression algorithms for that matter.&lt;/p>
 &lt;h2 id="problem">Problem&lt;/h2>
-&lt;p>As I stumbled into the wondrous world that is Unicode text sorting (see also my article: &lt;a href="2021-06-27-unicode-sorting-why-browsers-added-special-emoji-matching.md">Unicode sorting is hard &amp;amp; why browsers added special emoji matching to regexp&lt;/a>) and began using Ziglyph, I came across an issue: the standard Unicode collation algorithm, which Ziglyph implements, depends on some large Unicode data tables for normalization and sort keys - even gzipped these were fairly large:&lt;/p>
+&lt;p>As I stumbled into the wondrous world that is Unicode text sorting (see also my article: &lt;a href="https://devlog.hexops.com/2021/unicode-sorting-why-browsers-added-special-emoji-matching">Unicode sorting is hard &amp;amp; why browsers added special emoji matching to regexp&lt;/a>) and began using Ziglyph, I came across an issue: the standard Unicode collation algorithm, which Ziglyph implements, depends on some large Unicode data tables for normalization and sort keys - even gzipped these were fairly large:&lt;/p>
 &lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">hexops-mac:zorex slimsag$ du -sh asset/*
 308K asset/uca-allkeys.txt.gz
 260K asset/ucd-UnicodeData.txt.gz
