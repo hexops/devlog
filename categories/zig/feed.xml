@@ -1,4 +1,114 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>zig on Hexops' devlog</title><link>https://devlog.hexops.com/categories/zig/</link><description>Recent content in zig on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 13 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/zig/feed.xml" rel="self" type="application/rss+xml"/><item><title>Zig tips: v0.11 std.build API / package manager changes</title><link>https://devlog.hexops.com/2023/zig-0-11-breaking-build-changes/</link><pubDate>Mon, 13 Feb 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/zig-0-11-breaking-build-changes/</guid><description>&lt;p>We&amp;rsquo;ve just updated &lt;a href="https://machengine.org/">Mach engine&lt;/a> to use the latest Zig nightly version, which includes a fair amount of improvements and breaking changes to the &lt;code>std.build&lt;/code> API used in &lt;code>build.zig&lt;/code> files, and figured now would be a good time to share the general changes you may need to make if you want to update your own code.&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>zig on Hexops' devlog</title><link>https://devlog.hexops.com/categories/zig/</link><description>Recent content in zig on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 14 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/zig/feed.xml" rel="self" type="application/rss+xml"/><item><title>Mach: providing an ecosystem of C libraries using the Zig package manager</title><link>https://devlog.hexops.com/2023/mach-ecosystem-c-libraries/</link><pubDate>Wed, 14 Jun 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/mach-ecosystem-c-libraries/</guid><description>&lt;p>&lt;a href="https://github.com/andrewrk">Andrew Kelley&lt;/a> gave a keynote speech at &lt;a href="https://softwareyoucanlove.ca">Software You Can Love 2023&lt;/a> in Vancouver last week (a recording will be available later), the outline was:&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;strong>How to Build Software From Source&lt;/strong>&lt;/p>
+&lt;p>[&amp;hellip;] then I&amp;rsquo;ll take things in a completely different direction, by &lt;strong>showing you how to rip apart a project&amp;rsquo;s build system and replace it with the zig build system.&lt;/strong> This will make building things from source work effortlessly for more people and more platforms, as well as annoy a lot of boomers. It&amp;rsquo;s going to be super fun and spicy!&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="as-we-all-know-zig-is-a-cc-compiler-and-its-own-build-system">As we all know, Zig is a C/C++ compiler and its own build system&lt;/h2>
+&lt;p>Zig is really three things:&lt;/p>
+&lt;ul>
+&lt;li>Programming language&lt;/li>
+&lt;li>Build system (build.zig) replacing makefiles/cmake/ninja/etc&lt;/li>
+&lt;li>C/C++ compiler with an emphasis on cross-compilation&lt;/li>
+&lt;/ul>
+&lt;p>We&amp;rsquo;ve been leveraging all three in &lt;a href="https://github.com/hexops/mach">Mach engine&lt;/a> for a while now. For example, we maintain a version of Google Chrome&amp;rsquo;s WebGPU implementation (Dawn) with its rather complex build system (code generation, python scripts, depot_tools, ninja, cmake, depot_tools, etc.) replaced with &lt;code>build.zig&lt;/code>.&lt;/p>
+&lt;p>That let&amp;rsquo;s us say that if you have &lt;a href="https://github.com/hexops/mach#supported-zig-version">a recent Zig version&lt;/a> you can get started with Mach in ~60s on Windows, Mac, and Linux:&lt;/p>
+&lt;pre>&lt;code>git clone --recursive https://github.com/hexops/mach-examples
+cd mach-examples/
+zig build run-textured-cube
+&lt;/code>&lt;/pre>&lt;p>And instead of getting a bunch of dependency errors that you might need to &lt;code>apt-get&lt;/code> install or whatever, you&amp;rsquo;ll just get something that works out of the box:&lt;/p>
+&lt;video autoplay loop muted playsinline style="width:24rem">
+&lt;source src="https://user-images.githubusercontent.com/3173176/210317154-90e7a41c-2b44-4ee6-956f-5a93285e19ef.webm" type="video/webm">&lt;/video>
+&lt;h2 id="zig-has-a-new-package-manager-for-cc-too">Zig has a new package manager (for C/C++ too!)&lt;/h2>
+&lt;p>Those in the Zig community know that Zig has a new package manager, it&amp;rsquo;s built into the compiler. Effectively you describe your dependencies in a &lt;code>build.zig.zon&lt;/code> file, and then the &lt;code>zig&lt;/code> compiler is able to fetch them for you as part of &lt;code>zig build&lt;/code>. You&amp;rsquo;re then able to link against/use dependencies in your &lt;code>build.zig&lt;/code> file, which declaratively says how to build your project (except, using a real language instead of a DSL like cmake/etc use.)&lt;/p>
+&lt;p>It&amp;rsquo;s still very experimental, &lt;a href="https://github.com/ziglang/zig/pull/14265">has little to no documentation yet&lt;/a> - it&amp;rsquo;s not ready for widespread use. But one strong point is that it also aims to address the issue of building C/C++ projects, not just Zig ones. You can write a &lt;code>build.zig&lt;/code> file in Zig, describing how to build your C/C++ project using Zig as the toolchain. Then for free you get quite solid cross-compilation (since Zig bundles clang, every glibc version, and more), plus now a dependency manager, as well as a declarative way to describe your build using the Zig language.&lt;/p>
+&lt;p>One example of this is in Andrew Kelley&amp;rsquo;s &lt;a href="https://github.com/andrewrk/ffmpeg/">fork of ffmpeg&lt;/a>, where he merely forked the ffmpeg repository, removed their build system &amp;amp; unnecessary files, and added &lt;a href="https://github.com/andrewrk/ffmpeg/blob/main/build.zig">a &lt;code>build.zig&lt;/code> file&lt;/a>. This allows you to clone the repository and &lt;code>zig build&lt;/code> will fetch all the required dependencies and build ffmpeg for you. Fancy!&lt;/p>
+&lt;h2 id="mach-engine">Mach engine&lt;/h2>
+&lt;p>&lt;a href="https://github.com/hexops/mach">Mach engine&lt;/a> is an upcoming game engine built in Zig, that we&amp;rsquo;re building with the aim of becoming competitive with Unity/Unreal/Godot - but with an emphasis on &lt;em>modularity&lt;/em>:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Mach core&lt;/strong>: If you choose to use &lt;em>core&lt;/em>, then it&amp;rsquo;s like an alternative to GLFW+OpenGL or SDL, you just get a window+input+WebGPU with minimal dependencies. Your application runs natively on Windows/Linux/Mac using their respective graphics APIs (DirectX12, Vulkan, Metal), you get cross-compilation and zero-fuss installation, and also web/mobile support in the future with the same codebase. Write once, run everywhere.&lt;/li>
+&lt;li>&lt;strong>Mach engine&lt;/strong>: If you choose this option, you &lt;em>additionally&lt;/em> get an entity component system - with a library of standard modules that you can &amp;lsquo;plug and play&amp;rsquo; with for rendering/audio/etc.&lt;/li>
+&lt;/ul>
+&lt;h3 id="keeping-our-runtime-c-dependencies-small">Keeping our runtime C dependencies small&lt;/h3>
+&lt;p>One way that we&amp;rsquo;re keeping &lt;em>runtime C dependencies&lt;/em> (the ones your game/app would ship with!) a smaller, focused, set - is by building tooling: a &lt;code>mach&lt;/code> CLI and fully-fledged GUI editor like other engines have. But how does that help reduce runtime dependencies Well, at runtime you may need:&lt;/p>
+&lt;ul>
+&lt;li>Harfbuzz: for Unicode text layout&lt;/li>
+&lt;li>GLFW (and some headers): for window management)&lt;/li>
+&lt;li>Basisu and PNG: for GPU supercompressed textures / lossless textures&lt;/li>
+&lt;li>Opus and FLAC: for lossy and lossless audio&lt;/li>
+&lt;/ul>
+&lt;p>Mach will &amp;lsquo;bless&amp;rsquo; certain formats, being opinionated in what you &lt;em>ship&lt;/em> with your game. You&amp;rsquo;re free to pull in other formats, if you like, but the default/easy path will be these ones. As a result, there&amp;rsquo;s a lot we &lt;em>won&amp;rsquo;t&lt;/em> need at runtime:&lt;/p>
+&lt;ul>
+&lt;li>Freetype&lt;/li>
+&lt;li>JPEG, TGA, or other image formats&lt;/li>
+&lt;li>MP3, ffmpeg, or other audio formats&lt;/li>
+&lt;/ul>
+&lt;p>We don&amp;rsquo;t need these because our &lt;em>tooling&lt;/em> (the CLI and GUI editor) is going to make it easy to convert whatever format you want into the &amp;lsquo;blessed&amp;rsquo; runtime formats. One major benefit of this is that we can nudge you to the right defaults, without you being an expert. For example, you probably want to be using texture compression formats that GPU hardware itself understands, instead of say shipping a JPEG that just gets expanded to an uncompressed texture, eating a bunch of GPU memory and harming your texture bandwidth.&lt;/p>
+&lt;h2 id="providing-an-ecosystem-of-c-libraries">Providing an ecosystem of C libraries&lt;/h2>
+&lt;p>Similar to Andrew Kelley&amp;rsquo;s ffmpeg fork (although, with a few niceties to verify the supply chain) - Mach is now maintaining forks of various C libraries that we make use of. These aren&amp;rsquo;t Zig bindings to these libraries (which we have separately), but rather are just forks of the actual project with their build system replaced by &lt;code>build.zig&lt;/code>.&lt;/p>
+&lt;p>A massive special thanks to &lt;a href="https://mzte.de/git/">@LordMZTE&lt;/a> who has been tirelessly pushing us along here over the past month-ish, helping to inch us ever-closer to fully adopting the new package manager.&lt;/p>
+&lt;h3 id="forks-we-maintain">Forks we maintain&lt;/h3>
+&lt;p>We have &lt;em>forks&lt;/em> of these projects which switch their build systems to &lt;code>build.zig&lt;/code>:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/hexops/harfbuzz">hexops/harfbuzz&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/hexops/freetype">hexops/freetype&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/hexops/brotli">hexops/brotli&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/hexops/glfw">hexops/glfw&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/hexops/basisu">hexops/basisu&lt;/a> (basis_universal, supercompressed textures)&lt;/li>
+&lt;/ul>
+&lt;h3 id="a-note-about-supply-chain-verification">A note about supply chain verification&lt;/h3>
+&lt;p>I personally care a lot about supply chain security - and more importantly, bugs. In general, I don&amp;rsquo;t ever want anyone to have to &amp;lsquo;wonder&amp;rsquo; if our fork of a library has some strange patches applied to it or something.&lt;/p>
+&lt;p>As a result, in each of these forks we&amp;rsquo;ve taken the time to ensure &lt;em>you&lt;/em> know the exact &lt;code>git diff&lt;/code> command you can run to verify that our fork &lt;em>exactly&lt;/em> matches the upstream version - with the only difference being &lt;em>removing the project&amp;rsquo;s old build system, and unnecessary files&lt;/em>.&lt;/p>
+&lt;h3 id="header-packages-were-maintaining">Header packages we&amp;rsquo;re maintaining&lt;/h3>
+&lt;p>In addition to the above, we&amp;rsquo;re maintaining the following which aren&amp;rsquo;t strict forks (a repository for each would simply be too much for us to maintain), but rather are collections of common headers that you very often need together. These can help you build GLFW, SDL, and other such applications.&lt;/p>
+&lt;p>Some headers are generated with platform-specific tools (e.g. in the case of Wayland this is needed.) We always provide the exact steps we used to produce the headers from upstream repositories in an &lt;code>update-upstream.sh&lt;/code> script, with the intent that you can fully reproduce what&amp;rsquo;s in these packages and have confidence it came from the upstream repository.&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/hexops/vulkan-headers">hexops/vulkan-headers&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/hexops/linux-audio-headers">hexops/linux-audio-headers&lt;/a> includes:
+&lt;ul>
+&lt;li>ALSA&lt;/li>
+&lt;li>Jack&lt;/li>
+&lt;li>PipeWire&lt;/li>
+&lt;li>PulseAudio&lt;/li>
+&lt;li>SPA&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="https://github.com/hexops/x11-headers">hexops/x11-headers&lt;/a> includes:
+&lt;ul>
+&lt;li>x11&lt;/li>
+&lt;li>xcb&lt;/li>
+&lt;li>xkbcommon&lt;/li>
+&lt;li>xcursor&lt;/li>
+&lt;li>xrandr&lt;/li>
+&lt;li>xfixes&lt;/li>
+&lt;li>xrender&lt;/li>
+&lt;li>xinerama&lt;/li>
+&lt;li>xi&lt;/li>
+&lt;li>xext&lt;/li>
+&lt;li>xorgproto&lt;/li>
+&lt;li>GLX&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="https://github.com/hexops/wayland-headers">hexops/wayland-headers&lt;/a> includes:
+&lt;ul>
+&lt;li>xdg-shell&lt;/li>
+&lt;li>xdg-decoration&lt;/li>
+&lt;li>viewporter&lt;/li>
+&lt;li>pointer-constraints-unstable-v1&lt;/li>
+&lt;li>relative-pointer-unstable-v1&lt;/li>
+&lt;li>idle-inhibit-unstable-v1&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="how-do-i-use-these">How do I use these?&lt;/h3>
+&lt;p>Later we&amp;rsquo;ll provide more details specifically on how to use these. Effectively you just add them to a &lt;code>build.zig.zon&lt;/code> file next to your &lt;code>build.zig&lt;/code> and then call &lt;code>b.dependency(&amp;quot;name&amp;quot;)&lt;/code> to retrieve each one. If you need more help than that, you might need to &lt;a href="https://discord.gg/XNG3NZgCqp">join our Discord&lt;/a> because as mentioned previously the Zig package manager is pretty immature and has sharp edges today. There are &lt;a href="https://github.com/hexops/mach/issues/721">lots of known issues &amp;amp; bugs&lt;/a> that prevent even us from using it fully today.&lt;/p>
+&lt;p>But, it is coming along rather quickly! We wanted to let the broader Zig community know we&amp;rsquo;re maintaining these packages to help with collaboration.&lt;/p>
+&lt;h2 id="help-us-become-sustainable">Help us become sustainable&lt;/h2>
+&lt;p>We&amp;rsquo;re working towards Mach v0.2, this article was one of the first steps in beginning to share the progress we&amp;rsquo;ve been making towards that behind the scenes over the past several months. We have some exciting things to share next, this was the &amp;lsquo;boring&amp;rsquo; article that had to go first. :)&lt;/p>
+&lt;p>&lt;img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
+&lt;br>&lt;br>
+Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a> to help us become a sustainable OSS project and enable us to do more in the future.
+&lt;br>&lt;br>
+Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord&lt;/a> where we&amp;rsquo;re building the future of Zig game development in realtime!&lt;/p></description></item><item><title>Zig tips: v0.11 std.build API / package manager changes</title><link>https://devlog.hexops.com/2023/zig-0-11-breaking-build-changes/</link><pubDate>Mon, 13 Feb 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/zig-0-11-breaking-build-changes/</guid><description>&lt;p>We&amp;rsquo;ve just updated &lt;a href="https://machengine.org/">Mach engine&lt;/a> to use the latest Zig nightly version, which includes a fair amount of improvements and breaking changes to the &lt;code>std.build&lt;/code> API used in &lt;code>build.zig&lt;/code> files, and figured now would be a good time to share the general changes you may need to make if you want to update your own code.&lt;/p>
 &lt;h2 id="package-manager-incoming">Package manager: incoming!&lt;/h2>
 &lt;p>Zig is finally starting to see its package manager and build system shape up, some notable mentions:&lt;/p>
 &lt;ul>
