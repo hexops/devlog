@@ -8,7 +8,7 @@ categories:
 - zig
 - gamedev
 description: "For Mach engine, we're maintaining an ecosystem of C libraries packaged up with the new experimental Zig package manager. Whether you use Zig the language, or just its build system to build C/C++ applications, you may find this overview of our ecosystem informative."
-images: ["https://user-images.githubusercontent.com/3173176/218508235-43e18733-d18d-428a-8475-737f804f590c.png"]
+images: ["https://github.com/hexops/devlog/assets/3173176/cc6c6035-a2e4-4384-9a15-134679cbb1b0"]
 ---
 
 [Andrew Kelley](https://github.com/andrewrk) gave a keynote speech at [Software You Can Love 2023](https://softwareyoucanlove.ca) in Vancouver last week (a recording will be available later), the outline was:
