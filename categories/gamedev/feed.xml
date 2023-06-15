@@ -29,7 +29,7 @@ zig build run-textured-cube
 &lt;li>&lt;strong>Mach engine&lt;/strong>: If you choose this option, you &lt;em>additionally&lt;/em> get an entity component system - with a library of standard modules that you can &amp;lsquo;plug and play&amp;rsquo; with for rendering/audio/etc.&lt;/li>
 &lt;/ul>
 &lt;h3 id="keeping-our-runtime-c-dependencies-small">Keeping our runtime C dependencies small&lt;/h3>
-&lt;p>One way that we&amp;rsquo;re keeping &lt;em>runtime C dependencies&lt;/em> (the ones your game/app would ship with!) a smaller, focused, set - is by building tooling: a &lt;code>mach&lt;/code> CLI and fully-fledged GUI editor like other engines have. But how does that help reduce runtime dependencies Well, at runtime you may need:&lt;/p>
+&lt;p>One way that we&amp;rsquo;re keeping &lt;em>runtime C dependencies&lt;/em> (the ones your game/app would ship with!) a smaller, focused, set - is by building tooling: a &lt;code>mach&lt;/code> CLI and fully-fledged GUI editor like other engines have. But how does that help reduce runtime dependencies? Well, at runtime you may need:&lt;/p>
 &lt;ul>
 &lt;li>Harfbuzz: for Unicode text layout&lt;/li>
 &lt;li>GLFW (and some headers): for window management)&lt;/li>
