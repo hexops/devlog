@@ -57,7 +57,7 @@ One example of this is in Andrew Kelley's [fork of ffmpeg](https://github.com/an
 
 ### Keeping our runtime C dependencies small
 
-One way that we're keeping _runtime C dependencies_ (the ones your game/app would ship with!) a smaller, focused, set - is by building tooling: a `mach` CLI and fully-fledged GUI editor like other engines have. But how does that help reduce runtime dependencies Well, at runtime you may need:
+One way that we're keeping _runtime C dependencies_ (the ones your game/app would ship with!) a smaller, focused, set - is by building tooling: a `mach` CLI and fully-fledged GUI editor like other engines have. But how does that help reduce runtime dependencies? Well, at runtime you may need:
 
 * Harfbuzz: for Unicode text layout
 * GLFW (and some headers): for window management)
