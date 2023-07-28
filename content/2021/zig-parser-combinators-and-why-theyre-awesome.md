@@ -62,7 +62,7 @@ Suppose that for `a[bc].*abc`:
 
 Now that we have these _parsers_, we can define _parser combinators_ to help us parse the full regular expression. First, we need something to parse a string `abc` which we can define as:
 
-<img class="color-autoc="https://user-images.githubusercontent.com/3173176/110413375-fa49ae00-804a-11eb-8311-64e737513000.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110413375-fa49ae00-804a-11eb-8311-64e737513000.png">
 
 What is `OneOrMore`, though? That's our first parser combinator!
 
@@ -70,7 +70,7 @@ It takes a single parser as input (in this case, `RegexLiteralParser`) and uses 
 
 Now if we want to parse the `[bc]` part of our regex, let's say it can only contain a literal like `bc` (of course, real regex allows far more than this) we can e.g. reuse our new `RegexStringLiteralParser`:
 
-<img class="color-autoc="https://user-images.githubusercontent.com/3173176/110413643-780db980-804b-11eb-8fe5-8ca97b2e96ca.png">
+<img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110413643-780db980-804b-11eb-8fe5-8ca97b2e96ca.png">
 
 In this case, `Sequence` is a parser combinator which takes multiple parsers and tries to parse them one-after-the-other in order, requiring all to succeed or failing otherwise.
 
