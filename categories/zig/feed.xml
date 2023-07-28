@@ -2666,11 +2666,11 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;li>&lt;code>RegexRepetitionParser&lt;/code> can parse the &lt;code>*&lt;/code> repetition operator.&lt;/li>
 &lt;/ul>
 &lt;p>Now that we have these &lt;em>parsers&lt;/em>, we can define &lt;em>parser combinators&lt;/em> to help us parse the full regular expression. First, we need something to parse a string &lt;code>abc&lt;/code> which we can define as:&lt;/p>
-&lt;p>&amp;lt;img class=&amp;ldquo;color-autoc=&amp;ldquo;&lt;a href="https://user-images.githubusercontent.com/3173176/110413375-fa49ae00-804a-11eb-8311-64e737513000.png%22%3E">https://user-images.githubusercontent.com/3173176/110413375-fa49ae00-804a-11eb-8311-64e737513000.png&amp;quot;&amp;gt;&lt;/a>&lt;/p>
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110413375-fa49ae00-804a-11eb-8311-64e737513000.png">
 &lt;p>What is &lt;code>OneOrMore&lt;/code>, though? That&amp;rsquo;s our first parser combinator!&lt;/p>
 &lt;p>It takes a single parser as input (in this case, &lt;code>RegexLiteralParser&lt;/code>) and uses it to parse the input one or more times. If it succeeded once, the parser combinator succeeded. Otherwise, it failed to parse anything.&lt;/p>
 &lt;p>Now if we want to parse the &lt;code>[bc]&lt;/code> part of our regex, let&amp;rsquo;s say it can only contain a literal like &lt;code>bc&lt;/code> (of course, real regex allows far more than this) we can e.g. reuse our new &lt;code>RegexStringLiteralParser&lt;/code>:&lt;/p>
-&lt;p>&amp;lt;img class=&amp;ldquo;color-autoc=&amp;ldquo;&lt;a href="https://user-images.githubusercontent.com/3173176/110413643-780db980-804b-11eb-8fe5-8ca97b2e96ca.png%22%3E">https://user-images.githubusercontent.com/3173176/110413643-780db980-804b-11eb-8fe5-8ca97b2e96ca.png&amp;quot;&amp;gt;&lt;/a>&lt;/p>
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110413643-780db980-804b-11eb-8fe5-8ca97b2e96ca.png">
 &lt;p>In this case, &lt;code>Sequence&lt;/code> is a parser combinator which takes multiple parsers and tries to parse them one-after-the-other in order, requiring all to succeed or failing otherwise.&lt;/p>
 &lt;p>Building upon this basic idea, we can use parser combinators to build a full regex syntax parser:&lt;/p>
 &lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/110414508-2ebe6980-804d-11eb-9422-0888208fac19.png">
