@@ -1,4 +1,195 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mach on Hexops' devlog</title><link>https://devlog.hexops.com/categories/mach/</link><description>Recent content in mach on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 14 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/mach/feed.xml" rel="self" type="application/rss+xml"/><item><title>Mach: providing an ecosystem of C libraries using the Zig package manager</title><link>https://devlog.hexops.com/2023/mach-ecosystem-c-libraries/</link><pubDate>Wed, 14 Jun 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/mach-ecosystem-c-libraries/</guid><description>&lt;p>&lt;a href="https://github.com/andrewrk">Andrew Kelley&lt;/a> gave a keynote speech at &lt;a href="https://softwareyoucanlove.ca">Software You Can Love 2023&lt;/a> in Vancouver last week (a recording will be available later), the outline was:&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mach on Hexops' devlog</title><link>https://devlog.hexops.com/categories/mach/</link><description>Recent content in mach on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 12 Aug 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/mach/feed.xml" rel="self" type="application/rss+xml"/><item><title>Mach v0.2 released - Zig game engine &amp; graphics toolkit</title><link>https://devlog.hexops.com/2023/mach-v0.2-released/</link><pubDate>Sat, 12 Aug 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/mach-v0.2-released/</guid><description>&lt;p>Mach is a Zig game engine &amp;amp; graphics toolkit for building high-performance, truly cross-platform, robust &amp;amp; modular games, visualizations, and desktop/mobile GUI apps. &lt;a href="https://machengine.org/">Learn more&lt;/a>&lt;/p>
+&lt;p>We&amp;rsquo;ve been developing Mach for ~2 years; this release includes over a year of work, thousands of commits, and fixes &lt;a href="https://github.com/hexops/mach/milestone/2?closed=1">300 issues&lt;/a>.&lt;/p>
+&lt;video height="800px" autoplay loop muted>
+&lt;source src="https://media.machengine.org/core/example/deferred-rendering.mp4" type="video/mp4">
+&lt;/video>
+&lt;h2 id="on-your-machine-in-just-60-seconds">On your machine in just ~60 seconds&lt;/h2>
+&lt;p>With &lt;a href="https://machengine.org/about/zig-version/">this Zig nightly&lt;/a> version you can run the above demo on your machine in ~60 seconds:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">git clone https://github.com/hexops/mach-core
+&lt;span class="nb">cd&lt;/span> mach-core/
+zig build run-deferred-rendering
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;a href="https://machengine.org/about/goals/#zero-fuss-installation">Zero system dependencies&lt;/a> to slow you down; only &lt;a href="https://machengine.org/about/zig-version/">zig&lt;/a> is needed, we build and package the few relevant dependencies on our own. &lt;small>&lt;a href="https://machengine.org/about/known-issues/">known issues&lt;/a>&lt;/small>&lt;/p>
+&lt;h2 id="engine-and-core-split">Engine and Core split&lt;/h2>
+&lt;p>We completely split &lt;em>Mach engine&lt;/em> and &lt;em>Mach core&lt;/em> apart, so that you get to choose your journey and decide if you just want low-level window+input+GPU and nothing else, or prefer to use our higher level engine (which although not ready for use yet, will be very modular itself):&lt;/p>
+&lt;p align="center">
+&lt;img class="color-auto" src="https://user-images.githubusercontent.com/3173176/184719710-ebae4fbd-af14-4b2f-80ad-11527c5f3e8f.png" />
+&lt;/p>
+&lt;h2 id="mach-core">Mach core&lt;/h2>
+&lt;picture>
+&lt;source media="(prefers-color-scheme: dark)" srcset="https://machengine.org/assets/mach/core-full-dark.svg">
+&lt;img alt="mach-core" src="https://machengine.org/assets/mach/core-full-light.svg" style="height: 7rem; margin-top: 1rem;">
+&lt;/picture>
+&lt;p>Mach core aims to be a &lt;em>truly cross-platform&lt;/em> way to get &lt;em>window+input+GPU, and nothing else.&lt;/em> It supports Linux, Windows, and Mac today, with WebAssembly / browser support in active development, and mobile coming in the future.&lt;/p>
+&lt;p>It gives you the power of Vulkan, DirectX, Metal, and modern OpenGL in a &lt;em>single concise graphics API and shader language&lt;/em> - by compiling Google Chrome&amp;rsquo;s WebGPU implementation natively using Zig&amp;rsquo;s build system.&lt;/p>
+&lt;p>Seamless multi-threading capabilities are provided, which means that your rendering and input handling are trivially decoupled from one another, you get butter-smooth window resizing, and your render loop and input handling can run at difference frequencies. For example, a 60FPS render loop while your application handles keyboard &amp;amp; mouse events at a much faster dynamic rate (as fast as the OS can deliver them.)&lt;/p>
+&lt;div style="align-self: center;">
+&lt;video autoplay loop muted height="190px">
+&lt;source src="https://media.machengine.org/core/example/gen-texture-light.mp4" type="video/mp4">
+&lt;/video>
+&lt;video autoplay loop muted height="190px">
+&lt;source src="https://media.machengine.org/core/example/boids.mp4" type="video/mp4">
+&lt;/video>
+&lt;video autoplay loop muted height="190px">
+&lt;source src="https://media.machengine.org/core/example/textured-cube.mp4" type="video/mp4">
+&lt;/video>
+&lt;/div>
+&lt;p>You can think of Mach core as an alternative to the classic options of SDL, GLFW+OpenGL, etc.&lt;/p>
+&lt;p>There are &lt;a href="https://machengine.org/core/examples/">15+ examples in the showcase&lt;/a>, and we&amp;rsquo;re &lt;a href="https://github.com/hexops/mach/issues/858">planning a C API&lt;/a> so it can be used from other languages as well.&lt;/p>
+&lt;h2 id="engine-development-has-begun">Engine development has begun&lt;/h2>
+&lt;p>&lt;strong>Mach engine is not ready for use yet, but we&amp;rsquo;ve started breaking ground on higher-level engine APIs.&lt;/strong>&lt;/p>
+&lt;p>The v0.2 release focuses on deep changes and improvements to our infrastructure, primarily building out the Zig gamedev ecosystem and building foundational packages that we needed for Mach core, the engine, and a game we&amp;rsquo;re starting to build.&lt;/p>
+&lt;p>As a result, we&amp;rsquo;ve &lt;em>finally&lt;/em> just broken ground on the engine side of things.&lt;/p>
+&lt;img src="https://devlog.hexops.com/img/2023/mach-where-we-are.png">
+&lt;h2 id="breaking-up-our-monorepo">Breaking up our monorepo&lt;/h2>
+&lt;p>Previously, all of Mach&amp;rsquo;s &lt;a href="https://machengine.org/pkg/">standalone packages&lt;/a> were developed in a single giant monorepo. This was both intimidating for new contributors, and we wanted to better communicate how many standalone Zig gamedev packages we actually provide.&lt;/p>
+&lt;p>Today, we&amp;rsquo;re happy to report all standalone packages are now developed in separate repositories and available via the package manager!&lt;/p>
+&lt;h2 id="zig-package-manager">Zig package manager&lt;/h2>
+&lt;p>We migrated 100% to the self-hosted Zig compiler and the new experimental Zig package manager, every Git submodule has been banished!&lt;/p>
+&lt;p>We created &lt;a href="https://pkg.machengine.org/">pkg.machengine.org&lt;/a> - a mirror for downloading Mach packages and Zig downloads as well.&lt;/p>
+&lt;h2 id="introducing-wrench-the-machanist">Introducing Wrench the Machanist&lt;/h2>
+&lt;img src="https://raw.githubusercontent.com/hexops/media/b71e82ae9ea20c22a2eb3ab95d8ba48684635620/mach/wrench_rocket.svg" style="width: 300px">
+&lt;p>Wrench is the Mach engine mascot (artwork contributed by &lt;a href="https://keylajones.me">Keyla Jones&lt;/a>); and also &lt;a href="https://wrench.machengine.org/">our infrastructure automation&lt;/a> tool, written in Go, to help us with various tasks:&lt;/p>
+&lt;p>Giving us an overview of our many repositories &lt;a href="https://wrench.machengine.org/projects/">CI statuses&lt;/a> and &lt;a href="https://wrench.machengine.org/pull-requests/">pull requests&lt;/a>:&lt;/p>
+&lt;p>&lt;a href="https://github.com/hexops/mach/assets/3173176/62c3e118-faa0-40c7-a663-e9e68e000bbf">&lt;img src="https://github.com/hexops/mach/assets/3173176/62c3e118-faa0-40c7-a663-e9e68e000bbf" style="width: 300px">&lt;/a>&lt;a href="https://user-images.githubusercontent.com/3173176/210106853-3e72f102-e8a8-4154-bec3-e169922fd9af.png">&lt;img src="https://user-images.githubusercontent.com/3173176/210106853-3e72f102-e8a8-4154-bec3-e169922fd9af.png" style="width: 300px">&lt;/a>&lt;/p>
+&lt;p>Sending us &lt;a href="https://github.com/hexops/mach/pull/953">pull requests&lt;/a> to automatically update our CI pipelines to the latest Zig version, and update our &lt;a href="https://github.com/hexops/mach/pull/926">&lt;code>build.zig.zon&lt;/code>&lt;/a> dependencies - in a fully atomic way across all our repositories at once:&lt;/p>
+&lt;p>&lt;a href="https://user-images.githubusercontent.com/3173176/210106831-afe34f1e-38fc-40ab-bee3-72374067838c.png">&lt;img src="https://user-images.githubusercontent.com/3173176/210106831-afe34f1e-38fc-40ab-bee3-72374067838c.png" style="width: 300px">&lt;/a>&lt;/p>
+&lt;p>&amp;hellip;and much more:&lt;/p>
+&lt;ul>
+&lt;li>Checking our website and docs for &lt;a href="https://github.com/hexops/mach/issues/931">broken links&lt;/a> and sending us GitHub issues.&lt;/li>
+&lt;li>Performing automatic updates of involved dependencies, such as updating our fork of Google Chrome&amp;rsquo;s WebGPU implementation, which involves &lt;a href="https://github.com/hexops/mach-gpu-dawn/pull/22">pull requests&lt;/a> across a few different repositories, pushing branches, running out-of-band commands, and ultimately presenting us with helpful/pretty diffs so we can just do the human work.&lt;/li>
+&lt;li>A custom CI job runner system, running on a custom mini server with actual GPUs - so we can do screenshot-based testing of graphical applications in the future.&lt;/li>
+&lt;/ul>
+&lt;video height="800px" controls>
+&lt;source src="https://user-images.githubusercontent.com/3173176/234467605-ed255a5f-325e-449b-934b-971c2d4b4739.mp4" type="video/mp4">
+&lt;/video>
+&lt;video height="800px" controls>
+&lt;source src="https://user-images.githubusercontent.com/3173176/210107110-3ac1df91-1192-4113-96cd-748ae581c4f9.mp4" type="video/mp4">
+&lt;/video>
+&lt;h2 id="mach-gpu-rewritten-for-perfection">mach-gpu: rewritten for perfection&lt;/h2>
+&lt;picture>
+&lt;source srcset="https://raw.githubusercontent.com/hexops/media/839b04fa5a72428052733d2095726894ff93466a/gpu/logo_dark.svg" media="(prefers-color-scheme: dark)">
+&lt;img style="height: 100px;" src="https://raw.githubusercontent.com/hexops/media/839b04fa5a72428052733d2095726894ff93466a/gpu/logo_light.svg">
+&lt;/picture>
+&lt;p>&lt;a href="https://machengine.org/pkg/mach-gpu/">mach-gpu&lt;/a> is the WebGPU interface for Zig, and last year we &lt;a href="../2022/perfecting-webgpu-native/">completely rewrote&lt;/a> it, achieving:&lt;/p>
+&lt;ul>
+&lt;li>Zero overheard, using comptime interfaces&lt;/li>
+&lt;li>100% API coverage&lt;/li>
+&lt;li>Default values for 100% of the API (which makes writing descriptors, and makes examples, look much simpler.)&lt;/li>
+&lt;/ul>
+&lt;h2 id="audio-development">Audio development&lt;/h2>
+&lt;p>Contributor &lt;a href="https://github.com/alichraghi">@alichraghi&lt;/a> has been relentless in pushing our audio capabilities (and more) forward&lt;/p>
+&lt;div style="align-self: center">
+&lt;picture>
+&lt;source media="(prefers-color-scheme: dark)" srcset="https://machengine.org/assets/mach/flac-full-dark.svg">
+&lt;img alt="mach-flac" src="https://machengine.org/assets/mach/flac-full-light.svg" style="width: 250px">
+&lt;/picture>
+&lt;picture>
+&lt;source media="(prefers-color-scheme: dark)" srcset="https://machengine.org/assets/mach/sysaudio-full-dark.svg">
+&lt;img alt="mach-sysaudio" src="https://machengine.org/assets/mach/sysaudio-full-light.svg" style="width: 250px">
+&lt;/picture>
+&lt;picture>
+&lt;source media="(prefers-color-scheme: dark)" srcset="https://machengine.org/assets/mach/opus-full-dark.svg">
+&lt;img alt="mach-opus" src="https://machengine.org/assets/mach/opus-full-light.svg" style="width: 250px">
+&lt;/picture>
+&lt;/div>
+&lt;p>&lt;a href="https://machengine.org/pkg/mach-sysaudio/">mach-sysaudio&lt;/a> started as Zig bindings to Andrew Kelley&amp;rsquo;s awesome &lt;a href="https://github.com/andrewrk/libsoundio">libsoundio&lt;/a> library, and ended up being a fully-fledged new library written in Zig to achieve similar goals:&lt;/p>
+&lt;ul>
+&lt;li>Truly cross-platform, low-level, audio IO in Zig - playback and recording with backends for:
+&lt;ul>
+&lt;li>Linux
+&lt;ul>
+&lt;li>PulseAudio&lt;/li>
+&lt;li>PipeWire&lt;/li>
+&lt;li>Jack&lt;/li>
+&lt;li>ALSA&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Windows: WASAPI&lt;/li>
+&lt;li>macOS/iOS: CoreAudio&lt;/li>
+&lt;li>WebAssembly: WebAudio&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>Then just recently we got &lt;a href="https://machengine.org/pkg/mach-flac/">mach-flac&lt;/a> and &lt;a href="https://machengine.org/pkg/mach-opus/">mach-opus&lt;/a>, which combined give you FLAC (lossless audio) and Opus (lossy audio) via the respective battle-hardeneed xiph.org libraries.&lt;/p>
+&lt;h2 id="new-website">New website&lt;/h2>
+&lt;img src="https://github.com/hexops/mach/assets/3173176/6a1167bd-330c-47b4-8d8b-69e0c5cd0de2">
+&lt;p>We built a &lt;a href="https://machengine.org">brand new website&lt;/a> that will serve us well into the future, featuring:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://machengine.org/engine/roadmap/">Project roadmap&lt;/a>&lt;/li>
+&lt;li>Documentation for Engine, Core, Packages, and more.&lt;/li>
+&lt;li>WebGPU documentation and &lt;a href="https://machengine.org/engine/gpu/">learning material&lt;/a>&lt;/li>
+&lt;li>Offline-viewing support (see link in the footer)&lt;/li>
+&lt;li>All around better design, landing page, etc.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>Note:&lt;/strong> Mobile support isn&amp;rsquo;t great right now, we&amp;rsquo;ll fix it later.&lt;/p>
+&lt;h2 id="browser-support-in-development">Browser support: in development&lt;/h2>
+&lt;p>Chrome has already shipped WebGPU, and others will follow soon. Mach support for WebAssembly is not yet ready, but is coming along nicely:&lt;/p>
+&lt;ul>
+&lt;li>Input, audio, etc. is working already (&lt;a href="https://slimsag.com/mach/piano/">piano demo&lt;/a>, click in the frame and type with your A-Z keys.)&lt;/li>
+&lt;li>&lt;code>mach build&lt;/code> is a new CLI command written in Zig which:
+&lt;ul>
+&lt;li>Starts an HTTP development server&lt;/li>
+&lt;li>Invokes &lt;code>zig build&lt;/code> for you when you reload the page&lt;/li>
+&lt;li>Generally provides a nice browser development experience&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>We currently do not have graphics support in the browser: we are currently doing a full rewrite of &lt;a href="https://machengine.org/pkg/mach-sysjs/">mach-sysjs&lt;/a> to use a code generation approach to enable Zig and JavaScript to communicate across the WebAssembly boundary, while being able to pass complex types (strings, slices, etc.) instead of just pointers and integers as normal. Once this rewrite is finished, we will generate a &lt;code>gpu.Interface&lt;/code> implementation which simply invokes the browser&amp;rsquo;s JavaScript WebGPU API with minimal overhead.&lt;/p>
+&lt;h2 id="dusk-experimental-pure-zig-webgpu-implementation">Dusk: Experimental pure-Zig WebGPU implementation&lt;/h2>
+&lt;picture>
+&lt;source media="(prefers-color-scheme: dark)" srcset="https://machengine.org/assets/mach/dusk-full-dark.svg">
+&lt;img alt="mach-dusk" src="https://machengine.org/assets/mach/dusk-full-light.svg" style="height: 7rem; margin-top: 1rem;">
+&lt;/picture>
+&lt;p>Dusk is a highly experimental WebGPU implementation in Zig, aiming to be blazingly fast, lean &amp;amp; mean.&lt;/p>
+&lt;p>&lt;a href="https://github.com/alichraghi">@alichraghi&lt;/a> has been quietly working on Dusk tirelessly and consistently over the past year, and we think it may begin to be usable in Mach v0.3. Although it is not usable today, it already features:&lt;/p>
+&lt;ul>
+&lt;li>A &lt;a href="https://github.com/hexops/mach-dusk/tree/main/src/shader">full WGSL shader parser and compiler&lt;/a>, based loosely on the Zig compiler, capable of emitting SPIRV.&lt;/li>
+&lt;li>A partial Vulkan implementation.&lt;/li>
+&lt;/ul>
+&lt;p>Dusk is a long-term bet / investment for us, we intend to always have the option of using Dawn (the Google Chrome WebGPU implementation), and we don&amp;rsquo;t expect Dusk will be the default very soon. Since both will implement the same &lt;code>gpu.Interface&lt;/code>, it&amp;rsquo;ll just be another backend you can select from at build time.&lt;/p>
+&lt;p>Learn more about our goals with Dusk &lt;a href="https://machengine.org/pkg/mach-dusk/#goals">here&lt;/a>, and feel free to join the &lt;code>#dusk&lt;/code> channel in Discord or check out the repository if you&amp;rsquo;re interested in contributing some Vulkan, Metal, or Direct3D knowledge.&lt;/p>
+&lt;h2 id="model-loading">Model loading&lt;/h2>
+&lt;p>&lt;a href="https://machengine.org/pkg/mach-model3d/">mach-model3d&lt;/a> provides Zig bindings to &lt;a href="https://gitlab.com/bztsrc/model3d/">Model3D&lt;/a>, a compact, featureful model format &amp;amp; alternative to glTF. We may replace this with our own model format in the future, but for now this enables us to load models from Blender in a decent, performant way.&lt;/p>
+&lt;video height="800px" autoplay loop muted>
+&lt;source src="https://media.machengine.org/core/example/pbr-basic.mp4" type="video/mp4">
+&lt;/video>
+&lt;h2 id="sprite--2d-examples">Sprite / 2D examples&lt;/h2>
+&lt;img src="https://media.machengine.org/core/example/sprite2d.jpg">
+&lt;p>mach-core now has a &lt;a href="https://github.com/hexops/mach-core/tree/main/examples/sprite2d">sprite2d example&lt;/a> which is ~400 lines and demonstrates loading sprites from a JSON file and sprite atlas, basic keyboard movement, etc.&lt;/p>
+&lt;p>We&amp;rsquo;ve already begun making a higher-level API for 2D graphics, as well - though not ready for use yet.&lt;/p>
+&lt;h2 id="community">Community&lt;/h2>
+&lt;ul>
+&lt;li>Our &lt;a href="https://machengine.org/discord">Discord community&lt;/a> grew to over 700+ members, though we aim to keep all valuable information in GitHub issues and on the new website.&lt;/li>
+&lt;li>We attended &lt;a href="https://softwareyoucan.love/">Software You Can Love&lt;/a> in Milan, Italy - gave a talk, had a table full of Zig gamedevs, and gave out some cool stickers&lt;/li>
+&lt;li>We saw a number of new contributors, both one-off and ongoing.&lt;/li>
+&lt;li>Many coffee was drank, and much coding was done over the holidays.&lt;/li>
+&lt;/ul>
+&lt;div style="align-self: center;">
+&lt;img src="https://github.com/hexops/mach/assets/3173176/43573ecf-35ce-4e34-831f-425151d5c281" style="height: 190px">
+&lt;img src="https://github.com/hexops/mach/assets/3173176/ad30a37d-a37c-4950-b7b6-36411c9a51f1" style="height: 190px">
+&lt;img src="https://github.com/hexops/mach/assets/3173176/9cfe64fe-ba2e-49a1-bfbe-f40b66abde2b" style="height: 190px">
+&lt;/div>
+&lt;h2 id="a-personal-note">A personal note&lt;/h2>
+&lt;div style="display: flex;">
+&lt;a href="https://github.com/slimsag">
+&lt;img style="width: 420px" src="https://machengine.org/img/slimsag-profile.png">
+&lt;/a>
+&lt;div>
+&lt;p>I work a normal tech job, and every day after I sign off from work I go online to build Mach, almost like working two jobs. I've been working on Mach double-time like this for over two years now, and dreaming of it for a decade before that.&lt;/p>
+&lt;p>FOSS &lt;a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month#i-grew-up-playing-linux-games-like-mania-drive">is in my roots&lt;/a> and I believe we should own our tools, they should empower &lt;em>us&lt;/em>-not be part of &lt;a href="https://kristoff.it/blog/the-open-source-game/">the 'open source' game&lt;/a> which is all too prevelant today (even among 'open source' engines.) Mach &lt;em>needs&lt;/em> to be for people like you and me-it needs to genuinely be &lt;a href="https://softwareyoucan.love">software you can love&lt;/a>.&lt;/p>
+&lt;p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a> if you believe in my vision.&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;h2 id="thanks">Thanks&lt;/h2>
+&lt;p>Both to everyone who has contributed and sponsored the project, as well as you for reading this far!&lt;/p>
+&lt;div style="display: flex; flex-direction: row; align-items: center;">
+&lt;img align="left" style="max-height: 12.5rem;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
+&lt;ul>
+&lt;li>Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord server&lt;/a>&lt;/li>
+&lt;li>Checkout &lt;a href="https://machengine.org">machengine.org&lt;/a>&lt;/li>
+&lt;li>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
+&lt;/ul>
+&lt;/div></description></item><item><title>Mach: providing an ecosystem of C libraries using the Zig package manager</title><link>https://devlog.hexops.com/2023/mach-ecosystem-c-libraries/</link><pubDate>Wed, 14 Jun 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/mach-ecosystem-c-libraries/</guid><description>&lt;p>&lt;a href="https://github.com/andrewrk">Andrew Kelley&lt;/a> gave a keynote speech at &lt;a href="https://softwareyoucanlove.ca">Software You Can Love 2023&lt;/a> in Vancouver last week (a recording will be available later), the outline was:&lt;/p>
 &lt;blockquote>
 &lt;p>&lt;strong>How to Build Software From Source&lt;/strong>&lt;/p>
 &lt;p>[&amp;hellip;] then I&amp;rsquo;ll take things in a completely different direction, by &lt;strong>showing you how to rip apart a project&amp;rsquo;s build system and replace it with the zig build system.&lt;/strong> This will make building things from source work effortlessly for more people and more platforms, as well as annoy a lot of boomers. It&amp;rsquo;s going to be super fun and spicy!&lt;/p>
