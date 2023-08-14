@@ -72,7 +72,7 @@ zig build run-deferred-rendering
 &lt;/picture>
 &lt;p>&lt;a href="https://machengine.org/pkg/mach-gpu/">mach-gpu&lt;/a> is the WebGPU interface for Zig, and last year we &lt;a href="../2022/perfecting-webgpu-native/">completely rewrote&lt;/a> it, achieving:&lt;/p>
 &lt;ul>
-&lt;li>Zero overheard, using comptime interfaces&lt;/li>
+&lt;li>Zero overhead, using comptime interfaces&lt;/li>
 &lt;li>100% API coverage&lt;/li>
 &lt;li>Default values for 100% of the API (which makes writing descriptors, and makes examples, look much simpler.)&lt;/li>
 &lt;/ul>
