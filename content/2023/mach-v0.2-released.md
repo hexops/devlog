@@ -127,7 +127,7 @@ Sending us [pull requests](https://github.com/hexops/mach/pull/953) to automatic
 
 [mach-gpu](https://machengine.org/pkg/mach-gpu/) is the WebGPU interface for Zig, and last year we [completely rewrote](../2022/perfecting-webgpu-native/) it, achieving:
 
-* Zero overheard, using comptime interfaces
+* Zero overhead, using comptime interfaces
 * 100% API coverage
 * Default values for 100% of the API (which makes writing descriptors, and makes examples, look much simpler.)
 
