@@ -50,7 +50,7 @@ Mach core aims to be a _truly cross-platform_ way to get _window+input+GPU, and 
 
 It gives you the power of Vulkan, DirectX, Metal, and modern OpenGL in a _single concise graphics API and shader language_ - by compiling Google Chrome's WebGPU implementation natively using Zig's build system.
 
-Seamless multi-threading capabilities are provided, which means that your rendering and input handling are trivially decoupled from one another, you get butter-smooth window resizing, and your render loop and input handling can run at difference frequencies. For example, a 60FPS render loop while your application handles keyboard & mouse events at a much faster dynamic rate (as fast as the OS can deliver them.)
+Seamless multi-threading capabilities are provided, which means that your rendering and input handling are trivially decoupled from one another, you get butter-smooth window resizing, and your render loop and input handling can run at different frequencies. For example, a 60FPS render loop while your application handles keyboard & mouse events at a much faster dynamic rate (as fast as the OS can deliver them.)
 
 <div style="align-self: center;">
     <video autoplay loop muted height="190px">
