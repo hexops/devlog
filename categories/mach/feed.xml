@@ -1,4 +1,126 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mach on Hexops' devlog</title><link>https://devlog.hexops.com/categories/mach/</link><description>Recent content in mach on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 12 Aug 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/mach/feed.xml" rel="self" type="application/rss+xml"/><item><title>Mach v0.2 released - Zig game engine &amp; graphics toolkit</title><link>https://devlog.hexops.com/2023/mach-v0.2-released/</link><pubDate>Sat, 12 Aug 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/mach-v0.2-released/</guid><description>&lt;p>Mach is a Zig game engine &amp;amp; graphics toolkit for building high-performance, truly cross-platform, robust &amp;amp; modular games, visualizations, and desktop/mobile GUI apps. &lt;a href="https://machengine.org/">Learn more&lt;/a>&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mach on Hexops' devlog</title><link>https://devlog.hexops.com/categories/mach/</link><description>Recent content in mach on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 07 Jan 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/categories/mach/feed.xml" rel="self" type="application/rss+xml"/><item><title>Announcing Mach' nominated Zig versions</title><link>https://devlog.hexops.com/2024/announcing-nominated-zig/</link><pubDate>Sun, 07 Jan 2024 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2024/announcing-nominated-zig/</guid><description>&lt;p>Today we&amp;rsquo;re announcing Mach' nominated Zig versions, a sweet-spot between stable Zig and nightly Zig which offers a different balance of latest-and-greatest features and fixes, and less of a moving target.&lt;/p>
+&lt;p>If you are in the Zig community, you likely fall into one of two categories:&lt;/p>
+&lt;ul>
+&lt;li>You target Zig nightly, a target which moves every day&lt;/li>
+&lt;li>You target Zig stable, which may be released once or twice per year.&lt;/li>
+&lt;/ul>
+&lt;h2 id="the-challenge-of-using-zig-stable">The challenge of using Zig stable&lt;/h2>
+&lt;p>In recent years, Zig stable has about 2 releases per year. There are great benefits to using stable Zig:&lt;/p>
+&lt;ul>
+&lt;li>It is generally documented how to update/migrate your code to the new Zig version, rather than it being an ad-hoc process of discovery.&lt;/li>
+&lt;li>The release is at a point where the Zig core team feels it is solid and ready to go (Zig releases are done when they are done, not usually timed.)&lt;/li>
+&lt;li>These versions get nice numbers associated with them, package authors, distributions, etc. can easily target them.&lt;/li>
+&lt;/ul>
+&lt;p>But, for a language that is developed quite quickly, and has yet to reach v1.0 stability.. when you find that an awesome new feature like the package manager, incremental compilation, or something else you care about has just landed in Zig nightly.. are you going to wait 6 months or more to get that change?&lt;/p>
+&lt;h2 id="the-challenge-of-using-zig-nightly">The challenge of using Zig nightly&lt;/h2>
+&lt;p>Zig nightly is an ever-moving target. Although it is often nearly as stable as stable releases, that is not neccessarily the case during large refactors - such as the migration to the self-hosted comppiler.&lt;/p>
+&lt;p>There are benefits to using nightly, though! It means you are testing the latest version of Zig, and your project can exist in a sort of symbiotic relationship with the Zig project where you test new functionality, help provide feedback on it, discover new issues, and have a greater chance of getting them fixed/addressed while that code is on everyone&amp;rsquo;s mind.&lt;/p>
+&lt;p>Unlike stable Zig, you&amp;rsquo;re not integrating 6+ months of breaking changes into your codebase all at once (quite painful!) but rather doing so as the breaks happen. Since many others in the Zig community do target nightly Zig, there are often people around who can help you with upgrading your code.&lt;/p>
+&lt;p>One major downside, aside from death by a thousand paper cuts, is that everyone targets a different Zig nightly version. Often, it&amp;rsquo;s difficult to coordinate with others and keep your code compatible with theirs.&lt;/p>
+&lt;h2 id="the-challenge-mach-has-using-zig-nightly">The challenge Mach has using Zig nightly&lt;/h2>
+&lt;p>We use Zig nightly, but we only periodically update the version.&lt;/p>
+&lt;p>Updating Mach&amp;rsquo;s Zig version involves updating a dependency tree of over &lt;a href="https://github.com/hexops/mach/issues/1135">40+ Zig repositories&lt;/a>, first updating the Zig code itself and testing manually, then updating their CI pipelines, then going and updating anyone who depends on that repository - from the bottom of the tree to the top!&lt;/p>
+&lt;p>We&amp;rsquo;ve built some serious automation to help with this process, but it is still painful - and it is also the case that every time we update our Zig version, our users need to do the same: we&amp;rsquo;re not just updating Zig for us, we&amp;rsquo;re updating Zig for every user of Mach.&lt;/p>
+&lt;p>This process has worked &lt;em>pretty&lt;/em> well for us, but the frequency of updates has always been ad-hoc, and when we do update it is a bit chaotic.&lt;/p>
+&lt;h2 id="we-need-our-ecosystem-of-40-packages-to-be-compatible">We need our ecosystem of 40+ packages to be compatible&lt;/h2>
+&lt;p>If we haven&amp;rsquo;t updated our Zig version for a bit of time, then we end up with tens of outstanding pull requests by people who maybe don&amp;rsquo;t use &lt;em>all of Mach&lt;/em> but rather just parts of it, and they can become (rightfully!) fairly frustrated that getting their pull-request merged takes us a while.&lt;/p>
+&lt;p>We can&amp;rsquo;t just merge a one-off pull request to one repository, we have to update all 40+ to be compatible with the same Zig version.&lt;/p>
+&lt;p>&lt;a href="https://devlog.hexops.com/img/2024/so-many-pull-requests.png">&lt;img alt="so many pull requests" src="https://devlog.hexops.com/img/2024/so-many-pull-requests.png">&lt;/a>&lt;/p>
+&lt;h2 id="coordinating-outside-mach">Coordinating outside Mach&lt;/h2>
+&lt;p>Although Mach provides a lot of libraries, there are still many important aspects of gamedev we do not have yet. Some folks in the Mach community will pull in third-party Zig projects, like those from zig-gamedev, introducing another challenge in ensuring their code works with the same version.&lt;/p>
+&lt;h2 id="announcing-mach-nominated-zig-versions">Announcing Mach' nominated Zig versions&lt;/h2>
+&lt;p>Today we&amp;rsquo;re formalizing the process we&amp;rsquo;ve (generally) been following. This formalization will make it easier for others to understand what we&amp;rsquo;re doing and when, and also make it easier for other projects to align their Zig version with Mach&amp;rsquo;s if they desire.&lt;/p>
+&lt;p>Throughout the year (aiming for the 4th day of the month), we will pick the latest Zig nightly version at that time and nominate it for use:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>When&lt;/th>
+&lt;th>What&lt;/th>
+&lt;th>🚀 Other notable event&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>January&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>🚀 Mach version release&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>February&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>👋 Anticipated influx of new Machanists / Ziguanas&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>March&lt;/td>
+&lt;td>⚡ Zig version nominated&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>April&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>May&lt;/td>
+&lt;td>⚡ Zig version nominated&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>June&lt;/td>
+&lt;td>⚡ Zig version nominated&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>July&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>🚀 Mach version release&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>August&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>👋 Anticipated influx of new Machanists / Ziguanas&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>September&lt;/td>
+&lt;td>⚡ Zig version nominated&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>October&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>November&lt;/td>
+&lt;td>⚡ Zig version nominated&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>December&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>👋 Anticipated influx of new Machanists / Ziguanas&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>These versions will be noted as &amp;lsquo;nominated Zig 2024.01&amp;rsquo; for example, and will correspond to a specific Zig nightly version from that month.&lt;/p>
+&lt;p>The exact versions, and the whole process (which is more involved), is &lt;a href="https://machengine.org/about/nominated-zig/">documented in full here&lt;/a>.&lt;/p>
+&lt;p>At the time of writing this, you&amp;rsquo;ll see that &lt;a href="https://machengine.org/about/nominated-zig/#202401">nominated Zig 2024.01&lt;/a> is marked as &amp;lsquo;in progress&amp;rsquo; - we will make sure that the Zig version we intend to nominate is at least compatible with all Mach projects before finalizing the nomination.&lt;/p>
+&lt;h3 id="a-sweet-spot-between-nightly-and-stable">A sweet spot between nightly and stable&lt;/h3>
+&lt;p>Mach&amp;rsquo;s nominated Zig versions provide a different set of tradeoffs, we believe it is a sweetspot between the two extremes of nightly and stable. You can benefit from the changes in Zig 2-3x faster than if you were using stable, and suffer less from the never-ending game of catch-up and incompatibilities between projects that nightly necessarily requires.&lt;/p>
+&lt;p>Other projects can target the same Zig version if they wish to be compatible with Mach Zig packages. For example, zig-gamedev is aiming to target the same versions. We encourage other gamedevs using Zig to do the same.&lt;/p>
+&lt;p>Projects that target nightly Zig can often be coincidentally compatible, too, since they possibly had a compatible Zig version around the time we nominated a Zig version for use.&lt;/p>
+&lt;h2 id="final-thoughts">Final thoughts&lt;/h2>
+&lt;p>You can read more about the specifics of everything in the &lt;a href="https://machengine.org/about/nominated-zig">Mach documentation&lt;/a>.&lt;/p>
+&lt;p>We&amp;rsquo;re currently working on nominating the first version, which will likely be finalized in the next week or so.&lt;/p>
+&lt;h2 id="thanks">Thanks&lt;/h2>
+&lt;div style="display: flex; flex-direction: row; align-items: center;">
+&lt;img align="left" style="max-height: 12.5rem;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
+&lt;ul>
+&lt;li>Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord server&lt;/a> (check #discuss for this article)&lt;/li>
+&lt;li>Checkout &lt;a href="https://machengine.org">machengine.org&lt;/a>&lt;/li>
+&lt;li>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
+&lt;/ul>
+&lt;/div></description></item><item><title>Mach v0.2 released - Zig game engine &amp; graphics toolkit</title><link>https://devlog.hexops.com/2023/mach-v0.2-released/</link><pubDate>Sat, 12 Aug 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/mach-v0.2-released/</guid><description>&lt;p>Mach is a Zig game engine &amp;amp; graphics toolkit for building high-performance, truly cross-platform, robust &amp;amp; modular games, visualizations, and desktop/mobile GUI apps. &lt;a href="https://machengine.org/">Learn more&lt;/a>&lt;/p>
 &lt;p>We&amp;rsquo;ve been developing Mach for ~2 years; this release includes over a year of work, thousands of commits, and fixes &lt;a href="https://github.com/hexops/mach/milestone/2?closed=1">300 issues&lt;/a>.&lt;/p>
 &lt;video height="800px" autoplay loop muted>
 &lt;source src="https://media.machengine.org/core/example/deferred-rendering.mp4" type="video/mp4">
