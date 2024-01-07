@@ -17,7 +17,7 @@ baseName = "feed"
 noClasses=false
 
 [params]
-mainSections = ['2021', '2022', '2023']
+mainSections = ['2021', '2022', '2023', '2024']
 rss = true
 
 [taxonomies]
