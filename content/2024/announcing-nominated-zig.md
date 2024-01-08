@@ -1,17 +1,17 @@
 ---
 author: "Stephen Gutekanst"
-title: "Announcing Mach' nominated Zig versions"
+title: "Announcing Mach nominated Zig versions"
 date: "2024-01-07"
 draft: false
 categories:
 - mach
 - zig
 - gamedev
-description: "Today we're announcing Mach' nominated Zig versions, a sweet-spot between stable Zig and nightly Zig which offers a different balance of latest-and-greatest features and fixes, and less of a moving target."
+description: "Today we're announcing Mach nominated Zig versions, a sweet-spot between stable Zig and nightly Zig which offers a different balance of latest-and-greatest features and fixes, and less of a moving target."
 images: ["/img/2024/nominated-zig-versions.png"]
 ---
 
-Today we're announcing Mach' nominated Zig versions, a sweet-spot between stable Zig and nightly Zig which offers a different balance of latest-and-greatest features and fixes, and less of a moving target.
+Today we're announcing Mach nominated Zig versions, a sweet-spot between stable Zig and nightly Zig which offers a different balance of latest-and-greatest features and fixes, and less of a moving target.
 
 If you are in the Zig community, you likely fall into one of two categories:
 
@@ -30,7 +30,7 @@ But, for a language that is developed quite quickly, and has yet to reach v1.0 s
 
 ## The challenge of using Zig nightly
 
-Zig nightly is an ever-moving target. Although it is often nearly as stable as stable releases, that is not neccessarily the case during large refactors - such as the migration to the self-hosted comppiler.
+Zig nightly is an ever-moving target. Although it is often nearly as stable as stable releases, that is not neccessarily the case during large refactors - such as the migration to the self-hosted compiler.
 
 There are benefits to using nightly, though! It means you are testing the latest version of Zig, and your project can exist in a sort of symbiotic relationship with the Zig project where you test new functionality, help provide feedback on it, discover new issues, and have a greater chance of getting them fixed/addressed while that code is on everyone's mind.
 
@@ -60,7 +60,7 @@ We can't just merge a one-off pull request to one repository, we have to update 
 
 Although Mach provides a lot of libraries, there are still many important aspects of gamedev we do not have yet. Some folks in the Mach community will pull in third-party Zig projects, like those from zig-gamedev, introducing another challenge in ensuring their code works with the same version.
 
-## Announcing Mach' nominated Zig versions
+## Announcing Mach nominated Zig versions
 
 Today we're formalizing the process we've (generally) been following. This formalization will make it easier for others to understand what we're doing and when, and also make it easier for other projects to align their Zig version with Mach's if they desire.
 
@@ -81,11 +81,11 @@ Throughout the year (aiming for the 4th day of the month), we will pick the late
 | November  | ⚡ Zig version nominated |                                                    |
 | December  |                         | 👋 Anticipated influx of new Machanists / Ziguanas |
 
-These versions will be noted as 'nominated Zig 2024.01' for example, and will correspond to a specific Zig nightly version from that month.
+These versions will be noted as e.g. '2024.1.0-mach', and will correspond to a specific Zig nightly version from that month.
 
-The exact versions, and the whole process (which is more involved), is [documented in full here](https://machengine.org/about/nominated-zig/).
+The exact versions, which nightly version they map to, and the whole process (which is more involved), is [documented in full here](https://machengine.org/about/nominated-zig/).
 
-At the time of writing this, you'll see that [nominated Zig 2024.01](https://machengine.org/about/nominated-zig/#202401) is marked as 'in progress' - we will make sure that the Zig version we intend to nominate is at least compatible with all Mach projects before finalizing the nomination.
+At the time of writing this, you'll see that [2024.1.0-mach](https://machengine.org/about/nominated-zig/#202401) is marked as 'in progress' - we will make sure that the Zig version we intend to nominate is at least compatible with all Mach projects before finalizing the nomination.
 
 ### A sweet spot between nightly and stable
 
