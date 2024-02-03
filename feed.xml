@@ -1,4 +1,90 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hexops' devlog</title><link>https://devlog.hexops.com/</link><description>Recent content on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 07 Jan 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/feed.xml" rel="self" type="application/rss+xml"/><item><title>Announcing Mach nominated Zig versions</title><link>https://devlog.hexops.com/2024/announcing-nominated-zig/</link><pubDate>Sun, 07 Jan 2024 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2024/announcing-nominated-zig/</guid><description>&lt;p>Today we&amp;rsquo;re announcing Mach nominated Zig versions, a sweet-spot between stable Zig and nightly Zig which offers a different balance of latest-and-greatest features and fixes, and less of a moving target.&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hexops' devlog</title><link>https://devlog.hexops.com/</link><description>Recent content on Hexops' devlog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 02 Feb 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://devlog.hexops.com/feed.xml" rel="self" type="application/rss+xml"/><item><title>Mach v0.3 released - Zig game engine &amp; graphics toolkit</title><link>https://devlog.hexops.com/2024/mach-v0.3-released/</link><pubDate>Fri, 02 Feb 2024 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2024/mach-v0.3-released/</guid><description>&lt;p>Mach is a Zig game engine &amp;amp; graphics toolkit for building high-performance &amp;amp; modular games, visualizations, and desktop/mobile apps. &lt;a href="https://machengine.org/">Learn more&lt;/a>&lt;/p>
+&lt;p>We are working towards Mach 1, and have just released v0.3 which includes &lt;a href="https://github.com/hexops/mach/milestone/5?closed=1">6 months of work&lt;/a> - here are the highlights!&lt;/p>
+&lt;h2 id="coming-soon-intro-to-2d-gamedev-workshop">Coming soon: intro to 2D gamedev workshop&lt;/h2>
+&lt;p>The first-ever &lt;strong>intro to 2D gamedev workshop using Mach&lt;/strong> will be hosted at the &lt;a href="https://sycl.it/">Software You Can Love&lt;/a> conference in Milan, Italy, May 14-17. The workshop will use Mach&amp;rsquo;s currently in-development higher level 2D graphics APIs.&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://sycl.it/">&lt;img src="https://devlog.hexops.com/img/2024/sycl-workshop.png">&lt;/a>&lt;/p>
+&lt;p>If you&amp;rsquo;re interested in Zig or Mach, then &lt;a href="https://sycl.it/agenda/workshops/intro-to-2d-gamedev/">check out the SYCL conference&lt;/a>! It&amp;rsquo;s an amazing experience, a great opportunity to meet a ton of Zig community members, core team members, as well as enjoy some of the best food that Italy has to offer!&lt;/p>
+&lt;h2 id="community-highlight-pixi-and-scoopems">Community highlight: Pixi and Scoop&amp;rsquo;ems&lt;/h2>
+&lt;p>&lt;a href="https://github.com/foxnne">@foxxne&lt;/a> is an early adopter of &lt;a href="https://machengine.org/core/">Mach core&lt;/a>, largely pushing it to its limits. They make use of Mach&amp;rsquo;s new experimental sysgpu graphics API (which we intend to be a successor/descendant of WebGPU), as well as other libraries like flecs and dear-imgui. They&amp;rsquo;re developing &lt;a href="https://github.com/foxnne/pixi">Pixi&lt;/a> - a pixel art editor:&lt;/p>
+&lt;p>&lt;a class="imglink" href="https://devlog.hexops.com/img/2024/pixi1.png">&lt;img src="https://devlog.hexops.com/img/2024/pixi1.png">&lt;/a>
+&lt;a class="imglink" href="https://devlog.hexops.com/img/2024/pixi2.png">&lt;img src="https://devlog.hexops.com/img/2024/pixi2.png">&lt;/a>&lt;/p>
+&lt;p>And have used it to make games like &lt;a href="https://github.com/foxnne/scoop-ems">Scoop&amp;rsquo;ems&lt;/a>:&lt;/p>
+&lt;video loop controls height="4000px">
+&lt;source src="https://media.machengine.org/showcase/scoopems.mp4" type="video/mp4">
+&lt;/video>
+&lt;p>&lt;a href="https://github.com/sponsors/foxnne">@foxxne&lt;/a> is making awesome tools and games in Zig, pushing things to their limits, I encourage watching &lt;a href="https://www.youtube.com/watch?v=7K9Vzcr7vJg">how humble Colton is when speaking about their work&lt;/a>. We are very excited to make Mach support foxxne&amp;rsquo;s projects better in the future, and enable others to build things like this too.&lt;/p>
+&lt;p>Please consider &lt;a href="https://github.com/sponsors/foxnne">sponsoring their work on GitHub&lt;/a> - you could be their second-ever sponsor!&lt;/p>
+&lt;h2 id="mach-core">Mach core&lt;/h2>
+&lt;p>&lt;a href="https://machengine.org/core/">Mach core&lt;/a> aims to provide just a window, input, and truly cross-platform graphics API.&lt;/p>
+&lt;p>We think of it as an alternative/competitor to the classic options of SDL+OpenGL, GLFW+Vulkan, etc. Today, it&amp;rsquo;s not quite there yet - it uses GLFW behind the scenes for desktop support, and WebGPU as its graphics API, but we&amp;rsquo;re actively working on making it a genuine competitor written in Zig.&lt;/p>
+&lt;p>In this release, it saw general bug fixes - as well as some &lt;a href="https://github.com/hexops/libmach">libmach&lt;/a> development - which aims to provide a C API to both Mach core and engine APIs.&lt;/p>
+&lt;h2 id="sysgpu">sysgpu&lt;/h2>
+&lt;p>In Mach v0.2, we announced an experiment - that we were working on a WebGPU implementation written in Zig, as an alternative to using Dawn (Google Chrome&amp;rsquo;s WebGPU implementation.) In the past 6 months, this experiment saw an immense amount of development and exceeded our expectations!&lt;/p>
+&lt;a class="imglink" href="https://machengine.org/pkg/mach-sysgpu">
+&lt;picture>&lt;source media="(prefers-color-scheme: dark)" srcset="https://machengine.org/assets/mach/sysgpu-dark.svg">&lt;img alt="mach-sysgpu" src="https://machengine.org/assets/mach/sysgpu-light.svg" style="height:7rem;margin-top:1rem">&lt;/picture>
+&lt;/a>
+&lt;p>&lt;a href="https://machengine.org/pkg/mach-sysgpu/">sysgpu&lt;/a> today is a nearly fully-functional WebGPU native implementation (minus browser-level safety checks), thanks to &lt;a href="https://github.com/hexops/mach-sysgpu/graphs/contributors">two amazing contributors&lt;/a>. It has functional D3D12, Vulkan, Metal, and OpenGL backends. It has it&amp;rsquo;s own WGSL shader compiler, and nearly all mach-core examples are runnable using it. We&amp;rsquo;ve even seen real applications (the Pixi pixel editor from foxxne, for example) begin to adopt it.&lt;/p>
+&lt;p>As we continued development of it over the past six months, we identified key design tradeoffs where we could differ from WebGPU&amp;rsquo;s API choices and gain a faster, more modern, featureful graphics API. As a result, we&amp;rsquo;ve come to view sysgpu as a leaner and meaner &lt;em>successor and descendant of&lt;/em> WebGPU for native graphics, rather than just another implementation of it. As a result, it builds on the back of WebGPU&amp;rsquo;s design choices, but ultimately has its own distinct API and will not be ABI-compatible.&lt;/p>
+&lt;p>We have plans to alleviate some &lt;em>major&lt;/em> pain points of WebGPU, specifically around pipeline creation / descriptor boilerplate, supporting push constants when available via a better API design (not as an extension), a more integrated/seamless approach to binding resources to shaders with type-correctness, and more.&lt;/p>
+&lt;p>We are also evaluating using Zig itself as the shading language, instead of WGSL, and are looking to enable fully offline shader compilation as an optional feature.&lt;/p>
+&lt;p>sysgpu is still under heavy development, particularly all of the &amp;lsquo;successor/descendant&amp;rsquo; API design choices noted above have not been implemented yet. It is disabled in the v0.3 release by default, and after this release we plan to invest more aggressively in it - so expect more details and specifics to come soon.&lt;/p>
+&lt;h2 id="sysaudio">sysaudio&lt;/h2>
+&lt;p>As a bit of background, &lt;a href="https://machengine.org/pkg/mach-sysaudio/">mach-sysaudio&lt;/a> started out as Zig bindings to Andrew Kelley&amp;rsquo;s fantastic C library &lt;a href="https://github.com/andrewrk/libsoundio">libsoundio&lt;/a>, but ultimately it grew to stand on its own two feet - becoming a brand new library written in Zig from first-principles and the ground-up to achieve similar goals: providing just low-level audio input/output, nothing else. It saw a good deal of polish in this iteration:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/hexops/mach-sysaudio/pull/33">SIMD sample conversion support&lt;/a> - and sample conversion is now explicitly optional (so the default is to work with the driver&amp;rsquo;s active audio format.)&lt;/li>
+&lt;li>Major API design improvements&lt;/li>
+&lt;li>Fixed issues with microphone/input devices, specifically multi-channel devices on macOS with CoreAudio.&lt;/li>
+&lt;li>Fixed &lt;a href="https://github.com/hexops/mach/issues?q=is%3Aissue+sysaudio+is%3Aclosed+milestone%3A%22Mach+0.3%22">various issues&lt;/a> with the WASAPI/Windows backend.&lt;/li>
+&lt;/ul>
+&lt;h3 id="audio-synthesizer-hack-project">Audio synthesizer hack-project&lt;/h3>
+&lt;p>As a quick hack project over the holidays, I leveraged Mach&amp;rsquo;s audio libraries, reading midi input from a piano keyboard, synthesizing audio using Zig code / Mach, and playing it back through digital piano speakers. Here&amp;rsquo;s a few vertical videos of me being silly &amp;amp; having fun with it (skip to 2:24 to hear how I think a Ziguana might sound!):&lt;/p>
+&lt;iframe width="720" height="480" src="https://www.youtube.com/embed/b8WDjaZC1C8?si=SgojGMwdD_lfncgn" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>&lt;/iframe>
+&lt;h2 id="nominated-zig-versions">Nominated Zig versions&lt;/h2>
+&lt;p>Mach has always needed a sweet-spot between stable Zig and nightly Zig, a better balance of latest-and-greatest features and bug fixes, but less of a moving target than nightly Zig. To address this, we formalized how we &lt;a href="https://devlog.hexops.com/2024/announcing-nominated-zig/">nominate Zig versions&lt;/a> for use, enabling others to synchronize their Zig version with the one Mach supports more easily.&lt;/p>
+&lt;h2 id="mach-engine-as-a-standard-library-of-modules">Mach engine as a standard library of modules&lt;/h2>
+&lt;p>We began &lt;a href="https://machengine.org/engine/stdlib/">documenting&lt;/a> how we view Mach &lt;em>engine&lt;/em> as a standard library of modules for game development, and how we&amp;rsquo;ll enable you to use just the parts you wish. This is a small-but-important step in showcasing how the engine&amp;rsquo;s higher level APIs will be more modular than the monolithic big engines of today.&lt;/p>
+&lt;h2 id="entity-component-system">Entity component system&lt;/h2>
+&lt;p>The Mach entity component system provides a key role in Mach&amp;rsquo;s modularity, in this iteration it saw numerous polish / bug fix improvements - the ability to actually query entities, a more clear/concise API, etc. It is still under heavy development, however.&lt;/p>
+&lt;h2 id="machmath">mach.math&lt;/h2>
+&lt;p>&lt;a href="https://github.com/hexops/mach/tree/main/src/math">mach.math&lt;/a> was introduced to the Mach standard library: a custom math library tailored towards our graphics API conventions, matrix representations, coordinate systems, etc.&lt;/p>
+&lt;p>Today it includes many of the basics: vectors, matrices, quaternions - though it is still missing some basic tablestakes. It also has ray-triangle intersection, and we intend to expand it to cover more general collision utilities later.&lt;/p>
+&lt;p>A new set of &lt;a href="https://machengine.org/engine/math/">math docs&lt;/a> were added to the website with some cute diagrams/visualizations.&lt;/p>
+&lt;h2 id="machgfxsprite">mach.gfx.Sprite&lt;/h2>
+&lt;p>&lt;a href="https://github.com/hexops/mach/blob/main/src/gfx/Sprite.zig">mach.gfx.Sprite&lt;/a> was introduced, which is the start of a 2D sprite-rendering module. It is largely usable, though we anticipate its API to change a fair amount and are looking to add animated sprite support among other key features.&lt;/p>
+&lt;p>It has been useful in letting us test basic rendering of hundreds of thousands of sprites, each as separate entities with their own transformation matrices calculated CPU-side, and get more of an end-to-end feel for how things are looking with our ECS:&lt;/p>
+&lt;iframe width="720" height="480" src="https://www.youtube.com/embed/ciuSYf7dcuE?si=SgojGMwdD_lfncgn" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>&lt;/iframe>
+&lt;h2 id="machgfxtext">mach.gfx.Text&lt;/h2>
+&lt;p>Development of a basic text rendering module is underway, but not ready for use yet.&lt;/p>
+&lt;h2 id="status-of-simple-2d-game-support">Status of &amp;lsquo;simple 2D game&amp;rsquo; support&lt;/h2>
+&lt;p>In short, we&amp;rsquo;re still working on it. More to come soon.&lt;/p>
+&lt;h2 id="general-project-maintenance">General project maintenance&lt;/h2>
+&lt;ul>
+&lt;li>Two new examples &lt;a href="https://github.com/hexops/mach-core/tree/main/examples/rgb-quad">rgb-quad&lt;/a> and &lt;a href="https://github.com/hexops/mach-core/tree/main/examples/textured-quad">textured-quad&lt;/a> showing off super basic 2D rendering were added.&lt;/li>
+&lt;li>Began to formulate our &lt;a href="https://github.com/hexops/mach/issues/989">hardware support plans&lt;/a>, such as when we will target certain SIMD instruction sets.&lt;/li>
+&lt;li>All of our &lt;code>build.zig&lt;/code> scripts went through a great deal of changes and improvements, as Zig&amp;rsquo;s build system and package manager matured greatly.&lt;/li>
+&lt;li>Various &lt;a href="https://github.com/hexops/mach/milestone/5?closed=1">other issues&lt;/a> were addressed.&lt;/li>
+&lt;/ul>
+&lt;h2 id="a-personal-note">A personal note&lt;/h2>
+&lt;div style="display: flex;">
+&lt;a href="https://github.com/slimsag">
+&lt;img style="width: 420px" src="https://machengine.org/img/slimsag-profile.png">
+&lt;/a>
+&lt;div>
+&lt;p>I work a normal tech job, and most days after I sign off from work I go online to build Mach, often like working two jobs. I've been doing this for a few years now, and dreaming of being able to build Mach for a decade before that.&lt;/p>
+&lt;p>FOSS &lt;a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month#i-grew-up-playing-linux-games-like-mania-drive">is in my roots&lt;/a> and I believe we should own our tools, they should empower &lt;em>us&lt;/em>-not be part of &lt;a href="https://kristoff.it/blog/the-open-source-game/">the 'open source' game&lt;/a> which is all too prevelant today (even among 'open source' engines.) Mach &lt;em>needs&lt;/em> to be for people like you and me-it needs to genuinely be &lt;a href="https://softwareyoucan.love">software you can love&lt;/a>.&lt;/p>
+&lt;p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a> if you believe in this vision.&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;h2 id="thanks">Thanks&lt;/h2>
+&lt;p>Immense thank you to all those who helped make this release possible, to those who contribute regularly or in the past, and those who sponsor development. It means the world!&lt;/p>
+&lt;div style="display: flex; flex-direction: row; align-items: center;">
+&lt;img align="left" style="max-height: 12.5rem;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
+&lt;ul>
+&lt;li>Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord server&lt;/a>&lt;/li>
+&lt;li>Check out &lt;a href="https://machengine.org">machengine.org&lt;/a>&lt;/li>
+&lt;li>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
+&lt;/ul>
+&lt;/div></description></item><item><title>Announcing Mach nominated Zig versions</title><link>https://devlog.hexops.com/2024/announcing-nominated-zig/</link><pubDate>Sun, 07 Jan 2024 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2024/announcing-nominated-zig/</guid><description>&lt;p>Today we&amp;rsquo;re announcing Mach nominated Zig versions, a sweet-spot between stable Zig and nightly Zig which offers a different balance of latest-and-greatest features and fixes, and less of a moving target.&lt;/p>
 &lt;p>If you are in the Zig community, you likely fall into one of two categories:&lt;/p>
 &lt;ul>
 &lt;li>You target Zig nightly, a target which moves every day&lt;/li>
