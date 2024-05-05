@@ -55,7 +55,7 @@ DXIL (pronunciation?) is the official format that DirectX 12 driver manufacturer
 
 A game developer produces DXIL bytecode using the DXC compiler, which is a fork of LLVM/clang heavily modified to support HLSL compilation, and the DirectX APIs hand that DXIL over to the graphics driver which then converts the IR into their own intermediate languages, performing any secret sauce optimization passes on it, and ultimately boiling down to the actual machine code that will run on the GPU hardware.
 
-Much like the old bytecode format DXBC which DXIL replaced, it is _also_ an undocumented bytecode format, specifically it is LLVM's version 3.7 post-codegen post-optimization-passes bitecode format. It is undocumented not because nobody wants to document it, but rather because the documentation is literally 'whatever the Microsoft fork of LLVM v3.7 with all the HLSL changes we made, after CodeGen and optimization passes have occurred, actually emits as LLVM bitcode - plus a small custom container/wrapper file format on top.'
+Much like the old bytecode format DXBC which DXIL replaced, it is _also_ an undocumented bytecode format, specifically it is LLVM's version 3.7 post-codegen post-optimization-passes bytecode format. It is undocumented not because nobody wants to document it, but rather because the documentation is literally 'whatever the Microsoft fork of LLVM v3.7 with all the HLSL changes we made, after CodeGen and optimization passes have occurred, actually emits as LLVM bitcode - plus a small custom container/wrapper file format on top.'
 
 ### Correcting the Microsoft fork of LLVM
 
