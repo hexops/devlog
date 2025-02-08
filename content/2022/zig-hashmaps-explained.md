@@ -28,7 +28,7 @@ Or if you do not have string keys, you can use an `Auto` hashmap instead:
 var my_hash_map = std.AutoHashMap(K, V).init(allocator);
 ```
 
-Where `K` and `V` are your key and value data types, respectively. e.g. `[]const u8` for a string.
+Where `K` and `V` are your key and value data types, respectively. e.g. `u8` for a letter.
 
 You can then use these APIs:
 
