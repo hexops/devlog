@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Mach v0.3 released - Zig game engine & graphics toolkit"
 date: "2024-02-02"
 draft: false
@@ -127,13 +127,13 @@ In short, we're still working on it. More to come soon.
 ## A personal note
 
 <div style="display: flex;">
-    <a href="https://github.com/slimsag">
-        <img style="width: 420px" src="https://machengine.org/img/slimsag-profile.png">
+    <a href="https://github.com/emidoots">
+        <img style="width: 420px" src="https://machengine.org/img/emidoots-profile.png">
     </a>
     <div>
         <p>I work a normal tech job, and most days after I sign off from work I go online to build Mach, often like working two jobs. I've been doing this for a few years now, and dreaming of being able to build Mach for a decade before that.</p>
         <p>FOSS <a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month#i-grew-up-playing-linux-games-like-mania-drive">is in my roots</a> and I believe we should own our tools, they should empower <em>us</em>-not be part of <a href="https://kristoff.it/blog/the-open-source-game/">the 'open source' game</a> which is all too prevelant today (even among 'open source' engines.) Mach <em>needs</em> to be for people like you and me-it needs to genuinely be <a href="https://softwareyoucan.love">software you can love</a>.</p>
-        <p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider <a href="https://github.com/sponsors/slimsag">sponsoring my work</a> if you believe in this vision.</p>
+        <p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider <a href="https://github.com/sponsors/emidoots">sponsoring my work</a> if you believe in this vision.</p>
     </div>
 </div>
 
@@ -146,6 +146,6 @@ Immense thank you to all those who helped make this release possible, to those w
     <ul>
         <li>Join the <a href="https://discord.gg/XNG3NZgCqp">Mach Discord server</a></li>
         <li>Check out <a href="https://machengine.org">machengine.org</a></li>
-        <li>Consider <a href="https://github.com/sponsors/slimsag">sponsoring development</a> so we can do more of it!</li>
+        <li>Consider <a href="https://github.com/sponsors/emidoots">sponsoring development</a> so we can do more of it!</li>
     </ul>
 </div>

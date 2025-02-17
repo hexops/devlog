@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Building the DirectX shader compiler better than Microsoft?"
 date: "2024-02-09"
 draft: false
@@ -213,13 +213,13 @@ It's not all roses - there are some drawbacks:
 ## On a personal note
 
 <div style="display: flex;">
-    <a href="https://github.com/slimsag">
-        <img style="width: 420px" src="https://machengine.org/img/slimsag-profile.png">
+    <a href="https://github.com/emidoots">
+        <img style="width: 420px" src="https://machengine.org/img/emidoots-profile.png">
     </a>
     <div>
-        <p>My name is Stephen, I work a normal tech job, and after signing off from work at the end of the day I go online to build <a href="https://machengine.org/">Mach engine</a>. I've been dreaming of being able to build a game engine like this for a long time, and I'm finally doing it!</p>
+        <p>My name is Emi, I work a normal tech job, and after signing off from work at the end of the day I go online to build <a href="https://machengine.org/">Mach engine</a>. I've been dreaming of being able to build a game engine like this for a long time, and I'm finally doing it!</p>
         <p>FOSS <a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month#i-grew-up-playing-linux-games-like-mania-drive">is in my roots</a>, I believe we should own our tools, they should empower <em>us</em>-not be part of <a href="https://kristoff.it/blog/the-open-source-game/">the 'open source' game</a> which is all too prevelant today (even among 'open source' engines.) I <em>need</em> Mach to genuinely be <a href="https://softwareyoucan.love">software you can love</a>.</p>
-        <p>My dream is one day to live a simple, modest, life earning a living building Mach for everyone and selling high-quality games. Please consider <a href="https://github.com/sponsors/slimsag">sponsoring my work</a> if you believe in my vision. It means the world to me!</p>
+        <p>My dream is one day to live a simple, modest, life earning a living building Mach for everyone and selling high-quality games. Please consider <a href="https://github.com/sponsors/emidoots">sponsoring my work</a> if you believe in my vision. It means the world to me!</p>
     </div>
 </div>
 
@@ -229,7 +229,7 @@ It's not all roses - there are some drawbacks:
     <img align="left" style="max-height: 12.5rem;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png"></img>
     <ul>
         <li>Check out <a href="https://machengine.org">machengine.org</a></li>
-        <li>Consider <a href="https://github.com/sponsors/slimsag">sponsoring development</a> so we can do more of it!</li>
+        <li>Consider <a href="https://github.com/sponsors/emidoots">sponsoring development</a> so we can do more of it!</li>
         <li>Join the <a href="https://discord.gg/XNG3NZgCqp">Mach Discord server</a></li>
     </ul>
 </div>

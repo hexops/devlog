@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Perfecting WebGPU/Dawn native graphics for Zig"
 date: "2022-09-11"
 draft: false
@@ -74,7 +74,7 @@ In the future we'll offer _Mach engine_ apps, where you buy into our ECS, Unity/
 
 ### Dawn/WebGPU on the Steam Deck
 
-We believe Linux should be a first-class platform, and because of this [we've found](https://twitter.com/slimsag/status/1544858201849376768) Mach all Just Works™ right out of the box on the Steam Deck (running natively as a Linux Vulkan application, no DirectX or Proton in the mix.):
+We believe Linux should be a first-class platform, and because of this [we've found](https://twitter.com/emidoots/status/1544858201849376768) Mach all Just Works™ right out of the box on the Steam Deck (running natively as a Linux Vulkan application, no DirectX or Proton in the mix.):
 
 <div class="video-container"><video autoplay loop muted src="https://user-images.githubusercontent.com/3173176/184556247-6e039490-99ee-48f4-91b4-d2cfd7a7f847.mp4"></video></div>
 
@@ -352,6 +352,6 @@ We're continuing to work towards [the Mach v0.2 release](https://github.com/hexo
         <li>Check out the mach/gpu <a href="https://machengine.org/gpu">example showcase</a></li>
         <li>Help us <a href="https://github.com/hexops/mach/issues/230">port/write more WebGPU examples</a> to Zig</li>
         <li>Read up on WebGPU <a href="https://surma.dev/things/webgpu/">compute</a> and <a href="https://alain.xyz/blog/raw-webgpu">rendering</a></li>
-        <li><a href="https://github.com/sponsors/slimsag">Sponsor development</a> if you like what we're doing!</li>
+        <li><a href="https://github.com/sponsors/emidoots">Sponsor development</a> if you like what we're doing!</li>
     </ul>
 </div>

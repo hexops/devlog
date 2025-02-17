@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Let's build an Entity Component System from scratch (part 1)"
 date: "2022-01-16"
 draft: false
@@ -302,4 +302,4 @@ As this series develops, all the code is being developed in the Mach repository'
 
 [As more articles come out, you can find them here](https://devlog.hexops.com/categories/build-an-ecs). Join us in developing it, give us advice, etc. [on Matrix chat](https://matrix.to/#/#ecs:matrix.org) or [follow updates on Twitter](https://twitter.com/machengine).
 
-If you like what I'm doing, you can [sponsor me on GitHub](https://github.com/sponsors/slimsag).
+If you like what I'm doing, you can [sponsor me on GitHub](https://github.com/sponsors/emidoots).

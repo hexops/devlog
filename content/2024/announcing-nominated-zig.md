@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Announcing Mach nominated Zig versions"
 date: "2024-01-07"
 draft: false
@@ -108,6 +108,6 @@ We're currently working on nominating the first version, which will likely be fi
     <ul>
         <li>Join the <a href="https://discord.gg/XNG3NZgCqp">Mach Discord server</a> (check #discuss for this article)</li>
         <li>Checkout <a href="https://machengine.org">machengine.org</a></li>
-        <li>Consider <a href="https://github.com/sponsors/slimsag">sponsoring development</a> so we can do more of it!</li>
+        <li>Consider <a href="https://github.com/sponsors/emidoots">sponsoring development</a> so we can do more of it!</li>
     </ul>
 </div>

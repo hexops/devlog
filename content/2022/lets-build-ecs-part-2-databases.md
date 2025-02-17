@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Let's build an Entity Component System (part 2): databases"
 date: "2022-05-28"
 draft: false
@@ -580,7 +580,7 @@ test "ecs" {
 }
 ```
 
-(A copy of the full code at this point [is available here](https://gist.github.com/slimsag/477f9f4c68667e71fbe584a700cfd87d) and you can run it using `zig test ecs.zig`)
+(A copy of the full code at this point [is available here](https://gist.github.com/emidoots/477f9f4c68667e71fbe584a700cfd87d) and you can run it using `zig test ecs.zig`)
 
 ## Working with component storage
 
@@ -1020,7 +1020,7 @@ Over in `ComponentStorage`, we implement the `set` method - which is quite simpl
     try world.setComponent(player, "Name", "joe"); // update Name component
 ```
 
-A copy of the full code at this point [is available here](https://gist.github.com/slimsag/7c3d36a8324dd733fb0377b087ed057c) and you can run it using `zig test ecs.zig` as before.
+A copy of the full code at this point [is available here](https://gist.github.com/emidoots/7c3d36a8324dd733fb0377b087ed057c) and you can run it using `zig test ecs.zig` as before.
 
 ## Getting component values
 
@@ -1048,7 +1048,7 @@ Removing components is similar to adding them (because the entity needs to move 
 
 ## Conclusions
 
-By this point you have a relatively solid archetypal ECS. The full source code for this article [is available here](https://gist.github.com/slimsag/aecbf725896d2947459ba915fc9103a7
+By this point you have a relatively solid archetypal ECS. The full source code for this article [is available here](https://gist.github.com/emidoots/aecbf725896d2947459ba915fc9103a7
 ).
 
 Notably, it is lacking the following which we'll cover in part 3:
@@ -1063,4 +1063,4 @@ Follow [@machengine](https://twitter.com/machengine) on Twitter for updates, and
 
 ## Support my work
 
-If you like my work on [Mach engine](https://machengine.org), [zigmonthly.org](https://zigmonthly.org), etc. you can [sponsor me on GitHub](https://github.com/sponsors/slimsag).
+If you like my work on [Mach engine](https://machengine.org), [zigmonthly.org](https://zigmonthly.org), etc. you can [sponsor me on GitHub](https://github.com/sponsors/emidoots).

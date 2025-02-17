@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "I write code 100 hours/week, here's why I probably won't stop"
 slug: 'i-write-code-100-hours-a-week'
 date: "2021-10-16"
@@ -17,7 +17,7 @@ I write code 100 hours/week. I've done so for the last 2 years and, excluding a 
 I typically spend around:
 
 * 48h/week @ [day job, Sourcegraph, building developer tools](https://sourcegraph.com)
-* 55h/week [coding in Zig](https://github.com/slimsag)
+* 55h/week [coding in Zig](https://github.com/emidoots)
 * 7h/day sleeping
 * 9h/week caring for self, chores, etc.
 * 5h/week games or chatting with friends
@@ -43,7 +43,7 @@ When I started doing this two years ago, age 25, it was a shift from "I work and
 
 It wasn't until 1.5 years later that I actually felt comfortable even talking about this publicly or to co-workers. It sounds ridiculous, and what if e.g. I have a bad week at work or something? If I was a manager, I'd certainly wonder if it was due to my report doing this (happy to report no issues!)
 
-I've been [coding for nearly 10 years professionally](http://slimsag.com/), turning 28 soon. The older I get, the more I seem to enjoy this. It was never an instantaneous shift, but rather a gradual one:
+I've been [coding for nearly 10 years professionally](http://emidoots.com/), turning 28 soon. The older I get, the more I seem to enjoy this. It was never an instantaneous shift, but rather a gradual one:
 
 <a class="imglink" href="https://user-images.githubusercontent.com/3173176/137580436-e79a7b21-8aca-4b66-9895-808b8ffa2d38.png"><img alt="How my coding has increased to an insane amount over time" class="color" src="https://user-images.githubusercontent.com/3173176/137580436-e79a7b21-8aca-4b66-9895-808b8ffa2d38.png"></a>
 
@@ -114,13 +114,13 @@ And I don't think it makes me "exceptional" (in a better-than-you way). I'm just
 
 I feel strongly you should never feel _compelled_ or _required_ to do what I am doing. Any company, manager, or person asking you to do so is _horrible_ and you should get out quick. I don't want to contribute to that culture or feed it.
 
-But-I love what I'm doing. I love the amount of progress I'm able to achieve every day. I love my time spent solving problems. I love [what I've achieved so far](http://slimsag.com). I want to go further than ever before - I've been marathon coding for as long as I can remember, and I'm not going to stop. I _need_ to see how far I can go.
+But-I love what I'm doing. I love the amount of progress I'm able to achieve every day. I love my time spent solving problems. I love [what I've achieved so far](http://emidoots.com). I want to go further than ever before - I've been marathon coding for as long as I can remember, and I'm not going to stop. I _need_ to see how far I can go.
 
 I love the choices I've made in life. I hope you love yours too.
 
 ## Thanks for reading
 
-Please send your hate to [@slimsag](https://twitter.com/slimsag) on Twitter or to the comments section wherever this ends up, I'll see you there! 😉
+Please send your hate to [@emidoots](https://twitter.com/emidoots) on Twitter or to the comments section wherever this ends up, I'll see you there! 😉
 
 If you liked this, you might also like:
 

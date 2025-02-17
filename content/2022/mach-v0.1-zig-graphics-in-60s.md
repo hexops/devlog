@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Mach v0.1 - cross-platform Zig graphics in ~60 seconds"
 date: "2022-03-26"
 draft: false
@@ -135,9 +135,9 @@ Join our [Matrix chat room](https://matrix.to/#/#hexops:matrix.org) to get help,
 
 ## A personal note
 
-<img class="color" style="float: left; margin-right: 2rem;" src="https://user-images.githubusercontent.com/3173176/160262520-6768c665-7127-4242-b77a-fd2340ed88cf.png"> No, it's not Tom from myspace - it's me, [@slimsag](https://twitter.com/slimsag)! It's cool that we reached this milestone, but let's be honest: it's still just a dumb red triangle!
+<img class="color" style="float: left; margin-right: 2rem;" src="https://user-images.githubusercontent.com/3173176/160262520-6768c665-7127-4242-b77a-fd2340ed88cf.png"> No, it's not Tom from myspace - it's me, [@emidoots](https://twitter.com/emidoots)! It's cool that we reached this milestone, but let's be honest: it's still just a dumb red triangle!
 
-It's taken _9 brutal months to get here_ - staring at broken CI pipelines, C++ compiler errors, [buying hardware](https://twitter.com/slimsag/status/1507506138144681986) to test every OS+arch possible - and slugging through the depths of hell [where only a footnote from Raymond Chen himself will save you.](https://twitter.com/slimsag/status/1471986125296205825) All to get to a point where it all _just works the way you and I expect it to._
+It's taken _9 brutal months to get here_ - staring at broken CI pipelines, C++ compiler errors, [buying hardware](https://twitter.com/emidoots/status/1507506138144681986) to test every OS+arch possible - and slugging through the depths of hell [where only a footnote from Raymond Chen himself will save you.](https://twitter.com/emidoots/status/1471986125296205825) All to get to a point where it all _just works the way you and I expect it to._
 
 Given the chance, I'd scream from a rooftop "f***ing finally! Now we build the cool part!" because I am so _ecstatic_ to have gotten to this point!
 
@@ -155,7 +155,7 @@ If like me you are unable to attend in person, the short video will be available
 
 ## Help us reach Mach v1.0
 
-Consider [sponsoring me on GitHub](https://github.com/sponsors/slimsag) if you like my work, so I can do more of it!
+Consider [sponsoring me on GitHub](https://github.com/sponsors/emidoots) if you like my work, so I can do more of it!
 
 Join our [Matrix chat room](https://matrix.to/#/#hexops:matrix.org) to discuss ideas - collaboration very welcome!
 

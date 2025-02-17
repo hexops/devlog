@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Postgres Trigram search learnings"
 date: "2021-01-26"
 draft: false

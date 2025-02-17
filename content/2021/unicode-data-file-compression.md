@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Unicode data file compression: achieving 40-70% reduction over gzip alone"
 date: "2021-07-03"
 draft: false
@@ -40,7 +40,7 @@ I don't personally have any prior experience working with the lower level detail
 As I stumbled into the wondrous world that is Unicode text sorting (see also my article: [Unicode sorting is hard & why browsers added special emoji matching to regexp](/2021/unicode-sorting-why-browsers-added-special-emoji-matching)) and began using Ziglyph, I came across an issue: the standard Unicode collation algorithm, which Ziglyph implements, depends on some large Unicode data tables for normalization and sort keys - even gzipped these were fairly large:
 
 ```sh
-hexops-mac:zorex slimsag$ du -sh asset/*
+hexops-mac:zorex emidoots$ du -sh asset/*
 308K	asset/uca-allkeys.txt.gz
 260K	asset/ucd-UnicodeData.txt.gz
 ```

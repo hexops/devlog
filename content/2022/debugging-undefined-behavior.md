@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Debugging undefined behavior caught by Zig"
 date: "2022-11-14"
 draft: false
@@ -27,9 +27,9 @@ As we've been testing it with various models, though, we found our Zig program j
 ```
 % zig build test 2>&1|cat
 1/1 test_0... The following command terminated unexpectedly:
-cd /mach/libs/model3d && /mach/libs/model3d/zig-cache/o/26c4104a1643fed2068dfa9244dfe90e/model3d-tests /Users/slimsag/zig-macos-aarch64-0.11.0-dev.38+b40fc7018/zig 
+cd /mach/libs/model3d && /mach/libs/model3d/zig-cache/o/26c4104a1643fed2068dfa9244dfe90e/model3d-tests /Users/emidoots/zig-macos-aarch64-0.11.0-dev.38+b40fc7018/zig 
 error: the following build command failed with exit code 1:
-/mach/libs/model3d/zig-cache/o/679e494577315c1bcc3749ee7068ea2f/build /Users/slimsag/zig-macos-aarch64-0.11.0-dev.38+b40fc7018/zig /mach/libs/model3d /mach/libs/model3d/zig-cache /Users/slimsag/.cache/zig test
+/mach/libs/model3d/zig-cache/o/679e494577315c1bcc3749ee7068ea2f/build /Users/emidoots/zig-macos-aarch64-0.11.0-dev.38+b40fc7018/zig /mach/libs/model3d /mach/libs/model3d/zig-cache /Users/emidoots/.cache/zig test
 ```
 
 As you can see, we're not getting much info here on why our tests crashed. This is a telltale sign of undefined behavior in Zig (and [there's an open issue to make this error messaging way more clear](https://github.com/ziglang/zig/issues/5163)). When we compile our program with `-Drelease-fast`, which disables safety checks, we find it runs as expected - which confirms our suspicion about it being a safety check.
@@ -143,4 +143,4 @@ If you're writing Zig, C, or C++ code - then I hope this `zig: Tip` helps you! Y
 <img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png"></img>
 Be sure to join the [Mach engine Discord](https://discord.gg/XNG3NZgCqp) where we're building the future of Zig game development.
 <br><br>
-You can also [sponsor my work](https://github.com/sponsors/slimsag) if you like what I'm doing! :)
+You can also [sponsor my work](https://github.com/sponsors/emidoots) if you like what I'm doing! :)

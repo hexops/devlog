@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Mach: providing an ecosystem of C libraries using the Zig package manager"
 date: "2023-06-14"
 draft: false
@@ -140,6 +140,6 @@ We're working towards Mach v0.2, this article was one of the first steps in begi
 
 <img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png"></img>
 <br><br>
-Consider [sponsoring my work](https://github.com/sponsors/slimsag) to help us become a sustainable OSS project and enable us to do more in the future.
+Consider [sponsoring my work](https://github.com/sponsors/emidoots) to help us become a sustainable OSS project and enable us to do more in the future.
 <br><br>
 Join the [Mach Discord](https://discord.gg/XNG3NZgCqp) where we're building the future of Zig game development in realtime!

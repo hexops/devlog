@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Packed structs in Zig make bit/flag sets trivial"
 date: "2022-08-29"
 draft: false
@@ -146,7 +146,7 @@ pub const ColorWriteMaskFlags = packed struct(u32) {
 <img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png"></img>
 Be sure to join the new [Mach engine Discord server](https://discord.gg/XNG3NZgCqp) where we're building the future of Zig game development.
 <br><br>
-You can also [sponsor my work](https://github.com/sponsors/slimsag) if you like what I'm doing! :)
+You can also [sponsor my work](https://github.com/sponsors/emidoots) if you like what I'm doing! :)
 
 ## "But C has had bitfields since forever!"
 

@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "My game development journey & why I'm increasing my contribution to Zig to $200/mo"
 date: "2021-04-10"
 draft: false
@@ -320,7 +320,7 @@ When the COVID-19 pandemic first hit, I thought to myself:
 
 4 months later, I had a pretty good picture. I had an early stages compiler for the language in Go using LLVM, and knew what I wanted in a "better C". There was a _long_ road ahead, but I had a picture of it. Until..
 
-<blockquote class="twitter-tweet"><p lang="en" dir="ltr">*cat spills coffee on $2800 laptop, frying SSD with ~4 months of uncommitted work on EBNF parser generators* yeah.. no, that’s.. that’s okay, I wanted to rewrite all of that code. Yeah. This is fine.</p>&mdash; Stephen Gutekanst (@slimsag) <a href="https://twitter.com/slimsag/status/1265452387453431808?ref_src=twsrc%5Etfw">May 27, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> 
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">*cat spills coffee on $2800 laptop, frying SSD with ~4 months of uncommitted work on EBNF parser generators* yeah.. no, that’s.. that’s okay, I wanted to rewrite all of that code. Yeah. This is fine.</p>&mdash; Emi Stein (@emidoots) <a href="https://twitter.com/emidoots/status/1265452387453431808?ref_src=twsrc%5Etfw">May 27, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> 
 
 Obviously, I was an idiot and should've just `git push`d my code - or backed up my laptop - but nonetheless this was a setback.
 
@@ -346,7 +346,7 @@ In trying to learn Zig, there were two things that struck me:
 
 Zig became the first open-source project I had _ever_ contributed to financially.
 
-<blockquote class="twitter-tweet"><p lang="en" dir="ltr">And if none of the above convinces you, let me tell you the following: <a href="https://twitter.com/ziglang?ref_src=twsrc%5Etfw">@ziglang</a> is the first language I have felt strongly I should try and contribute to, and the ONLY open source project I have ever donated to. No other has been so compelling</p>&mdash; Stephen Gutekanst (@slimsag) <a href="https://twitter.com/slimsag/status/1319546299520200704?ref_src=twsrc%5Etfw">October 23, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> 
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">And if none of the above convinces you, let me tell you the following: <a href="https://twitter.com/ziglang?ref_src=twsrc%5Etfw">@ziglang</a> is the first language I have felt strongly I should try and contribute to, and the ONLY open source project I have ever donated to. No other has been so compelling</p>&mdash; Emi Stein (@emidoots) <a href="https://twitter.com/emidoots/status/1319546299520200704?ref_src=twsrc%5Etfw">October 23, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> 
 
 ### Working in it
 

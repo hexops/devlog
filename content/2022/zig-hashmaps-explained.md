@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Zig hashmaps explained"
 date: "2022-01-29"
 draft: false

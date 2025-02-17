@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Zig, Parser Combinators - and Why They're Awesome"
 date: "2021-03-10"
 draft: false
@@ -381,7 +381,7 @@ There are a few notable things here:
 * The `want` string we _got_ inside of our `init` method is agreed to only be valid while `parse` will still be called. We've decided to create a contract that all of our `Parser` implementations will either not hold onto memory given by others - or if they do, only do so until `parse` returns. Hence, we need to allocate a new string in our method.
 * Normally we could rely solely on `defer` ("run at end of function") or `errdefer` ("run if an error is returned"), but since we've chosen to reserve the _none optional_ `null` as "we didn't parse anything" we need to manually free if we `return null;`. A `nulldefer` and `somedefer` could be nice, maybe?
 
-Putting it all together, you'll get something like this: [GitHub gist](https://gist.github.com/slimsag/8f098a13177b4bc008a7741505819f90).
+Putting it all together, you'll get something like this: [GitHub gist](https://gist.github.com/emidoots/8f098a13177b4bc008a7741505819f90).
 
 ## Our first _parser combinator_
 
@@ -527,7 +527,7 @@ The challenge left for you as a reader is to:
 
 I am sorry for not giving you a full (or even partial) regex engine :) I am still exploring this and it is a large undertaking, this blog post would be far too long if it was included.
 
-You can find a copy of the final code with _parsers_ and _parser combinators_ [here](https://gist.github.com/slimsag/db2dd2c49aa038e23b654120e70c9b00). Just `zig init-exe` and plop them into your `src/` directory.
+You can find a copy of the final code with _parsers_ and _parser combinators_ [here](https://gist.github.com/emidoots/db2dd2c49aa038e23b654120e70c9b00). Just `zig init-exe` and plop them into your `src/` directory.
 
 You may also want to check out [Mecha](https://github.com/Hejsil/mecha), a parser combinator library for Zig.
 

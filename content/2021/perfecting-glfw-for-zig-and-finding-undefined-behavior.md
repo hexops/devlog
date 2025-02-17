@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Perfecting GLFW for Zig, and finding lurking undefined behavior that went unnoticed for 6+ years"
 date: "2021-10-31"
 draft: false
@@ -224,4 +224,4 @@ Only because Zig has good defaults, because it places so much emphasis on things
 
 All key Mach engine developments will be posted here, with incremental updates on Twitter [@machengine](https://twitter.com/machengine).
 
-Follow [Mach engine on GitHub](https://github.com/hexops/mach), and if you like what I'm doing please consider [sponsoring my work](https://github.com/sponsors/slimsag).
+Follow [Mach engine on GitHub](https://github.com/hexops/mach), and if you like what I'm doing please consider [sponsoring my work](https://github.com/sponsors/emidoots).

@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Mach Engine: The future of graphics (with Zig)"
 date: "2021-10-17"
 draft: false
@@ -163,6 +163,6 @@ Major developments will be posted here, as well as on Twitter [@machengine](http
 
 You can also follow the project at [github.com/hexops/mach](https://github.com/hexops/mach).
 
-If you like what I'm doing, you can [sponsor me on GitHub](https://github.com/sponsors/slimsag).
+If you like what I'm doing, you can [sponsor me on GitHub](https://github.com/sponsors/emidoots).
 
 Thanks for reading!

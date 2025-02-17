@@ -1,5 +1,5 @@
 ---
-author: "Stephen Gutekanst"
+author: "Emi Stein"
 title: "Mach v0.2 released - Zig game engine & graphics toolkit"
 date: "2023-08-12"
 draft: false
@@ -182,7 +182,7 @@ We built a [brand new website](https://machengine.org) that will serve us well i
 
 Chrome has already shipped WebGPU, and others will follow soon. Mach support for WebAssembly is not yet ready, but is coming along nicely:
 
-* Input, audio, etc. is working already ([piano demo](https://slimsag.com/mach/piano/), click in the frame and type with your A-Z keys.)
+* Input, audio, etc. is working already ([piano demo](https://emidoots.com/mach/piano/), click in the frame and type with your A-Z keys.)
 * `mach build` is a new CLI command written in Zig which:
   * Starts an HTTP development server
   * Invokes `zig build` for you when you reload the page
@@ -240,13 +240,13 @@ We've already begun making a higher-level API for 2D graphics, as well - though 
 ## A personal note
 
 <div style="display: flex;">
-    <a href="https://github.com/slimsag">
-        <img style="width: 420px" src="https://machengine.org/img/slimsag-profile.png">
+    <a href="https://github.com/emidoots">
+        <img style="width: 420px" src="https://machengine.org/img/emidoots-profile.png">
     </a>
     <div>
         <p>I work a normal tech job, and every day after I sign off from work I go online to build Mach, almost like working two jobs. I've been working on Mach double-time like this for over two years now, and dreaming of it for a decade before that.</p>
         <p>FOSS <a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month#i-grew-up-playing-linux-games-like-mania-drive">is in my roots</a> and I believe we should own our tools, they should empower <em>us</em>-not be part of <a href="https://kristoff.it/blog/the-open-source-game/">the 'open source' game</a> which is all too prevelant today (even among 'open source' engines.) Mach <em>needs</em> to be for people like you and me-it needs to genuinely be <a href="https://softwareyoucan.love">software you can love</a>.</p>
-        <p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider <a href="https://github.com/sponsors/slimsag">sponsoring my work</a> if you believe in my vision.</p>
+        <p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider <a href="https://github.com/sponsors/emidoots">sponsoring my work</a> if you believe in my vision.</p>
     </div>
 </div>
 
@@ -259,6 +259,6 @@ Both to everyone who has contributed and sponsored the project, as well as you f
     <ul>
         <li>Join the <a href="https://discord.gg/XNG3NZgCqp">Mach Discord server</a></li>
         <li>Checkout <a href="https://machengine.org">machengine.org</a></li>
-        <li>Consider <a href="https://github.com/sponsors/slimsag">sponsoring development</a> so we can do more of it!</li>
+        <li>Consider <a href="https://github.com/sponsors/emidoots">sponsoring development</a> so we can do more of it!</li>
     </ul>
 </div>
