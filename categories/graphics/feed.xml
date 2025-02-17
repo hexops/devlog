@@ -33,7 +33,7 @@ $ zig build example-boids -Dtarget=aarch64-macos.12
 &lt;p>Why use this over, say, GLFW and WebGPU on your own? The benefit is that this will work on Desktop, WebAssembly (soon), Mobile (future), and consoles (long term.) You can write Mach core apps in Zig, or other languages via &lt;code>libmach&lt;/code> (more on this later.) Think of Mach core as &lt;em>a competitor to SDL/GLFW.&lt;/em>&lt;/p>
 &lt;p>In the future we&amp;rsquo;ll offer &lt;em>Mach engine&lt;/em> apps, where you buy into our ECS, Unity/Unreal-like editor, and other composable building-blocks that make up the engine at your choosing. But this isn&amp;rsquo;t ready today.&lt;/p>
 &lt;h3 id="dawnwebgpu-on-the-steam-deck">Dawn/WebGPU on the Steam Deck&lt;/h3>
-&lt;p>We believe Linux should be a first-class platform, and because of this &lt;a href="https://twitter.com/slimsag/status/1544858201849376768">we&amp;rsquo;ve found&lt;/a> Mach all Just Works™ right out of the box on the Steam Deck (running natively as a Linux Vulkan application, no DirectX or Proton in the mix.):&lt;/p>
+&lt;p>We believe Linux should be a first-class platform, and because of this &lt;a href="https://twitter.com/emidoots/status/1544858201849376768">we&amp;rsquo;ve found&lt;/a> Mach all Just Works™ right out of the box on the Steam Deck (running natively as a Linux Vulkan application, no DirectX or Proton in the mix.):&lt;/p>
 &lt;div class="video-container">&lt;video autoplay loop muted src="https://user-images.githubusercontent.com/3173176/184556247-6e039490-99ee-48f4-91b4-d2cfd7a7f847.mp4">&lt;/video>&lt;/div>
 &lt;h2 id="a-complete-rewrite-of-machgpu-to-be-lean--mean">A complete rewrite of &lt;code>mach/gpu&lt;/code> to be lean &amp;amp; mean&lt;/h2>
 &lt;p>When we wrote the initial WebGPU bindings for Zig 6+ months ago, our primary goal was just to get &lt;em>something&lt;/em> working to where we could start building out examples: we always knew we&amp;rsquo;d need to revisit things later, especially as Browser support, the use of native extensions in Dawn (like bindless support in the future, etc.), overhead &amp;amp; other aspects became clear.&lt;/p>
@@ -209,7 +209,7 @@ $ zig build example-boids -Dtarget=aarch64-macos.12
 &lt;li>Check out the mach/gpu &lt;a href="https://machengine.org/gpu">example showcase&lt;/a>&lt;/li>
 &lt;li>Help us &lt;a href="https://github.com/hexops/mach/issues/230">port/write more WebGPU examples&lt;/a> to Zig&lt;/li>
 &lt;li>Read up on WebGPU &lt;a href="https://surma.dev/things/webgpu/">compute&lt;/a> and &lt;a href="https://alain.xyz/blog/raw-webgpu">rendering&lt;/a>&lt;/li>
-&lt;li>&lt;a href="https://github.com/sponsors/slimsag">Sponsor development&lt;/a> if you like what we're doing!&lt;/li>
+&lt;li>&lt;a href="https://github.com/sponsors/emidoots">Sponsor development&lt;/a> if you like what we're doing!&lt;/li>
 &lt;/ul>
 &lt;/div></description></item><item><title>Mach Engine: The future of graphics (with Zig)</title><link>https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig/</link><pubDate>Sun, 17 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig/</guid><description>&lt;p>In the coming months, we&amp;rsquo;ll begin to have truly cross-platform low-level graphics, with the ability to cross compile GPU-accelerated applications written in Zig from any OS and deploy to desktop, mobile, and (in the future) web.&lt;/p>
 &lt;h2 id="mach-engine">Mach engine&lt;/h2>
@@ -305,5 +305,5 @@ $ zig build example-boids -Dtarget=aarch64-macos.12
 &lt;h2 id="follow-along">Follow along&lt;/h2>
 &lt;p>Major developments will be posted here, as well as on Twitter &lt;a href="https://twitter.com/machengine">@machengine&lt;/a>.&lt;/p>
 &lt;p>You can also follow the project at &lt;a href="https://github.com/hexops/mach">github.com/hexops/mach&lt;/a>.&lt;/p>
-&lt;p>If you like what I&amp;rsquo;m doing, you can &lt;a href="https://github.com/sponsors/slimsag">sponsor me on GitHub&lt;/a>.&lt;/p>
+&lt;p>If you like what I&amp;rsquo;m doing, you can &lt;a href="https://github.com/sponsors/emidoots">sponsor me on GitHub&lt;/a>.&lt;/p>
 &lt;p>Thanks for reading!&lt;/p></description></item></channel></rss>

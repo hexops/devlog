@@ -155,4 +155,4 @@ Process 6516 stopped
 &lt;p>Only because Zig has good defaults, because it places so much emphasis on things being right &lt;em>out of the box&lt;/em>, and because there is such an emphasis on having safety checks for undefined behavior - were we able to catch this undefined behavior that went unnoticed in GLFW for the last 6 years.&lt;/p>
 &lt;h2 id="thanks-for-reading">Thanks for reading&lt;/h2>
 &lt;p>All key Mach engine developments will be posted here, with incremental updates on Twitter &lt;a href="https://twitter.com/machengine">@machengine&lt;/a>.&lt;/p>
-&lt;p>Follow &lt;a href="https://github.com/hexops/mach">Mach engine on GitHub&lt;/a>, and if you like what I&amp;rsquo;m doing please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a>.&lt;/p></description></item></channel></rss>
+&lt;p>Follow &lt;a href="https://github.com/hexops/mach">Mach engine on GitHub&lt;/a>, and if you like what I&amp;rsquo;m doing please consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring my work&lt;/a>.&lt;/p></description></item></channel></rss>

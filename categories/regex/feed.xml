@@ -366,7 +366,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;li>The &lt;code>want&lt;/code> string we &lt;em>got&lt;/em> inside of our &lt;code>init&lt;/code> method is agreed to only be valid while &lt;code>parse&lt;/code> will still be called. We&amp;rsquo;ve decided to create a contract that all of our &lt;code>Parser&lt;/code> implementations will either not hold onto memory given by others - or if they do, only do so until &lt;code>parse&lt;/code> returns. Hence, we need to allocate a new string in our method.&lt;/li>
 &lt;li>Normally we could rely solely on &lt;code>defer&lt;/code> (&amp;ldquo;run at end of function&amp;rdquo;) or &lt;code>errdefer&lt;/code> (&amp;ldquo;run if an error is returned&amp;rdquo;), but since we&amp;rsquo;ve chosen to reserve the &lt;em>none optional&lt;/em> &lt;code>null&lt;/code> as &amp;ldquo;we didn&amp;rsquo;t parse anything&amp;rdquo; we need to manually free if we &lt;code>return null;&lt;/code>. A &lt;code>nulldefer&lt;/code> and &lt;code>somedefer&lt;/code> could be nice, maybe?&lt;/li>
 &lt;/ul>
-&lt;p>Putting it all together, you&amp;rsquo;ll get something like this: &lt;a href="https://gist.github.com/slimsag/8f098a13177b4bc008a7741505819f90">GitHub gist&lt;/a>.&lt;/p>
+&lt;p>Putting it all together, you&amp;rsquo;ll get something like this: &lt;a href="https://gist.github.com/emidoots/8f098a13177b4bc008a7741505819f90">GitHub gist&lt;/a>.&lt;/p>
 &lt;h2 id="our-first-_parser-combinator_">Our first &lt;em>parser combinator&lt;/em>&lt;/h2>
 &lt;p>To demonstrate how a &lt;em>parser combinator&lt;/em> would be implemented, we&amp;rsquo;ll try implementing the &lt;code>OneOf&lt;/code> operator. It will take any number of &lt;em>parsers&lt;/em> as input and run them consecutively until one succeeds or none do.&lt;/p>
 &lt;p>Let&amp;rsquo;s first start by writing out the basic structure of our function:&lt;/p>
@@ -480,6 +480,6 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;/ul>
 &lt;h2 id="closing-thoughts">Closing thoughts&lt;/h2>
 &lt;p>I am sorry for not giving you a full (or even partial) regex engine :) I am still exploring this and it is a large undertaking, this blog post would be far too long if it was included.&lt;/p>
-&lt;p>You can find a copy of the final code with &lt;em>parsers&lt;/em> and &lt;em>parser combinators&lt;/em> &lt;a href="https://gist.github.com/slimsag/db2dd2c49aa038e23b654120e70c9b00">here&lt;/a>. Just &lt;code>zig init-exe&lt;/code> and plop them into your &lt;code>src/&lt;/code> directory.&lt;/p>
+&lt;p>You can find a copy of the final code with &lt;em>parsers&lt;/em> and &lt;em>parser combinators&lt;/em> &lt;a href="https://gist.github.com/emidoots/db2dd2c49aa038e23b654120e70c9b00">here&lt;/a>. Just &lt;code>zig init-exe&lt;/code> and plop them into your &lt;code>src/&lt;/code> directory.&lt;/p>
 &lt;p>You may also want to check out &lt;a href="https://github.com/Hejsil/mecha">Mecha&lt;/a>, a parser combinator library for Zig.&lt;/p>
 &lt;p>If anything was unclear or confusing, I&amp;rsquo;m happy to help: shoot me an email &lt;a href="mailto:stephen@hexops.com">stephen@hexops.com&lt;/a> or leave a comment on Hacker News / Reddit and I&amp;rsquo;ll follow up.&lt;/p></description></item></channel></rss>

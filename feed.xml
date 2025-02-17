@@ -128,13 +128,13 @@ zig build -Dfrom_source -Dtarget=x86_64-linux-gnu
 &lt;/ul>
 &lt;h2 id="on-a-personal-note">On a personal note&lt;/h2>
 &lt;div style="display: flex;">
-&lt;a href="https://github.com/slimsag">
-&lt;img style="width: 420px" src="https://machengine.org/img/slimsag-profile.png">
+&lt;a href="https://github.com/emidoots">
+&lt;img style="width: 420px" src="https://machengine.org/img/emidoots-profile.png">
 &lt;/a>
 &lt;div>
-&lt;p>My name is Stephen, I work a normal tech job, and after signing off from work at the end of the day I go online to build &lt;a href="https://machengine.org/">Mach engine&lt;/a>. I've been dreaming of being able to build a game engine like this for a long time, and I'm finally doing it!&lt;/p>
+&lt;p>My name is Emi, I work a normal tech job, and after signing off from work at the end of the day I go online to build &lt;a href="https://machengine.org/">Mach engine&lt;/a>. I've been dreaming of being able to build a game engine like this for a long time, and I'm finally doing it!&lt;/p>
 &lt;p>FOSS &lt;a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month#i-grew-up-playing-linux-games-like-mania-drive">is in my roots&lt;/a>, I believe we should own our tools, they should empower &lt;em>us&lt;/em>-not be part of &lt;a href="https://kristoff.it/blog/the-open-source-game/">the 'open source' game&lt;/a> which is all too prevelant today (even among 'open source' engines.) I &lt;em>need&lt;/em> Mach to genuinely be &lt;a href="https://softwareyoucan.love">software you can love&lt;/a>.&lt;/p>
-&lt;p>My dream is one day to live a simple, modest, life earning a living building Mach for everyone and selling high-quality games. Please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a> if you believe in my vision. It means the world to me!&lt;/p>
+&lt;p>My dream is one day to live a simple, modest, life earning a living building Mach for everyone and selling high-quality games. Please consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring my work&lt;/a> if you believe in my vision. It means the world to me!&lt;/p>
 &lt;/div>
 &lt;/div>
 &lt;h2 id="thanks-for-reading">Thanks for reading&lt;/h2>
@@ -142,7 +142,7 @@ zig build -Dfrom_source -Dtarget=x86_64-linux-gnu
 &lt;img align="left" style="max-height: 12.5rem;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
 &lt;ul>
 &lt;li>Check out &lt;a href="https://machengine.org">machengine.org&lt;/a>&lt;/li>
-&lt;li>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
+&lt;li>Consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
 &lt;li>Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord server&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/div></description></item><item><title>Mach v0.3 released - Zig game engine &amp; graphics toolkit</title><link>https://devlog.hexops.com/2024/mach-v0.3-released/</link><pubDate>Fri, 02 Feb 2024 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2024/mach-v0.3-released/</guid><description>&lt;p>Mach is a Zig game engine &amp;amp; graphics toolkit for building high-performance &amp;amp; modular games, visualizations, and desktop/mobile apps. &lt;a href="https://machengine.org/">Learn more&lt;/a>&lt;/p>
@@ -213,13 +213,13 @@ zig build -Dfrom_source -Dtarget=x86_64-linux-gnu
 &lt;/ul>
 &lt;h2 id="a-personal-note">A personal note&lt;/h2>
 &lt;div style="display: flex;">
-&lt;a href="https://github.com/slimsag">
-&lt;img style="width: 420px" src="https://machengine.org/img/slimsag-profile.png">
+&lt;a href="https://github.com/emidoots">
+&lt;img style="width: 420px" src="https://machengine.org/img/emidoots-profile.png">
 &lt;/a>
 &lt;div>
 &lt;p>I work a normal tech job, and most days after I sign off from work I go online to build Mach, often like working two jobs. I've been doing this for a few years now, and dreaming of being able to build Mach for a decade before that.&lt;/p>
 &lt;p>FOSS &lt;a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month#i-grew-up-playing-linux-games-like-mania-drive">is in my roots&lt;/a> and I believe we should own our tools, they should empower &lt;em>us&lt;/em>-not be part of &lt;a href="https://kristoff.it/blog/the-open-source-game/">the 'open source' game&lt;/a> which is all too prevelant today (even among 'open source' engines.) Mach &lt;em>needs&lt;/em> to be for people like you and me-it needs to genuinely be &lt;a href="https://softwareyoucan.love">software you can love&lt;/a>.&lt;/p>
-&lt;p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a> if you believe in this vision.&lt;/p>
+&lt;p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring my work&lt;/a> if you believe in this vision.&lt;/p>
 &lt;/div>
 &lt;/div>
 &lt;h2 id="thanks">Thanks&lt;/h2>
@@ -229,7 +229,7 @@ zig build -Dfrom_source -Dtarget=x86_64-linux-gnu
 &lt;ul>
 &lt;li>Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord server&lt;/a>&lt;/li>
 &lt;li>Check out &lt;a href="https://machengine.org">machengine.org&lt;/a>&lt;/li>
-&lt;li>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
+&lt;li>Consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
 &lt;/ul>
 &lt;/div></description></item><item><title>Announcing Mach nominated Zig versions</title><link>https://devlog.hexops.com/2024/announcing-nominated-zig/</link><pubDate>Sun, 07 Jan 2024 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2024/announcing-nominated-zig/</guid><description>&lt;p>Today we&amp;rsquo;re announcing Mach nominated Zig versions, a sweet-spot between stable Zig and nightly Zig which offers a different balance of latest-and-greatest features and fixes, and less of a moving target.&lt;/p>
 &lt;p>If you are in the Zig community, you likely fall into one of two categories:&lt;/p>
@@ -351,7 +351,7 @@ zig build -Dfrom_source -Dtarget=x86_64-linux-gnu
 &lt;ul>
 &lt;li>Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord server&lt;/a> (check #discuss for this article)&lt;/li>
 &lt;li>Checkout &lt;a href="https://machengine.org">machengine.org&lt;/a>&lt;/li>
-&lt;li>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
+&lt;li>Consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
 &lt;/ul>
 &lt;/div></description></item><item><title>Mach v0.2 released - Zig game engine &amp; graphics toolkit</title><link>https://devlog.hexops.com/2023/mach-v0.2-released/</link><pubDate>Sat, 12 Aug 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/mach-v0.2-released/</guid><description>&lt;p>Mach is a Zig game engine &amp;amp; graphics toolkit for building high-performance, truly cross-platform, robust &amp;amp; modular games, visualizations, and desktop/mobile GUI apps. &lt;a href="https://machengine.org/">Learn more&lt;/a>&lt;/p>
 &lt;p>We&amp;rsquo;ve been developing Mach for ~2 years; this release includes over a year of work, thousands of commits, and fixes &lt;a href="https://github.com/hexops/mach/milestone/2?closed=1">300 issues&lt;/a>.&lt;/p>
@@ -480,7 +480,7 @@ zig build run-deferred-rendering
 &lt;h2 id="browser-support-in-development">Browser support: in development&lt;/h2>
 &lt;p>Chrome has already shipped WebGPU, and others will follow soon. Mach support for WebAssembly is not yet ready, but is coming along nicely:&lt;/p>
 &lt;ul>
-&lt;li>Input, audio, etc. is working already (&lt;a href="https://slimsag.com/mach/piano/">piano demo&lt;/a>, click in the frame and type with your A-Z keys.)&lt;/li>
+&lt;li>Input, audio, etc. is working already (&lt;a href="https://emidoots.com/mach/piano/">piano demo&lt;/a>, click in the frame and type with your A-Z keys.)&lt;/li>
 &lt;li>&lt;code>mach build&lt;/code> is a new CLI command written in Zig which:
 &lt;ul>
 &lt;li>Starts an HTTP development server&lt;/li>
@@ -526,13 +526,13 @@ zig build run-deferred-rendering
 &lt;/div>
 &lt;h2 id="a-personal-note">A personal note&lt;/h2>
 &lt;div style="display: flex;">
-&lt;a href="https://github.com/slimsag">
-&lt;img style="width: 420px" src="https://machengine.org/img/slimsag-profile.png">
+&lt;a href="https://github.com/emidoots">
+&lt;img style="width: 420px" src="https://machengine.org/img/emidoots-profile.png">
 &lt;/a>
 &lt;div>
 &lt;p>I work a normal tech job, and every day after I sign off from work I go online to build Mach, almost like working two jobs. I've been working on Mach double-time like this for over two years now, and dreaming of it for a decade before that.&lt;/p>
 &lt;p>FOSS &lt;a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month#i-grew-up-playing-linux-games-like-mania-drive">is in my roots&lt;/a> and I believe we should own our tools, they should empower &lt;em>us&lt;/em>-not be part of &lt;a href="https://kristoff.it/blog/the-open-source-game/">the 'open source' game&lt;/a> which is all too prevelant today (even among 'open source' engines.) Mach &lt;em>needs&lt;/em> to be for people like you and me-it needs to genuinely be &lt;a href="https://softwareyoucan.love">software you can love&lt;/a>.&lt;/p>
-&lt;p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a> if you believe in my vision.&lt;/p>
+&lt;p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring my work&lt;/a> if you believe in my vision.&lt;/p>
 &lt;/div>
 &lt;/div>
 &lt;h2 id="thanks">Thanks&lt;/h2>
@@ -542,7 +542,7 @@ zig build run-deferred-rendering
 &lt;ul>
 &lt;li>Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord server&lt;/a>&lt;/li>
 &lt;li>Checkout &lt;a href="https://machengine.org">machengine.org&lt;/a>&lt;/li>
-&lt;li>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
+&lt;li>Consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
 &lt;/ul>
 &lt;/div></description></item><item><title>Mach: providing an ecosystem of C libraries using the Zig package manager</title><link>https://devlog.hexops.com/2023/mach-ecosystem-c-libraries/</link><pubDate>Wed, 14 Jun 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/mach-ecosystem-c-libraries/</guid><description>&lt;p>&lt;a href="https://github.com/andrewrk">Andrew Kelley&lt;/a> gave a keynote speech at &lt;a href="https://softwareyoucanlove.ca">Software You Can Love 2023&lt;/a> in Vancouver last week (a recording will be available later), the outline was:&lt;/p>
 &lt;blockquote>
@@ -652,7 +652,7 @@ zig build run-textured-cube
 &lt;p>We&amp;rsquo;re working towards Mach v0.2, this article was one of the first steps in beginning to share the progress we&amp;rsquo;ve been making towards that behind the scenes over the past several months. We have some exciting things to share next, this was the &amp;lsquo;boring&amp;rsquo; article that had to go first. :)&lt;/p>
 &lt;p>&lt;img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
 &lt;br>&lt;br>
-Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a> to help us become a sustainable OSS project and enable us to do more in the future.
+Consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring my work&lt;/a> to help us become a sustainable OSS project and enable us to do more in the future.
 &lt;br>&lt;br>
 Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord&lt;/a> where we&amp;rsquo;re building the future of Zig game development in realtime!&lt;/p></description></item><item><title>Zig tips: v0.11 std.build API / package manager changes</title><link>https://devlog.hexops.com/2023/zig-0-11-breaking-build-changes/</link><pubDate>Mon, 13 Feb 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/zig-0-11-breaking-build-changes/</guid><description>&lt;p>We&amp;rsquo;ve just updated &lt;a href="https://machengine.org/">Mach engine&lt;/a> to use the latest Zig nightly version, which includes a fair amount of improvements and breaking changes to the &lt;code>std.build&lt;/code> API used in &lt;code>build.zig&lt;/code> files, and figured now would be a good time to share the general changes you may need to make if you want to update your own code.&lt;/p>
 &lt;h2 id="package-manager-incoming">Package manager: incoming!&lt;/h2>
@@ -762,29 +762,7 @@ Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord&lt;/a> where we
 &lt;p>&lt;img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
 Be sure to join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach engine Discord&lt;/a> where we&amp;rsquo;re building the future of Zig game development.
 &lt;br>&lt;br>
-You can also &lt;a href="https://github.com/sponsors/slimsag">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p></description></item><item><title>2022 Reflecting on a year in life &amp; game development</title><link>https://devlog.hexops.com/2022/2022-closing-thoughts/</link><pubDate>Sat, 31 Dec 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/2022-closing-thoughts/</guid><description>&lt;img src="https://user-images.githubusercontent.com/3173176/210161169-08829568-8c69-4654-9df1-9d7e3ed9f291.png">
-&lt;p>2022 ends in an hour, and new opportunities open. I am filled with optimism, pessimism, fear, and excitement. A walking, talking contradiction of life at your service.&lt;/p>
-&lt;h2 id="gratitude">Gratitude&lt;/h2>
-&lt;p>I am greatful for so much in life-I have health, a great job, family, two new nephews, kittos of my own, friends, and an incredible community of people passionate about some of the same things as me.&lt;/p>
-&lt;p>Over this last year, almost 300 people joined the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach engine Discord&lt;/a> sharing in the vision of Zig game development with me. I cannot express how thankful I am for everyone who has participated, whether as an observer or an avatar image I recognize on a daily basis.&lt;/p>
-&lt;p>I want to give a special thanks (in no particular order) to:&lt;/p>
-&lt;p>&lt;small>Ali, Lue, TUSF, Ayush, konsuko, Apple, Sander, Bitron, kchambers, squirl, mitchellh, unevenprankster, Snowminx, LittleRat, rasmusgo, Citrus^BrCr, C-BJ, desttinghim, geemili, jackji, kamidev, mattnite, michal, rbino, renerocksai, Spex_guy, and Zargio&lt;/small>&lt;/p>
-&lt;p>There are probably others I&amp;rsquo;ve missed, but many of these folks have either believed in me, personally been an inspiration to me, or have contributed seriously to making my dreams one day coming true. Seriously, thanks for being here.&lt;/p>
-&lt;h2 id="the-waves-in-life">The waves in life&lt;/h2>
-&lt;p>Although I am incredibly thankful and count my blessings, I also want to emphasize how incredibly challenging this year has been.&lt;/p>
-&lt;p>In personal life, I lost one most dear to me-seeing first hand what aggressive cancer looks like. They say time heals all wounds, but time is also infinite-and our intersection of it small, fragile, and temporary.&lt;/p>
-&lt;p>In social life, I&amp;rsquo;ve failed spectacularly in both embarrasing and regretful ways while trying to help friends. I&amp;rsquo;ve also had people I thought were friends let me down. I&amp;rsquo;ve made new friends visiting places I never thought I&amp;rsquo;d visit in life.&lt;/p>
-&lt;p>In professional life, the economic shift &amp;amp; other factors created one of the most challenging years in my career, personal opportunities destroyed and new ones created. It&amp;rsquo;s been a wild ride.&lt;/p>
-&lt;h2 id="climbing-a-mountain-half-way-up">Climbing a mountain, half way up&lt;/h2>
-&lt;p>In my personal, professional, and open-source work.. I expect next year to be at least twice as hard as this year was. Along every axis, there is evidence to suggest this will be the case. I am fearful of whether I am prepared to manage it.&lt;/p>
-&lt;p>The challenging work year has led to Mach development going far slower than I would&amp;rsquo;ve liked. In my life there are few things that I view as more important than this long-term dream I have with developing games-so this has been weighing heavily on my mind.&lt;/p>
-&lt;p>Mach development won&amp;rsquo;t be the only challenge I&amp;rsquo;ll face next year, but I expect it to be a large factor. I&amp;rsquo;m both excited and terrified for what will happen next year.&lt;/p>
-&lt;h2 id="resolution">Resolution&lt;/h2>
-&lt;p>When I was a child, my parents said for a really long time I couldn&amp;rsquo;t speak, then one day just suddenly I began to speak full-form sentences with great fidelity.&lt;/p>
-&lt;p>Looking back, I think this past year has been a catch-up term. It&amp;rsquo;s brought me more in sync with my reality on multiple dimensions. It&amp;rsquo;s made my optimism into a clear picture of what must be done to execute.&lt;/p>
-&lt;p>This year I will continue that trend of synchronization with reality, which is why I won&amp;rsquo;t make any promises or guesses about what comes next. The only promise I&amp;rsquo;ll make is to tell you what &lt;em>has&lt;/em> happened once it does-my mission is to make things happen so that I have a reason to speak.&lt;/p>
-&lt;h2 id="i-hope-youll-wait-to-hear-my-voice">I hope you&amp;rsquo;ll wait to hear my voice.&lt;/h2>
-&lt;p>I&amp;rsquo;ll be &lt;a href="https://discord.gg/XNG3NZgCqp">here&lt;/a> until I&amp;rsquo;m ready to share my voice next. Thanks for staying tuned.&lt;/p></description></item><item><title>Debugging undefined behavior caught by Zig</title><link>https://devlog.hexops.com/2022/debugging-undefined-behavior/</link><pubDate>Mon, 14 Nov 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/debugging-undefined-behavior/</guid><description>&lt;p>&lt;a href="https://machengine.org/">Mach engine&lt;/a> uses &lt;a href="https://ziglang.org">Zig&lt;/a> as the C/C++ compiler for almost everything. Unlike other toolchains, Zig enables many more safety checks by default - such as clang&amp;rsquo;s undefined behavior sanitizer.&lt;/p>
+You can also &lt;a href="https://github.com/sponsors/emidoots">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p></description></item><item><title>Debugging undefined behavior caught by Zig</title><link>https://devlog.hexops.com/2022/debugging-undefined-behavior/</link><pubDate>Mon, 14 Nov 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/debugging-undefined-behavior/</guid><description>&lt;p>&lt;a href="https://machengine.org/">Mach engine&lt;/a> uses &lt;a href="https://ziglang.org">Zig&lt;/a> as the C/C++ compiler for almost everything. Unlike other toolchains, Zig enables many more safety checks by default - such as clang&amp;rsquo;s undefined behavior sanitizer.&lt;/p>
 &lt;p>Using Zig, we&amp;rsquo;ve caught undefined behavior in established projects like GLFW[&lt;a href="https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior/">1&lt;/a>], the DirectX Shader Compiler[&lt;a href="https://github.com/microsoft/DirectXShaderCompiler/pull/4178#discussion_r780733405">2&lt;/a>], and more. Undefined behavior is everywhere, often relatively innocuous, and hard to catch.&lt;/p>
 &lt;p>Professional C/C++ developers know to run UBSan fuzzers as part of their test suite, but even with that we&amp;rsquo;ve found e.g. Google Chrome&amp;rsquo;s fuzzers weren&amp;rsquo;t running normally at one point, and we caught undefined behavior in Chrome&amp;rsquo;s implementation of WebGPU as a result[&lt;a href="https://dawn-review.googlesource.com/c/dawn/+/87380">3&lt;/a>].&lt;/p>
 &lt;p>Zig having UBSan enabled by default is valuable, but it can also lead to tricky to debug errors that are a bit annoying to interpret today. And so this article is a walkthrough of how to debug such an error when it arises using Zig and LLDB.&lt;/p>
@@ -793,9 +771,9 @@ You can also &lt;a href="https://github.com/sponsors/slimsag">sponsor my work&lt
 &lt;p>As we&amp;rsquo;ve been testing it with various models, though, we found our Zig program just crashes when we use it:&lt;/p>
 &lt;pre>&lt;code>% zig build test 2&amp;gt;&amp;amp;1|cat
 1/1 test_0... The following command terminated unexpectedly:
-cd /mach/libs/model3d &amp;amp;&amp;amp; /mach/libs/model3d/zig-cache/o/26c4104a1643fed2068dfa9244dfe90e/model3d-tests /Users/slimsag/zig-macos-aarch64-0.11.0-dev.38+b40fc7018/zig
+cd /mach/libs/model3d &amp;amp;&amp;amp; /mach/libs/model3d/zig-cache/o/26c4104a1643fed2068dfa9244dfe90e/model3d-tests /Users/emidoots/zig-macos-aarch64-0.11.0-dev.38+b40fc7018/zig
 error: the following build command failed with exit code 1:
-/mach/libs/model3d/zig-cache/o/679e494577315c1bcc3749ee7068ea2f/build /Users/slimsag/zig-macos-aarch64-0.11.0-dev.38+b40fc7018/zig /mach/libs/model3d /mach/libs/model3d/zig-cache /Users/slimsag/.cache/zig test
+/mach/libs/model3d/zig-cache/o/679e494577315c1bcc3749ee7068ea2f/build /Users/emidoots/zig-macos-aarch64-0.11.0-dev.38+b40fc7018/zig /mach/libs/model3d /mach/libs/model3d/zig-cache /Users/emidoots/.cache/zig test
 &lt;/code>&lt;/pre>&lt;p>As you can see, we&amp;rsquo;re not getting much info here on why our tests crashed. This is a telltale sign of undefined behavior in Zig (and &lt;a href="https://github.com/ziglang/zig/issues/5163">there&amp;rsquo;s an open issue to make this error messaging way more clear&lt;/a>). When we compile our program with &lt;code>-Drelease-fast&lt;/code>, which disables safety checks, we find it runs as expected - which confirms our suspicion about it being a safety check.&lt;/p>
 &lt;h2 id="debugging-with-lldb">Debugging with LLDB&lt;/h2>
 &lt;p>In the output above, we can grab the path to the executable &lt;code>model3d-tests&lt;/code>. We can debug it using lldb (I think we should find a nicer way to invoke &lt;code>lldb&lt;/code> via &lt;code>zig build test&lt;/code> though!):&lt;/p>
@@ -858,7 +836,7 @@ m3d_t *m3d_load(unsigned char *data, m3dread_t readfilecb, m3dfree_t freecb, m3d
 &lt;p>&lt;img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
 Be sure to join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach engine Discord&lt;/a> where we&amp;rsquo;re building the future of Zig game development.
 &lt;br>&lt;br>
-You can also &lt;a href="https://github.com/sponsors/slimsag">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p></description></item><item><title>Perfecting WebGPU/Dawn native graphics for Zig</title><link>https://devlog.hexops.com/2022/perfecting-webgpu-native/</link><pubDate>Sun, 11 Sep 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/perfecting-webgpu-native/</guid><description>&lt;picture>
+You can also &lt;a href="https://github.com/sponsors/emidoots">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p></description></item><item><title>Perfecting WebGPU/Dawn native graphics for Zig</title><link>https://devlog.hexops.com/2022/perfecting-webgpu-native/</link><pubDate>Sun, 11 Sep 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/perfecting-webgpu-native/</guid><description>&lt;picture>
 &lt;source srcset="https://raw.githubusercontent.com/hexops/media/839b04fa5a72428052733d2095726894ff93466a/gpu/logo_dark.svg" media="(prefers-color-scheme: dark)">
 &lt;img style="height: 100px;" src="https://raw.githubusercontent.com/hexops/media/839b04fa5a72428052733d2095726894ff93466a/gpu/logo_light.svg">
 &lt;/picture>
@@ -893,7 +871,7 @@ $ zig build example-boids -Dtarget=aarch64-macos.12
 &lt;p>Why use this over, say, GLFW and WebGPU on your own? The benefit is that this will work on Desktop, WebAssembly (soon), Mobile (future), and consoles (long term.) You can write Mach core apps in Zig, or other languages via &lt;code>libmach&lt;/code> (more on this later.) Think of Mach core as &lt;em>a competitor to SDL/GLFW.&lt;/em>&lt;/p>
 &lt;p>In the future we&amp;rsquo;ll offer &lt;em>Mach engine&lt;/em> apps, where you buy into our ECS, Unity/Unreal-like editor, and other composable building-blocks that make up the engine at your choosing. But this isn&amp;rsquo;t ready today.&lt;/p>
 &lt;h3 id="dawnwebgpu-on-the-steam-deck">Dawn/WebGPU on the Steam Deck&lt;/h3>
-&lt;p>We believe Linux should be a first-class platform, and because of this &lt;a href="https://twitter.com/slimsag/status/1544858201849376768">we&amp;rsquo;ve found&lt;/a> Mach all Just Works™ right out of the box on the Steam Deck (running natively as a Linux Vulkan application, no DirectX or Proton in the mix.):&lt;/p>
+&lt;p>We believe Linux should be a first-class platform, and because of this &lt;a href="https://twitter.com/emidoots/status/1544858201849376768">we&amp;rsquo;ve found&lt;/a> Mach all Just Works™ right out of the box on the Steam Deck (running natively as a Linux Vulkan application, no DirectX or Proton in the mix.):&lt;/p>
 &lt;div class="video-container">&lt;video autoplay loop muted src="https://user-images.githubusercontent.com/3173176/184556247-6e039490-99ee-48f4-91b4-d2cfd7a7f847.mp4">&lt;/video>&lt;/div>
 &lt;h2 id="a-complete-rewrite-of-machgpu-to-be-lean--mean">A complete rewrite of &lt;code>mach/gpu&lt;/code> to be lean &amp;amp; mean&lt;/h2>
 &lt;p>When we wrote the initial WebGPU bindings for Zig 6+ months ago, our primary goal was just to get &lt;em>something&lt;/em> working to where we could start building out examples: we always knew we&amp;rsquo;d need to revisit things later, especially as Browser support, the use of native extensions in Dawn (like bindless support in the future, etc.), overhead &amp;amp; other aspects became clear.&lt;/p>
@@ -1069,7 +1047,7 @@ $ zig build example-boids -Dtarget=aarch64-macos.12
 &lt;li>Check out the mach/gpu &lt;a href="https://machengine.org/gpu">example showcase&lt;/a>&lt;/li>
 &lt;li>Help us &lt;a href="https://github.com/hexops/mach/issues/230">port/write more WebGPU examples&lt;/a> to Zig&lt;/li>
 &lt;li>Read up on WebGPU &lt;a href="https://surma.dev/things/webgpu/">compute&lt;/a> and &lt;a href="https://alain.xyz/blog/raw-webgpu">rendering&lt;/a>&lt;/li>
-&lt;li>&lt;a href="https://github.com/sponsors/slimsag">Sponsor development&lt;/a> if you like what we're doing!&lt;/li>
+&lt;li>&lt;a href="https://github.com/sponsors/emidoots">Sponsor development&lt;/a> if you like what we're doing!&lt;/li>
 &lt;/ul>
 &lt;/div></description></item><item><title>Packed structs in Zig make bit/flag sets trivial</title><link>https://devlog.hexops.com/2022/packed-structs-in-zig/</link><pubDate>Mon, 29 Aug 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/packed-structs-in-zig/</guid><description>&lt;p>As we&amp;rsquo;ve been building &lt;a href="https://machengine.org/">Mach engine&lt;/a>, we&amp;rsquo;ve been using a neat little pattern in Zig that enables writing flag sets more nicely in Zig than in other languages.&lt;/p>
 &lt;h2 id="what-is-a-flag-set">What is a flag set?&lt;/h2>
@@ -1157,7 +1135,7 @@ $ zig build example-boids -Dtarget=aarch64-macos.12
 &lt;p>&lt;img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
 Be sure to join the new &lt;a href="https://discord.gg/XNG3NZgCqp">Mach engine Discord server&lt;/a> where we&amp;rsquo;re building the future of Zig game development.
 &lt;br>&lt;br>
-You can also &lt;a href="https://github.com/sponsors/slimsag">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p>
+You can also &lt;a href="https://github.com/sponsors/emidoots">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p>
 &lt;h2 id="but-c-has-had-bitfields-since-forever">&amp;ldquo;But C has had bitfields since forever!&amp;rdquo;&lt;/h2>
 &lt;p>Shortly after posting this article I was inundated with comments proclaiming &amp;ldquo;But C has had bitfields since forever!&amp;rdquo;&lt;/p>
 &lt;p>First, I&amp;rsquo;d like to say I was not aware of C bitfields at the time of writing - I simply had not ever come across usage of them. Secondly, I&amp;rsquo;d like to question: if C has bitfields, then why do seemingly all modern C APIs not use? Why do they all expose integer types instead?&lt;/p>
@@ -1584,7 +1562,7 @@ Maybe even a game server has made this decision, or a scripting language. We did
 &lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">world&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">new&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
 &lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">_&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">player&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
 &lt;/span>&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>(A copy of the full code at this point &lt;a href="https://gist.github.com/slimsag/477f9f4c68667e71fbe584a700cfd87d">is available here&lt;/a> and you can run it using &lt;code>zig test ecs.zig&lt;/code>)&lt;/p>
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>(A copy of the full code at this point &lt;a href="https://gist.github.com/emidoots/477f9f4c68667e71fbe584a700cfd87d">is available here&lt;/a> and you can run it using &lt;code>zig test ecs.zig&lt;/code>)&lt;/p>
 &lt;h2 id="working-with-component-storage">Working with component storage&lt;/h2>
 &lt;p>As we work with component storage (table columns, where component values for a single type &lt;code>T&lt;/code> are stored contiguously in memory) we&amp;rsquo;re going to need some helper functions. The first one is to swap remove a value from a column:&lt;/p>
 &lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="w"> &lt;/span>&lt;span class="kr">pub&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">fn&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">ComponentStorage&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kr">comptime&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Component&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">type&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">type&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
@@ -1881,7 +1859,7 @@ Maybe even a game server has made this decision, or a scripting language. We did
 &lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">world&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">setComponent&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">player&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;Name&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;jane&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// add Name component
 &lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">world&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">setComponent&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">player&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;Location&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Location&lt;/span>&lt;span class="p">{});&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// add Location component
 &lt;/span>&lt;span class="c1">&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">try&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">world&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">setComponent&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">player&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;Name&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;joe&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">// update Name component
-&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>A copy of the full code at this point &lt;a href="https://gist.github.com/slimsag/7c3d36a8324dd733fb0377b087ed057c">is available here&lt;/a> and you can run it using &lt;code>zig test ecs.zig&lt;/code> as before.&lt;/p>
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>A copy of the full code at this point &lt;a href="https://gist.github.com/emidoots/7c3d36a8324dd733fb0377b087ed057c">is available here&lt;/a> and you can run it using &lt;code>zig test ecs.zig&lt;/code> as before.&lt;/p>
 &lt;h2 id="getting-component-values">Getting component values&lt;/h2>
 &lt;p>Getting component values is pretty simple:&lt;/p>
 &lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-zig" data-lang="zig">&lt;span class="w"> &lt;/span>&lt;span class="kr">pub&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kr">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Entities&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">struct&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
@@ -1899,7 +1877,7 @@ Maybe even a game server has made this decision, or a scripting language. We did
 &lt;h2 id="removing-components-entities">Removing components, entities&lt;/h2>
 &lt;p>Removing components is similar to adding them (because the entity needs to move between ArchetypeStorage tables.) Removing entities is similar as well. The code is lengthy, and nearly identical, so we won&amp;rsquo;t cover it here.&lt;/p>
 &lt;h2 id="conclusions">Conclusions&lt;/h2>
-&lt;p>By this point you have a relatively solid archetypal ECS. The full source code for this article &lt;a href="https://gist.github.com/slimsag/aecbf725896d2947459ba915fc9103a7">is available here&lt;/a>.&lt;/p>
+&lt;p>By this point you have a relatively solid archetypal ECS. The full source code for this article &lt;a href="https://gist.github.com/emidoots/aecbf725896d2947459ba915fc9103a7">is available here&lt;/a>.&lt;/p>
 &lt;p>Notably, it is lacking the following which we&amp;rsquo;ll cover in part 3:&lt;/p>
 &lt;ul>
 &lt;li>&lt;strong>Querying&lt;/strong> of actual entites, iterators over components for a single entity, etc.&lt;/li>
@@ -1909,7 +1887,7 @@ Maybe even a game server has made this decision, or a scripting language. We did
 &lt;p>&lt;a href="https://github.com/hexops/mach/tree/main/ecs">&lt;code>mach/ecs&lt;/code> is available on GitHub&lt;/a>, slightly ahead of this series and changing rapidly. Once it becomes stable, it will also be available as a standalone Zig library anyone can use in their own engine/game.&lt;/p>
 &lt;p>Follow &lt;a href="https://twitter.com/machengine">@machengine&lt;/a> on Twitter for updates, and join &lt;a href="https://matrix.to/#/#ecs:matrix.org">our Matrix chat room&lt;/a> for ECS discussion &amp;amp; to help us reach Mach 1.0.&lt;/p>
 &lt;h2 id="support-my-work">Support my work&lt;/h2>
-&lt;p>If you like my work on &lt;a href="https://machengine.org">Mach engine&lt;/a>, &lt;a href="https://zigmonthly.org">zigmonthly.org&lt;/a>, etc. you can &lt;a href="https://github.com/sponsors/slimsag">sponsor me on GitHub&lt;/a>.&lt;/p></description></item><item><title>Mach v0.1 - cross-platform Zig graphics in ~60 seconds</title><link>https://devlog.hexops.com/2022/mach-v0.1-zig-graphics-in-60s/</link><pubDate>Sat, 26 Mar 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/mach-v0.1-zig-graphics-in-60s/</guid><description>&lt;p>Five months ago we announced some of our vision for Mach &amp;amp; &lt;a href="https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig">the future of graphics with Zig&lt;/a>. Today we&amp;rsquo;ve reached Mach v0.1 with over 1,100 commits.&lt;/p>
+&lt;p>If you like my work on &lt;a href="https://machengine.org">Mach engine&lt;/a>, &lt;a href="https://zigmonthly.org">zigmonthly.org&lt;/a>, etc. you can &lt;a href="https://github.com/sponsors/emidoots">sponsor me on GitHub&lt;/a>.&lt;/p></description></item><item><title>Mach v0.1 - cross-platform Zig graphics in ~60 seconds</title><link>https://devlog.hexops.com/2022/mach-v0.1-zig-graphics-in-60s/</link><pubDate>Sat, 26 Mar 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/mach-v0.1-zig-graphics-in-60s/</guid><description>&lt;p>Five months ago we announced some of our vision for Mach &amp;amp; &lt;a href="https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig">the future of graphics with Zig&lt;/a>. Today we&amp;rsquo;ve reached Mach v0.1 with over 1,100 commits.&lt;/p>
 &lt;h2 id="cross-platform-graphics-in-60-seconds">Cross-platform graphics in 60 seconds&lt;/h2>
 &lt;p>If you have &lt;a href="https://ziglang.org/">Zig v0.10&lt;/a> you can get started with cross-platform graphics in under 60 seconds, try it for yourself:&lt;/p>
 &lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">git clone https://github.com/hexops/mach
@@ -1984,8 +1962,8 @@ $ zig build -Dtarget&lt;span class="o">=&lt;/span>aarch64-macos.12
 &lt;p>There&amp;rsquo;s a ton of material out there about WebGPU already, check out &lt;a href="https://surma.dev/things/webgpu/">this excellent and comprehensive introductory article&lt;/a> and &lt;a href="https://github.com/austinEng/webgpu-samples">these awesome samples&lt;/a>. It should be easy to map any of these to the Mach &lt;code>gpu.Interface&lt;/code> since it&amp;rsquo;s the same API, just Ziggified!&lt;/p>
 &lt;p>Join our &lt;a href="https://matrix.to/#/#hexops:matrix.org">Matrix chat room&lt;/a> to get help, discuss, etc.&lt;/p>
 &lt;h2 id="a-personal-note">A personal note&lt;/h2>
-&lt;p>&lt;img class="color" style="float: left; margin-right: 2rem;" src="https://user-images.githubusercontent.com/3173176/160262520-6768c665-7127-4242-b77a-fd2340ed88cf.png"> No, it&amp;rsquo;s not Tom from myspace - it&amp;rsquo;s me, &lt;a href="https://twitter.com/slimsag">@slimsag&lt;/a>! It&amp;rsquo;s cool that we reached this milestone, but let&amp;rsquo;s be honest: it&amp;rsquo;s still just a dumb red triangle!&lt;/p>
-&lt;p>It&amp;rsquo;s taken &lt;em>9 brutal months to get here&lt;/em> - staring at broken CI pipelines, C++ compiler errors, &lt;a href="https://twitter.com/slimsag/status/1507506138144681986">buying hardware&lt;/a> to test every OS+arch possible - and slugging through the depths of hell &lt;a href="https://twitter.com/slimsag/status/1471986125296205825">where only a footnote from Raymond Chen himself will save you.&lt;/a> All to get to a point where it all &lt;em>just works the way you and I expect it to.&lt;/em>&lt;/p>
+&lt;p>&lt;img class="color" style="float: left; margin-right: 2rem;" src="https://user-images.githubusercontent.com/3173176/160262520-6768c665-7127-4242-b77a-fd2340ed88cf.png"> No, it&amp;rsquo;s not Tom from myspace - it&amp;rsquo;s me, &lt;a href="https://twitter.com/emidoots">@emidoots&lt;/a>! It&amp;rsquo;s cool that we reached this milestone, but let&amp;rsquo;s be honest: it&amp;rsquo;s still just a dumb red triangle!&lt;/p>
+&lt;p>It&amp;rsquo;s taken &lt;em>9 brutal months to get here&lt;/em> - staring at broken CI pipelines, C++ compiler errors, &lt;a href="https://twitter.com/emidoots/status/1507506138144681986">buying hardware&lt;/a> to test every OS+arch possible - and slugging through the depths of hell &lt;a href="https://twitter.com/emidoots/status/1471986125296205825">where only a footnote from Raymond Chen himself will save you.&lt;/a> All to get to a point where it all &lt;em>just works the way you and I expect it to.&lt;/em>&lt;/p>
 &lt;p>Given the chance, I&amp;rsquo;d scream from a rooftop &amp;ldquo;f***ing finally! Now we build the cool part!&amp;rdquo; because I am so &lt;em>ecstatic&lt;/em> to have gotten to this point!&lt;/p>
 &lt;p>There are few things in life that I am &lt;em>more serious about&lt;/em> than this. I dedicate ~48 hours/week to my dayjob, and ~50h/week to Zig building Mach and running &lt;a href="https://zigmonthly.org">zigmonthly.org&lt;/a>. After three years of aggressively pushing for progress in this exact way, I have &lt;a href="https://devlog.hexops.com/2021/I-write-code-100-hours-a-week">no plans to slow down anytime soon&lt;/a>.&lt;/p>
 &lt;p>This is &lt;em>literally&lt;/em> just the beginning. Buckle up!&lt;/p>
@@ -1994,7 +1972,7 @@ $ zig build -Dtarget&lt;span class="o">=&lt;/span>aarch64-macos.12
 &lt;p>My lightning talk in which I&amp;rsquo;ll be making the case for Mach engine and conveying the vision for where we go from here will be presented at the first-ever European &lt;a href="https://zig.news/kristoff/zig-milan-party-2022-final-info-schedule-1jc1">Zig meetup in Milan, Italy on Apr 9-10&lt;/a>.&lt;/p>
 &lt;p>If like me you are unable to attend in person, the short video will be available afterwards on the &lt;a href="https://twitter.com/machengine">@machengine&lt;/a> Twitter!&lt;/p>
 &lt;h2 id="help-us-reach-mach-v10">Help us reach Mach v1.0&lt;/h2>
-&lt;p>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring me on GitHub&lt;/a> if you like my work, so I can do more of it!&lt;/p>
+&lt;p>Consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring me on GitHub&lt;/a> if you like my work, so I can do more of it!&lt;/p>
 &lt;p>Join our &lt;a href="https://matrix.to/#/#hexops:matrix.org">Matrix chat room&lt;/a> to discuss ideas - collaboration very welcome!&lt;/p>
 &lt;p>Thanks for coming along in our journey!&lt;/p></description></item><item><title>Zig hashmaps explained</title><link>https://devlog.hexops.com/2022/zig-hashmaps-explained/</link><pubDate>Sat, 29 Jan 2022 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2022/zig-hashmaps-explained/</guid><description>&lt;p>If you just got started with &lt;a href="https://ziglang.org">Zig&lt;/a>, you might quickly want to use a hashmap. Zig provides good defaults, with a lot of customization options.&lt;/p>
 &lt;p>Here I will try to guide you into choosing the right hashmap type.&lt;/p>
@@ -2348,7 +2326,7 @@ team: Team,
 &lt;h2 id="next-up-starting-our-ecs-implementation">Next up: starting our ECS implementation&lt;/h2>
 &lt;p>As this series develops, all the code is being developed in the Mach repository&amp;rsquo;s &lt;code>ecs&lt;/code> subfolder &lt;a href="https://github.com/hexops/mach/tree/main/libs/ecs">on GitHub&lt;/a>. The articles will lag slightly behind.&lt;/p>
 &lt;p>&lt;a href="https://devlog.hexops.com/categories/build-an-ecs">As more articles come out, you can find them here&lt;/a>. Join us in developing it, give us advice, etc. &lt;a href="https://matrix.to/#/#ecs:matrix.org">on Matrix chat&lt;/a> or &lt;a href="https://twitter.com/machengine">follow updates on Twitter&lt;/a>.&lt;/p>
-&lt;p>If you like what I&amp;rsquo;m doing, you can &lt;a href="https://github.com/sponsors/slimsag">sponsor me on GitHub&lt;/a>.&lt;/p></description></item><item><title>Perfecting GLFW for Zig, and finding lurking undefined behavior that went unnoticed for 6+ years</title><link>https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior/</link><pubDate>Sun, 31 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior/</guid><description>&lt;p>&lt;strong>Today, I am announcing &lt;a href="https://github.com/hexops/mach-glfw">mach-glfw&lt;/a>: Ziggified GLFW bindings with 100% API coverage, zero-fuss installation, cross compilation, and more.&lt;/strong>&lt;/p>
+&lt;p>If you like what I&amp;rsquo;m doing, you can &lt;a href="https://github.com/sponsors/emidoots">sponsor me on GitHub&lt;/a>.&lt;/p></description></item><item><title>Perfecting GLFW for Zig, and finding lurking undefined behavior that went unnoticed for 6+ years</title><link>https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior/</link><pubDate>Sun, 31 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/perfecting-glfw-for-zig-and-finding-undefined-behavior/</guid><description>&lt;p>&lt;strong>Today, I am announcing &lt;a href="https://github.com/hexops/mach-glfw">mach-glfw&lt;/a>: Ziggified GLFW bindings with 100% API coverage, zero-fuss installation, cross compilation, and more.&lt;/strong>&lt;/p>
 &lt;h2 id="building-mach-for-everyone">Building Mach for everyone&lt;/h2>
 &lt;p>If &lt;a href="https://github.com/hexops/mach">Mach engine&lt;/a> only benefits people interested in using that engine, and not the broader Zig (and even gamedev) community I would consider that &lt;em>a total failure&lt;/em>.&lt;/p>
 &lt;p>Whether you&amp;rsquo;re interested in using all of Mach, just some of it with your own engine / project, or just the tools/ideas we develop in the future (with Unity, Unreal, etc.), &lt;em>I truly aim to produce something that benefits you&lt;/em>.&lt;/p>
@@ -2505,7 +2483,7 @@ Process 6516 stopped
 &lt;p>Only because Zig has good defaults, because it places so much emphasis on things being right &lt;em>out of the box&lt;/em>, and because there is such an emphasis on having safety checks for undefined behavior - were we able to catch this undefined behavior that went unnoticed in GLFW for the last 6 years.&lt;/p>
 &lt;h2 id="thanks-for-reading">Thanks for reading&lt;/h2>
 &lt;p>All key Mach engine developments will be posted here, with incremental updates on Twitter &lt;a href="https://twitter.com/machengine">@machengine&lt;/a>.&lt;/p>
-&lt;p>Follow &lt;a href="https://github.com/hexops/mach">Mach engine on GitHub&lt;/a>, and if you like what I&amp;rsquo;m doing please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a>.&lt;/p></description></item><item><title>Mach Engine: The future of graphics (with Zig)</title><link>https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig/</link><pubDate>Sun, 17 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig/</guid><description>&lt;p>In the coming months, we&amp;rsquo;ll begin to have truly cross-platform low-level graphics, with the ability to cross compile GPU-accelerated applications written in Zig from any OS and deploy to desktop, mobile, and (in the future) web.&lt;/p>
+&lt;p>Follow &lt;a href="https://github.com/hexops/mach">Mach engine on GitHub&lt;/a>, and if you like what I&amp;rsquo;m doing please consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring my work&lt;/a>.&lt;/p></description></item><item><title>Mach Engine: The future of graphics (with Zig)</title><link>https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig/</link><pubDate>Sun, 17 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/mach-engine-the-future-of-graphics-with-zig/</guid><description>&lt;p>In the coming months, we&amp;rsquo;ll begin to have truly cross-platform low-level graphics, with the ability to cross compile GPU-accelerated applications written in Zig from any OS and deploy to desktop, mobile, and (in the future) web.&lt;/p>
 &lt;h2 id="mach-engine">Mach engine&lt;/h2>
 &lt;img class="color-auto" alt="Mach: Game engine &amp; graphics toolkit for the future" src="https://user-images.githubusercontent.com/3173176/137651926-3734c3b2-4875-47de-b42f-0ece854756f7.png">
 &lt;p>I&amp;rsquo;ve been working on &lt;a href="https://github.com/hexops/mach">Mach Engine&lt;/a> for about 4 months now, although it as a project is many years in the making, and I believe in the next 4-6 months we&amp;rsquo;ll have completion of the first key milestone: truly cross platform graphics and seamless cross compilation.&lt;/p>
@@ -2599,13 +2577,13 @@ Process 6516 stopped
 &lt;h2 id="follow-along">Follow along&lt;/h2>
 &lt;p>Major developments will be posted here, as well as on Twitter &lt;a href="https://twitter.com/machengine">@machengine&lt;/a>.&lt;/p>
 &lt;p>You can also follow the project at &lt;a href="https://github.com/hexops/mach">github.com/hexops/mach&lt;/a>.&lt;/p>
-&lt;p>If you like what I&amp;rsquo;m doing, you can &lt;a href="https://github.com/sponsors/slimsag">sponsor me on GitHub&lt;/a>.&lt;/p>
+&lt;p>If you like what I&amp;rsquo;m doing, you can &lt;a href="https://github.com/sponsors/emidoots">sponsor me on GitHub&lt;/a>.&lt;/p>
 &lt;p>Thanks for reading!&lt;/p></description></item><item><title>I write code 100 hours/week, here's why I probably won't stop</title><link>https://devlog.hexops.com/2021/i-write-code-100-hours-a-week/</link><pubDate>Sat, 16 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/i-write-code-100-hours-a-week/</guid><description>&lt;p>I write code 100 hours/week. I&amp;rsquo;ve done so for the last 2 years and, excluding a life-altering event (illness?) I probably won&amp;rsquo;t stop.&lt;/p>
 &lt;h2 id="the-average-week">The average week&lt;/h2>
 &lt;p>I typically spend around:&lt;/p>
 &lt;ul>
 &lt;li>48h/week @ &lt;a href="https://sourcegraph.com">day job, Sourcegraph, building developer tools&lt;/a>&lt;/li>
-&lt;li>55h/week &lt;a href="https://github.com/slimsag">coding in Zig&lt;/a>&lt;/li>
+&lt;li>55h/week &lt;a href="https://github.com/emidoots">coding in Zig&lt;/a>&lt;/li>
 &lt;li>7h/day sleeping&lt;/li>
 &lt;li>9h/week caring for self, chores, etc.&lt;/li>
 &lt;li>5h/week games or chatting with friends&lt;/li>
@@ -2624,7 +2602,7 @@ Process 6516 stopped
 &lt;p>I&amp;rsquo;ve been doing it for 2 years now with no issues - if anything, I&amp;rsquo;m more inclined to continue doing it. I like it.&lt;/p>
 &lt;p>When I started doing this two years ago, age 25, it was a shift from &amp;ldquo;I work and spend my free time goofing off&amp;rdquo; to &amp;ldquo;I work and spend my free time focusing on what I want to achieve in life&amp;rdquo;.&lt;/p>
 &lt;p>It wasn&amp;rsquo;t until 1.5 years later that I actually felt comfortable even talking about this publicly or to co-workers. It sounds ridiculous, and what if e.g. I have a bad week at work or something? If I was a manager, I&amp;rsquo;d certainly wonder if it was due to my report doing this (happy to report no issues!)&lt;/p>
-&lt;p>I&amp;rsquo;ve been &lt;a href="http://slimsag.com/">coding for nearly 10 years professionally&lt;/a>, turning 28 soon. The older I get, the more I seem to enjoy this. It was never an instantaneous shift, but rather a gradual one:&lt;/p>
+&lt;p>I&amp;rsquo;ve been &lt;a href="http://emidoots.com/">coding for nearly 10 years professionally&lt;/a>, turning 28 soon. The older I get, the more I seem to enjoy this. It was never an instantaneous shift, but rather a gradual one:&lt;/p>
 &lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137580436-e79a7b21-8aca-4b66-9895-808b8ffa2d38.png">&lt;img alt="How my coding has increased to an insane amount over time" class="color" src="https://user-images.githubusercontent.com/3173176/137580436-e79a7b21-8aca-4b66-9895-808b8ffa2d38.png">&lt;/a>&lt;/p>
 &lt;p>I&amp;rsquo;ve worked at &lt;a href="https://sourcegraph.com">the same startup&lt;/a> for the past ~7 years - and I&amp;rsquo;ve certainly experienced early-stage startup lifestyle - with all the crunch that comes with that.&lt;/p>
 &lt;p>So it&amp;rsquo;s not like I&amp;rsquo;ve just never experienced conditions that &lt;em>should lead to burnout before&lt;/em>-it&amp;rsquo;s just that &lt;em>I&amp;rsquo;m not sure I truly understand what people mean when they say burnout&lt;/em>. I think it might often be used to express a feeling of &amp;ldquo;I&amp;rsquo;m no longer interested in the work I do at my tech job, but I like the benefits and I&amp;rsquo;m paid stupid amounts of money - so saying that feels weird! What do I do?&amp;rdquo; - and I just haven&amp;rsquo;t been in that situation before.&lt;/p>
@@ -2666,10 +2644,10 @@ Process 6516 stopped
 &lt;p>I know this lifestyle isn&amp;rsquo;t for everyone. It&amp;rsquo;s not for you.&lt;/p>
 &lt;p>And I don&amp;rsquo;t think it makes me &amp;ldquo;exceptional&amp;rdquo; (in a better-than-you way). I&amp;rsquo;m just a people, struggling with a very different lifestyle than you.&lt;/p>
 &lt;p>I feel strongly you should never feel &lt;em>compelled&lt;/em> or &lt;em>required&lt;/em> to do what I am doing. Any company, manager, or person asking you to do so is &lt;em>horrible&lt;/em> and you should get out quick. I don&amp;rsquo;t want to contribute to that culture or feed it.&lt;/p>
-&lt;p>But-I love what I&amp;rsquo;m doing. I love the amount of progress I&amp;rsquo;m able to achieve every day. I love my time spent solving problems. I love &lt;a href="http://slimsag.com">what I&amp;rsquo;ve achieved so far&lt;/a>. I want to go further than ever before - I&amp;rsquo;ve been marathon coding for as long as I can remember, and I&amp;rsquo;m not going to stop. I &lt;em>need&lt;/em> to see how far I can go.&lt;/p>
+&lt;p>But-I love what I&amp;rsquo;m doing. I love the amount of progress I&amp;rsquo;m able to achieve every day. I love my time spent solving problems. I love &lt;a href="http://emidoots.com">what I&amp;rsquo;ve achieved so far&lt;/a>. I want to go further than ever before - I&amp;rsquo;ve been marathon coding for as long as I can remember, and I&amp;rsquo;m not going to stop. I &lt;em>need&lt;/em> to see how far I can go.&lt;/p>
 &lt;p>I love the choices I&amp;rsquo;ve made in life. I hope you love yours too.&lt;/p>
 &lt;h2 id="thanks-for-reading">Thanks for reading&lt;/h2>
-&lt;p>Please send your hate to &lt;a href="https://twitter.com/slimsag">@slimsag&lt;/a> on Twitter or to the comments section wherever this ends up, I&amp;rsquo;ll see you there! 😉&lt;/p>
+&lt;p>Please send your hate to &lt;a href="https://twitter.com/emidoots">@emidoots&lt;/a> on Twitter or to the comments section wherever this ends up, I&amp;rsquo;ll see you there! 😉&lt;/p>
 &lt;p>If you liked this, you might also like:&lt;/p>
 &lt;ul>
 &lt;li>&lt;a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month">My game development journey &amp;amp; why I&amp;rsquo;m increasing my contribution to Zig to $200/mo&lt;/a>&lt;/li>
@@ -2706,7 +2684,7 @@ Process 6516 stopped
 &lt;p>I don&amp;rsquo;t personally have any prior experience working with the lower level details of Unicode, or compression algorithms for that matter.&lt;/p>
 &lt;h2 id="problem">Problem&lt;/h2>
 &lt;p>As I stumbled into the wondrous world that is Unicode text sorting (see also my article: &lt;a href="https://devlog.hexops.com/2021/unicode-sorting-why-browsers-added-special-emoji-matching">Unicode sorting is hard &amp;amp; why browsers added special emoji matching to regexp&lt;/a>) and began using Ziglyph, I came across an issue: the standard Unicode collation algorithm, which Ziglyph implements, depends on some large Unicode data tables for normalization and sort keys - even gzipped these were fairly large:&lt;/p>
-&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">hexops-mac:zorex slimsag$ du -sh asset/*
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">hexops-mac:zorex emidoots$ du -sh asset/*
 308K asset/uca-allkeys.txt.gz
 260K asset/ucd-UnicodeData.txt.gz
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>These file sizes may seem small, but one of my goals is to make Zorex a real competitor to e.g. a browser&amp;rsquo;s native regexp engine. That&amp;rsquo;s challenging because WebAssembly bundle sizes matter &lt;em>a lot&lt;/em> in that context, and using the browser&amp;rsquo;s regexp implementation is virtually free.&lt;/p>
@@ -3293,7 +3271,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;p>If Go isn&amp;rsquo;t it, Rust isn&amp;rsquo;t it, the V language isn&amp;rsquo;t it - could I build it? Could I create the &amp;ldquo;better C&amp;rdquo; I am looking for? What would it look like?&lt;/p>
 &lt;/blockquote>
 &lt;p>4 months later, I had a pretty good picture. I had an early stages compiler for the language in Go using LLVM, and knew what I wanted in a &amp;ldquo;better C&amp;rdquo;. There was a &lt;em>long&lt;/em> road ahead, but I had a picture of it. Until..&lt;/p>
-&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">*cat spills coffee on $2800 laptop, frying SSD with ~4 months of uncommitted work on EBNF parser generators* yeah.. no, that’s.. that’s okay, I wanted to rewrite all of that code. Yeah. This is fine.&lt;/p>&amp;mdash; Stephen Gutekanst (@slimsag) &lt;a href="https://twitter.com/slimsag/status/1265452387453431808?ref_src=twsrc%5Etfw">May 27, 2020&lt;/a>&lt;/blockquote> &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">*cat spills coffee on $2800 laptop, frying SSD with ~4 months of uncommitted work on EBNF parser generators* yeah.. no, that’s.. that’s okay, I wanted to rewrite all of that code. Yeah. This is fine.&lt;/p>&amp;mdash; Emi Stein (@emidoots) &lt;a href="https://twitter.com/emidoots/status/1265452387453431808?ref_src=twsrc%5Etfw">May 27, 2020&lt;/a>&lt;/blockquote> &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
 &lt;p>Obviously, I was an idiot and should&amp;rsquo;ve just &lt;code>git push&lt;/code>d my code - or backed up my laptop - but nonetheless this was a setback.&lt;/p>
 &lt;h2 id="discovering-zig">Discovering Zig&lt;/h2>
 &lt;p>I continued to look for this mythical &amp;ldquo;better C&amp;rdquo; - and one name that kept arising in my sphere was &lt;a href="https://ziglang.org">Zig&lt;/a>.&lt;/p>
@@ -3311,7 +3289,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;li>I continuously saw a theme of &amp;ldquo;this is a decentralized community, there is no &amp;lsquo;official&amp;rsquo; thing we&amp;rsquo;ll ever push onto you, we want everyone to contribute and &lt;em>truly be a part of this&lt;/em>&amp;rdquo;&lt;/li>
 &lt;/ul>
 &lt;p>Zig became the first open-source project I had &lt;em>ever&lt;/em> contributed to financially.&lt;/p>
-&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">And if none of the above convinces you, let me tell you the following: &lt;a href="https://twitter.com/ziglang?ref_src=twsrc%5Etfw">@ziglang&lt;/a> is the first language I have felt strongly I should try and contribute to, and the ONLY open source project I have ever donated to. No other has been so compelling&lt;/p>&amp;mdash; Stephen Gutekanst (@slimsag) &lt;a href="https://twitter.com/slimsag/status/1319546299520200704?ref_src=twsrc%5Etfw">October 23, 2020&lt;/a>&lt;/blockquote> &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;blockquote class="twitter-tweet">&lt;p lang="en" dir="ltr">And if none of the above convinces you, let me tell you the following: &lt;a href="https://twitter.com/ziglang?ref_src=twsrc%5Etfw">@ziglang&lt;/a> is the first language I have felt strongly I should try and contribute to, and the ONLY open source project I have ever donated to. No other has been so compelling&lt;/p>&amp;mdash; Emi Stein (@emidoots) &lt;a href="https://twitter.com/emidoots/status/1319546299520200704?ref_src=twsrc%5Etfw">October 23, 2020&lt;/a>&lt;/blockquote> &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
 &lt;h3 id="working-in-it">Working in it&lt;/h3>
 &lt;p>Thus far, I&amp;rsquo;ve worked on two things in Zig:&lt;/p>
 &lt;ul>
@@ -3603,7 +3581,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;li>The &lt;code>want&lt;/code> string we &lt;em>got&lt;/em> inside of our &lt;code>init&lt;/code> method is agreed to only be valid while &lt;code>parse&lt;/code> will still be called. We&amp;rsquo;ve decided to create a contract that all of our &lt;code>Parser&lt;/code> implementations will either not hold onto memory given by others - or if they do, only do so until &lt;code>parse&lt;/code> returns. Hence, we need to allocate a new string in our method.&lt;/li>
 &lt;li>Normally we could rely solely on &lt;code>defer&lt;/code> (&amp;ldquo;run at end of function&amp;rdquo;) or &lt;code>errdefer&lt;/code> (&amp;ldquo;run if an error is returned&amp;rdquo;), but since we&amp;rsquo;ve chosen to reserve the &lt;em>none optional&lt;/em> &lt;code>null&lt;/code> as &amp;ldquo;we didn&amp;rsquo;t parse anything&amp;rdquo; we need to manually free if we &lt;code>return null;&lt;/code>. A &lt;code>nulldefer&lt;/code> and &lt;code>somedefer&lt;/code> could be nice, maybe?&lt;/li>
 &lt;/ul>
-&lt;p>Putting it all together, you&amp;rsquo;ll get something like this: &lt;a href="https://gist.github.com/slimsag/8f098a13177b4bc008a7741505819f90">GitHub gist&lt;/a>.&lt;/p>
+&lt;p>Putting it all together, you&amp;rsquo;ll get something like this: &lt;a href="https://gist.github.com/emidoots/8f098a13177b4bc008a7741505819f90">GitHub gist&lt;/a>.&lt;/p>
 &lt;h2 id="our-first-_parser-combinator_">Our first &lt;em>parser combinator&lt;/em>&lt;/h2>
 &lt;p>To demonstrate how a &lt;em>parser combinator&lt;/em> would be implemented, we&amp;rsquo;ll try implementing the &lt;code>OneOf&lt;/code> operator. It will take any number of &lt;em>parsers&lt;/em> as input and run them consecutively until one succeeds or none do.&lt;/p>
 &lt;p>Let&amp;rsquo;s first start by writing out the basic structure of our function:&lt;/p>
@@ -3717,7 +3695,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;/ul>
 &lt;h2 id="closing-thoughts">Closing thoughts&lt;/h2>
 &lt;p>I am sorry for not giving you a full (or even partial) regex engine :) I am still exploring this and it is a large undertaking, this blog post would be far too long if it was included.&lt;/p>
-&lt;p>You can find a copy of the final code with &lt;em>parsers&lt;/em> and &lt;em>parser combinators&lt;/em> &lt;a href="https://gist.github.com/slimsag/db2dd2c49aa038e23b654120e70c9b00">here&lt;/a>. Just &lt;code>zig init-exe&lt;/code> and plop them into your &lt;code>src/&lt;/code> directory.&lt;/p>
+&lt;p>You can find a copy of the final code with &lt;em>parsers&lt;/em> and &lt;em>parser combinators&lt;/em> &lt;a href="https://gist.github.com/emidoots/db2dd2c49aa038e23b654120e70c9b00">here&lt;/a>. Just &lt;code>zig init-exe&lt;/code> and plop them into your &lt;code>src/&lt;/code> directory.&lt;/p>
 &lt;p>You may also want to check out &lt;a href="https://github.com/Hejsil/mecha">Mecha&lt;/a>, a parser combinator library for Zig.&lt;/p>
 &lt;p>If anything was unclear or confusing, I&amp;rsquo;m happy to help: shoot me an email &lt;a href="mailto:stephen@hexops.com">stephen@hexops.com&lt;/a> or leave a comment on Hacker News / Reddit and I&amp;rsquo;ll follow up.&lt;/p></description></item><item><title>Postgres regex search over 10,000 GitHub repositories (using only a Macbook)</title><link>https://devlog.hexops.com/2021/postgres-regex-search-over-10000-github-repositories/</link><pubDate>Wed, 17 Feb 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/postgres-regex-search-over-10000-github-repositories/</guid><description>&lt;p>In this article, we share empirical measurements from our experiments in using Postgres to index and search over 10,000 top GitHub repositories using &lt;code>pg_trgm&lt;/code> on only a Macbook.&lt;/p>
 &lt;p>This is a follow up to &lt;a href="https://devlog.hexops.com/2021/postgres-trigram-search-learnings">&amp;ldquo;Postgres Trigram search learnings&amp;rdquo;&lt;/a>, in which we shared several learnings and beliefs about trying to use Postgres Trigram indexes as an alterative to Google&amp;rsquo;s &lt;a href="https://github.com/google/zoekt">Zoekt&lt;/a> (&amp;ldquo;Fast trigram based code search&amp;rdquo;).&lt;/p>

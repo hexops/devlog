@@ -125,7 +125,7 @@ zig build run-deferred-rendering
 &lt;h2 id="browser-support-in-development">Browser support: in development&lt;/h2>
 &lt;p>Chrome has already shipped WebGPU, and others will follow soon. Mach support for WebAssembly is not yet ready, but is coming along nicely:&lt;/p>
 &lt;ul>
-&lt;li>Input, audio, etc. is working already (&lt;a href="https://slimsag.com/mach/piano/">piano demo&lt;/a>, click in the frame and type with your A-Z keys.)&lt;/li>
+&lt;li>Input, audio, etc. is working already (&lt;a href="https://emidoots.com/mach/piano/">piano demo&lt;/a>, click in the frame and type with your A-Z keys.)&lt;/li>
 &lt;li>&lt;code>mach build&lt;/code> is a new CLI command written in Zig which:
 &lt;ul>
 &lt;li>Starts an HTTP development server&lt;/li>
@@ -171,13 +171,13 @@ zig build run-deferred-rendering
 &lt;/div>
 &lt;h2 id="a-personal-note">A personal note&lt;/h2>
 &lt;div style="display: flex;">
-&lt;a href="https://github.com/slimsag">
-&lt;img style="width: 420px" src="https://machengine.org/img/slimsag-profile.png">
+&lt;a href="https://github.com/emidoots">
+&lt;img style="width: 420px" src="https://machengine.org/img/emidoots-profile.png">
 &lt;/a>
 &lt;div>
 &lt;p>I work a normal tech job, and every day after I sign off from work I go online to build Mach, almost like working two jobs. I've been working on Mach double-time like this for over two years now, and dreaming of it for a decade before that.&lt;/p>
 &lt;p>FOSS &lt;a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month#i-grew-up-playing-linux-games-like-mania-drive">is in my roots&lt;/a> and I believe we should own our tools, they should empower &lt;em>us&lt;/em>-not be part of &lt;a href="https://kristoff.it/blog/the-open-source-game/">the 'open source' game&lt;/a> which is all too prevelant today (even among 'open source' engines.) Mach &lt;em>needs&lt;/em> to be for people like you and me-it needs to genuinely be &lt;a href="https://softwareyoucan.love">software you can love&lt;/a>.&lt;/p>
-&lt;p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a> if you believe in my vision.&lt;/p>
+&lt;p>My dream is one day to live a simple, modest, future earning a living building Mach for you and creating high-quality games for everyone. Please consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring my work&lt;/a> if you believe in my vision.&lt;/p>
 &lt;/div>
 &lt;/div>
 &lt;h2 id="thanks">Thanks&lt;/h2>
@@ -187,7 +187,7 @@ zig build run-deferred-rendering
 &lt;ul>
 &lt;li>Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord server&lt;/a>&lt;/li>
 &lt;li>Checkout &lt;a href="https://machengine.org">machengine.org&lt;/a>&lt;/li>
-&lt;li>Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
+&lt;li>Consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring development&lt;/a> so we can do more of it!&lt;/li>
 &lt;/ul>
 &lt;/div></description></item><item><title>Mach: providing an ecosystem of C libraries using the Zig package manager</title><link>https://devlog.hexops.com/2023/mach-ecosystem-c-libraries/</link><pubDate>Wed, 14 Jun 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/mach-ecosystem-c-libraries/</guid><description>&lt;p>&lt;a href="https://github.com/andrewrk">Andrew Kelley&lt;/a> gave a keynote speech at &lt;a href="https://softwareyoucanlove.ca">Software You Can Love 2023&lt;/a> in Vancouver last week (a recording will be available later), the outline was:&lt;/p>
 &lt;blockquote>
@@ -297,7 +297,7 @@ zig build run-textured-cube
 &lt;p>We&amp;rsquo;re working towards Mach v0.2, this article was one of the first steps in beginning to share the progress we&amp;rsquo;ve been making towards that behind the scenes over the past several months. We have some exciting things to share next, this was the &amp;lsquo;boring&amp;rsquo; article that had to go first. :)&lt;/p>
 &lt;p>&lt;img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
 &lt;br>&lt;br>
-Consider &lt;a href="https://github.com/sponsors/slimsag">sponsoring my work&lt;/a> to help us become a sustainable OSS project and enable us to do more in the future.
+Consider &lt;a href="https://github.com/sponsors/emidoots">sponsoring my work&lt;/a> to help us become a sustainable OSS project and enable us to do more in the future.
 &lt;br>&lt;br>
 Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord&lt;/a> where we&amp;rsquo;re building the future of Zig game development in realtime!&lt;/p></description></item><item><title>Zig tips: v0.11 std.build API / package manager changes</title><link>https://devlog.hexops.com/2023/zig-0-11-breaking-build-changes/</link><pubDate>Mon, 13 Feb 2023 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2023/zig-0-11-breaking-build-changes/</guid><description>&lt;p>We&amp;rsquo;ve just updated &lt;a href="https://machengine.org/">Mach engine&lt;/a> to use the latest Zig nightly version, which includes a fair amount of improvements and breaking changes to the &lt;code>std.build&lt;/code> API used in &lt;code>build.zig&lt;/code> files, and figured now would be a good time to share the general changes you may need to make if you want to update your own code.&lt;/p>
 &lt;h2 id="package-manager-incoming">Package manager: incoming!&lt;/h2>
@@ -407,4 +407,4 @@ Join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach Discord&lt;/a> where we
 &lt;p>&lt;img align="left" style="max-height: 150px;" src="https://user-images.githubusercontent.com/3173176/187348488-0b52e87d-3a48-421c-9402-be78e32b5a20.png">&lt;/img>
 Be sure to join the &lt;a href="https://discord.gg/XNG3NZgCqp">Mach engine Discord&lt;/a> where we&amp;rsquo;re building the future of Zig game development.
 &lt;br>&lt;br>
-You can also &lt;a href="https://github.com/sponsors/slimsag">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p></description></item></channel></rss>
+You can also &lt;a href="https://github.com/sponsors/emidoots">sponsor my work&lt;/a> if you like what I&amp;rsquo;m doing! :)&lt;/p></description></item></channel></rss>
