@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Zig, Parser Combinators - and Why They're Awesome"
 date: "2021-03-10"
 draft: false

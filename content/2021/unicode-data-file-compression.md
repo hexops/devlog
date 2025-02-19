@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Unicode data file compression: achieving 40-70% reduction over gzip alone"
 date: "2021-07-03"
 draft: false

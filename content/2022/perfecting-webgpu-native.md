@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Perfecting WebGPU/Dawn native graphics for Zig"
 date: "2022-09-11"
 draft: false

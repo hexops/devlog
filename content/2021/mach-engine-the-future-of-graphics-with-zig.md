@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Mach Engine: The future of graphics (with Zig)"
 date: "2021-10-17"
 draft: false

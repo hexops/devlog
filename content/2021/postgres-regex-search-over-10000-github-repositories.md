@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Postgres regex search over 10,000 GitHub repositories (using only a Macbook)"
 date: "2021-02-17"
 draft: false

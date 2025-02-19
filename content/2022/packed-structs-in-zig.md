@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Packed structs in Zig make bit/flag sets trivial"
 date: "2022-08-29"
 draft: false

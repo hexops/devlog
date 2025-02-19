@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Let's build an Entity Component System (part 2): databases"
 date: "2022-05-28"
 draft: false

@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Building the DirectX shader compiler better than Microsoft?"
 date: "2024-02-09"
 draft: false

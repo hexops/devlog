@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Mach v0.2 released - Zig game engine & graphics toolkit"
 date: "2023-08-12"
 draft: false

@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Unicode sorting is hard & why browsers added special emoji matching to regexp"
 date: "2021-06-27"
 draft: false

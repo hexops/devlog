@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Announcing Mach nominated Zig versions"
 date: "2024-01-07"
 draft: false

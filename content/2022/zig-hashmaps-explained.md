@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Zig hashmaps explained"
 date: "2022-01-29"
 draft: false

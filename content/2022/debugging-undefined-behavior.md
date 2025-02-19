@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Debugging undefined behavior caught by Zig"
 date: "2022-11-14"
 draft: false

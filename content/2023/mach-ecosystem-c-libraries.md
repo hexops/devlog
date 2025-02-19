@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Mach: providing an ecosystem of C libraries using the Zig package manager"
 date: "2023-06-14"
 draft: false

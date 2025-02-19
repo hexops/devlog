@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "I write code 100 hours/week, here's why I probably won't stop"
 slug: 'i-write-code-100-hours-a-week'
 date: "2021-10-16"

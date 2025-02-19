@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Perfecting GLFW for Zig, and finding lurking undefined behavior that went unnoticed for 6+ years"
 date: "2021-10-31"
 draft: false

@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Mach v0.1 - cross-platform Zig graphics in ~60 seconds"
 date: "2022-03-26"
 draft: false

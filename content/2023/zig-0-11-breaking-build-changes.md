@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "Zig tips: v0.11 std.build API / package manager changes"
 date: "2023-02-13"
 draft: false

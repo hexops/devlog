@@ -1,5 +1,5 @@
 ---
-author: "Emi Stein"
+author: "Emi"
 title: "CLAs are not for open source, use a Developer Certificate of Origin"
 date: "2021-07-01"
 draft: true
