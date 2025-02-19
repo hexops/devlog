@@ -191,7 +191,7 @@ It was around this time that I was basically deciding: _what would I do for a li
 
 Luckily, someone in the Go community (whom I'd never talked to before) reached out to me and asked "hey, what are you doing?" - I told them I was in school, and left out the part where I was a college student living with parents, scraping by, and likely going grocery-store-part-time-job seeking soon.
 
-<img class="color" src="https://user-images.githubusercontent.com/3173176/114268396-b1707680-99b5-11eb-9038-c0b8d919b44f.png">
+<img class="color" src="/img/2021/bill-thanks.jpg">
 
 I didn't come from a background that would lead me to believe I could make a living programming in Go, to the contrary my parents often warned me I couldn't and that I would need to go into Cisco network infrastructure instead.
 
@@ -330,7 +330,7 @@ I continued to look for this mythical "better C" - and one name that kept arisin
 
 I didn't pay much attention to it, until I shared it with my brother for the 3rd time:
 
-<img class="color" src="https://user-images.githubusercontent.com/3173176/114257988-6be18880-9978-11eb-98e9-68027361bc1c.png">
+<img class="color" src="/img/2021/ando-thanks.jpg">
 
 > "...I already shared this with you?"
 >
