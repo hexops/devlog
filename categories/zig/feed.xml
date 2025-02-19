@@ -3029,7 +3029,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;h2 id="joining-sourcegraph">Joining Sourcegraph&lt;/h2>
 &lt;p>It was around this time that I was basically deciding: &lt;em>what would I do for a living?&lt;/em>&lt;/p>
 &lt;p>Luckily, someone in the Go community (whom I&amp;rsquo;d never talked to before) reached out to me and asked &amp;ldquo;hey, what are you doing?&amp;rdquo; - I told them I was in school, and left out the part where I was a college student living with parents, scraping by, and likely going grocery-store-part-time-job seeking soon.&lt;/p>
-&lt;img class="color" src="https://user-images.githubusercontent.com/3173176/114268396-b1707680-99b5-11eb-9038-c0b8d919b44f.png">
+&lt;img class="color" src="https://devlog.hexops.com/img/2021/bill-thanks.jpg">
 &lt;p>I didn&amp;rsquo;t come from a background that would lead me to believe I could make a living programming in Go, to the contrary my parents often warned me I couldn&amp;rsquo;t and that I would need to go into Cisco network infrastructure instead.&lt;/p>
 &lt;p>I was told in blunt terms, I could scrape by doing what I love - or make a killing doing something I hate. My parents were mechanical engineers at aerospace companies (I&amp;rsquo;ll let you guess which path they took.)&lt;/p>
 &lt;p>Bill&amp;rsquo;s short ~20 minute conversation with me, quite literally changed my life in ways I couldn&amp;rsquo;t have imagined. I often think about where I would be today had he not reached out to me, and I never quite knew how to reach back out and say thank you in a way that was as meaningful to him as what he did was for me.&lt;/p>
@@ -3116,7 +3116,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;h2 id="discovering-zig">Discovering Zig&lt;/h2>
 &lt;p>I continued to look for this mythical &amp;ldquo;better C&amp;rdquo; - and one name that kept arising in my sphere was &lt;a href="https://ziglang.org">Zig&lt;/a>.&lt;/p>
 &lt;p>I didn&amp;rsquo;t pay much attention to it, until I shared it with my brother for the 3rd time:&lt;/p>
-&lt;img class="color" src="https://user-images.githubusercontent.com/3173176/114257988-6be18880-9978-11eb-98e9-68027361bc1c.png">
+&lt;img class="color" src="https://devlog.hexops.com/img/2021/ando-thanks.jpg">
 &lt;blockquote>
 &lt;p>&amp;ldquo;&amp;hellip;I already shared this with you?&amp;rdquo;&lt;/p>
 &lt;p>&amp;ldquo;I am really excited about this. It&amp;rsquo;s literally the language I was trying to build before I think&amp;rdquo;&lt;/p>

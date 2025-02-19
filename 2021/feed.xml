@@ -250,80 +250,7 @@ Process 6516 stopped
 &lt;p>Major developments will be posted here, as well as on Twitter &lt;a href="https://twitter.com/machengine">@machengine&lt;/a>.&lt;/p>
 &lt;p>You can also follow the project at &lt;a href="https://github.com/hexops/mach">github.com/hexops/mach&lt;/a>.&lt;/p>
 &lt;p>If you like what I&amp;rsquo;m doing, you can &lt;a href="https://github.com/sponsors/emidoots">sponsor me on GitHub&lt;/a>.&lt;/p>
-&lt;p>Thanks for reading!&lt;/p></description></item><item><title>I write code 100 hours/week, here's why I probably won't stop</title><link>https://devlog.hexops.com/2021/i-write-code-100-hours-a-week/</link><pubDate>Sat, 16 Oct 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/i-write-code-100-hours-a-week/</guid><description>&lt;p>I write code 100 hours/week. I&amp;rsquo;ve done so for the last 2 years and, excluding a life-altering event (illness?) I probably won&amp;rsquo;t stop.&lt;/p>
-&lt;h2 id="the-average-week">The average week&lt;/h2>
-&lt;p>I typically spend around:&lt;/p>
-&lt;ul>
-&lt;li>48h/week @ &lt;a href="https://sourcegraph.com">day job, Sourcegraph, building developer tools&lt;/a>&lt;/li>
-&lt;li>55h/week &lt;a href="https://github.com/emidoots">coding in Zig&lt;/a>&lt;/li>
-&lt;li>7h/day sleeping&lt;/li>
-&lt;li>9h/week caring for self, chores, etc.&lt;/li>
-&lt;li>5h/week games or chatting with friends&lt;/li>
-&lt;/ul>
-&lt;p>Sometimes coding drops to around 80h/week if I feel I need more sleep, time for something else, or if I&amp;rsquo;m just not feeling it.&lt;/p>
-&lt;h2 id="my-calendar">My calendar&lt;/h2>
-&lt;p>My days are pretty fluid, I don&amp;rsquo;t maintain a strict calendar - but an average week does pretty much look identical to the following. (click to expand)&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137576033-f7fa007c-db94-4b1c-9d9d-05440da118d7.png">&lt;img alt="my calendar" class="color" src="https://user-images.githubusercontent.com/3173176/137576033-f7fa007c-db94-4b1c-9d9d-05440da118d7.png">&lt;/a>&lt;/p>
-&lt;ul>
-&lt;li>Green is open-source coding in Zig&lt;/li>
-&lt;li>Red is time spent at day job&lt;/li>
-&lt;li>Yellow is sleep&lt;/li>
-&lt;li>Blue is being human&lt;/li>
-&lt;/ul>
-&lt;h2 id="thats-not-sustainable">&amp;ldquo;That&amp;rsquo;s not sustainable&amp;rdquo;&lt;/h2>
-&lt;p>I&amp;rsquo;ve been doing it for 2 years now with no issues - if anything, I&amp;rsquo;m more inclined to continue doing it. I like it.&lt;/p>
-&lt;p>When I started doing this two years ago, age 25, it was a shift from &amp;ldquo;I work and spend my free time goofing off&amp;rdquo; to &amp;ldquo;I work and spend my free time focusing on what I want to achieve in life&amp;rdquo;.&lt;/p>
-&lt;p>It wasn&amp;rsquo;t until 1.5 years later that I actually felt comfortable even talking about this publicly or to co-workers. It sounds ridiculous, and what if e.g. I have a bad week at work or something? If I was a manager, I&amp;rsquo;d certainly wonder if it was due to my report doing this (happy to report no issues!)&lt;/p>
-&lt;p>I&amp;rsquo;ve been &lt;a href="http://emidoots.com/">coding for nearly 10 years professionally&lt;/a>, turning 28 soon. The older I get, the more I seem to enjoy this. It was never an instantaneous shift, but rather a gradual one:&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137580436-e79a7b21-8aca-4b66-9895-808b8ffa2d38.png">&lt;img alt="How my coding has increased to an insane amount over time" class="color" src="https://user-images.githubusercontent.com/3173176/137580436-e79a7b21-8aca-4b66-9895-808b8ffa2d38.png">&lt;/a>&lt;/p>
-&lt;p>I&amp;rsquo;ve worked at &lt;a href="https://sourcegraph.com">the same startup&lt;/a> for the past ~7 years - and I&amp;rsquo;ve certainly experienced early-stage startup lifestyle - with all the crunch that comes with that.&lt;/p>
-&lt;p>So it&amp;rsquo;s not like I&amp;rsquo;ve just never experienced conditions that &lt;em>should lead to burnout before&lt;/em>-it&amp;rsquo;s just that &lt;em>I&amp;rsquo;m not sure I truly understand what people mean when they say burnout&lt;/em>. I think it might often be used to express a feeling of &amp;ldquo;I&amp;rsquo;m no longer interested in the work I do at my tech job, but I like the benefits and I&amp;rsquo;m paid stupid amounts of money - so saying that feels weird! What do I do?&amp;rdquo; - and I just haven&amp;rsquo;t been in that situation before.&lt;/p>
-&lt;h2 id="youre-going-to-burnout">&amp;ldquo;You&amp;rsquo;re going to burnout&amp;rdquo;&lt;/h2>
-&lt;p>I hear this from people who often bring me other &lt;em>grumbling messages of distaste and hatred&lt;/em> (hello /r/programmingcirclejerk! 😃 happy to say I&amp;rsquo;m a lurker these days and get much enjoyment from you.)&lt;/p>
-&lt;p>I think you&amp;rsquo;ve just misunderstand, though.&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137581300-987f4272-79f0-444c-a0e3-007474cb1f5b.png">&lt;img alt="Normal people vs. me: kids/family/fun vs. coding" class="color" src="https://user-images.githubusercontent.com/3173176/137581300-987f4272-79f0-444c-a0e3-007474cb1f5b.png">&lt;/a>&lt;/p>
-&lt;p>If you have children or a significant other, think how much time you spend with them. Do you get burnt out from it? I&amp;rsquo;d be willing to bet that you take breaks from time to time, but I think most would say no.&lt;/p>
-&lt;p>Now replace you children or significant other with a high-stress environment - let&amp;rsquo;s say you spend the same amount of time with co-workers instead of your kids or significant other. That&amp;rsquo;s some nightmare fuel!&lt;/p>
-&lt;p>This is analogous to how I feel: If I was working 100h/week at my day job, I would &lt;em>absolutely&lt;/em> burn out. I think that&amp;rsquo;s what people hear when I say this. But that&amp;rsquo;s not what I&amp;rsquo;m doing: I work a regular programming day job like everyone else - it&amp;rsquo;s at a late-stage, fairly relaxed startup and with a good work/life balance. It&amp;rsquo;s just that I choose to spend the &amp;ldquo;life&amp;rdquo; part of that balance doing what I truly love: coding towards some serious aspirations.&lt;/p>
-&lt;h2 id="nobody-is-productive-writing-code-that-long">&amp;ldquo;Nobody is productive writing code that long&amp;rdquo;&lt;/h2>
-&lt;p>&lt;em>Working on the right problem to take advantage of your current metal state&lt;/em> is how you make true progress. Or, at least, that&amp;rsquo;s how I see it:&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137578255-ab0087e7-f552-44e5-987a-4cfdc2caef8f.png">&lt;img alt="What I work on depending on mental state" class="color" src="https://user-images.githubusercontent.com/3173176/137578255-ab0087e7-f552-44e5-987a-4cfdc2caef8f.png">&lt;/a>&lt;/p>
-&lt;p>But &amp;ldquo;how one could have so many projects lined up, enough to make switching between them always an option?&amp;rdquo; that&amp;rsquo;s because I have some lofty life goals (or an addiction to trying to attain the unattainable, I&amp;rsquo;ll let you choose.)&lt;/p>
-&lt;p>I&amp;rsquo;m working double-time on a secret ten-year vision to upend the gaming industry. Part of that includes a commitment I&amp;rsquo;ve made to build the following in Zig:&lt;/p>
-&lt;ul>
-&lt;li>A &lt;a href="https://github.com/hexops/mach">game engine for the future&lt;/a>&lt;/li>
-&lt;li>Better developer tools (not just for game developers)&lt;/li>
-&lt;li>Several real video games, which I believe can be competitive with what AAA studios offer today.&lt;/li>
-&lt;/ul>
-&lt;p>It&amp;rsquo;s not like I&amp;rsquo;m delusional about how hard that will be: I spent &lt;a href="http://azul3d.org">4 years previously writing a game engine in Go&lt;/a>. I spent the last 7 years of my life working on developer tools at Sourcegraph. I spent most of my teenage years completely failing to create video games in various game engines.&lt;/p>
-&lt;p>I know how hard and time consuming it is. My vision requires only time and diligence.&lt;/p>
-&lt;h2 id="you-dont-have-a-life">&amp;ldquo;You don&amp;rsquo;t have a life&amp;rdquo;&lt;/h2>
-&lt;p>We all choose the life we love, and I enjoy the heck out of mine. Grew up in a family of 6 - we laugh together because we all know my life choices are crazy (who adopts 9 cats? yes I&amp;rsquo;m &lt;em>that person&lt;/em> too.)&lt;/p>
-&lt;p>It&amp;rsquo;s absolutely not normal; but it&amp;rsquo;s also probably far from the &amp;ldquo;lone 20 year old in a basement who has not showered for weeks and is anti-social&amp;rdquo; that you&amp;rsquo;re picturing.&lt;/p>
-&lt;p>I do spend time with family, and recently my new nephew. I chat with friends online, I play games every week. I go to the dentist, I take care of myself. I take care of my cats, and spoil them in ways you can&amp;rsquo;t really fathom.&lt;/p>
-&lt;p>The reason I can spend so much time doing what I love is because:&lt;/p>
-&lt;ul>
-&lt;li>I don&amp;rsquo;t have kids, nor a significant other. That&amp;rsquo;s a tradeoff.&lt;/li>
-&lt;li>I get groceries delivered, I&amp;rsquo;d rather spend the time coding.&lt;/li>
-&lt;li>I make sure I have deep technical problems I need to think through and solve, and solve it &lt;em>while&lt;/em> I am making meals, eating, or doing chores.&lt;/li>
-&lt;li>I run 6 miles many days of the week to keep healthy. I do it while writing code, using a standing desk treadmill.&lt;/li>
-&lt;/ul>
-&lt;p>Most of my time is spent in a large, luxurious ~2500 sq/ft home. Just me and my 9 cats all living like monarchs, cozy and coding away at my dreams.&lt;/p>
-&lt;p>I regret nothing. If I die this way, I&amp;rsquo;d go out happy.&lt;/p>
-&lt;h2 id="thats-not-healthy">&amp;ldquo;That&amp;rsquo;s not healthy&amp;rdquo;&lt;/h2>
-&lt;p>It&amp;rsquo;s completely 100% OK if at this point you&amp;rsquo;re just feeling a bit like:&lt;/p>
-&lt;p>&lt;a class="imglink" href="https://user-images.githubusercontent.com/3173176/137579019-f8313501-5024-48db-83e6-2abe30c78337.png">&lt;img height="250px" alt="Well I don't like that" class="color" src="https://user-images.githubusercontent.com/3173176/137579019-f8313501-5024-48db-83e6-2abe30c78337.png">&lt;/a>&lt;/p>
-&lt;p>I know this lifestyle isn&amp;rsquo;t for everyone. It&amp;rsquo;s not for you.&lt;/p>
-&lt;p>And I don&amp;rsquo;t think it makes me &amp;ldquo;exceptional&amp;rdquo; (in a better-than-you way). I&amp;rsquo;m just a people, struggling with a very different lifestyle than you.&lt;/p>
-&lt;p>I feel strongly you should never feel &lt;em>compelled&lt;/em> or &lt;em>required&lt;/em> to do what I am doing. Any company, manager, or person asking you to do so is &lt;em>horrible&lt;/em> and you should get out quick. I don&amp;rsquo;t want to contribute to that culture or feed it.&lt;/p>
-&lt;p>But-I love what I&amp;rsquo;m doing. I love the amount of progress I&amp;rsquo;m able to achieve every day. I love my time spent solving problems. I love &lt;a href="http://emidoots.com">what I&amp;rsquo;ve achieved so far&lt;/a>. I want to go further than ever before - I&amp;rsquo;ve been marathon coding for as long as I can remember, and I&amp;rsquo;m not going to stop. I &lt;em>need&lt;/em> to see how far I can go.&lt;/p>
-&lt;p>I love the choices I&amp;rsquo;ve made in life. I hope you love yours too.&lt;/p>
-&lt;h2 id="thanks-for-reading">Thanks for reading&lt;/h2>
-&lt;p>Please send your hate to &lt;a href="https://twitter.com/emidoots">@emidoots&lt;/a> on Twitter or to the comments section wherever this ends up, I&amp;rsquo;ll see you there! 😉&lt;/p>
-&lt;p>If you liked this, you might also like:&lt;/p>
-&lt;ul>
-&lt;li>&lt;a href="https://devlog.hexops.com/2021/increasing-my-contribution-to-zig-to-200-a-month">My game development journey &amp;amp; why I&amp;rsquo;m increasing my contribution to Zig to $200/mo&lt;/a>&lt;/li>
-&lt;/ul></description></item><item><title>Unicode data file compression: achieving 40-70% reduction over gzip alone</title><link>https://devlog.hexops.com/2021/unicode-data-file-compression/</link><pubDate>Sat, 03 Jul 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/unicode-data-file-compression/</guid><description>&lt;p>A little story about how writing a domain-specific compression algorithm in a few days can sometimes yield big benefits, why it&amp;rsquo;s sometimes worth giving it a shot, and how to tell when you should try. Note: this is about Unicode spec data files, not general purpose text compression.&lt;/p>
+&lt;p>Thanks for reading!&lt;/p></description></item><item><title>Unicode data file compression: achieving 40-70% reduction over gzip alone</title><link>https://devlog.hexops.com/2021/unicode-data-file-compression/</link><pubDate>Sat, 03 Jul 2021 00:00:00 +0000</pubDate><guid>https://devlog.hexops.com/2021/unicode-data-file-compression/</guid><description>&lt;p>A little story about how writing a domain-specific compression algorithm in a few days can sometimes yield big benefits, why it&amp;rsquo;s sometimes worth giving it a shot, and how to tell when you should try. Note: this is about Unicode spec data files, not general purpose text compression.&lt;/p>
 &lt;ul>
 &lt;li>&lt;a href="#background">Background&lt;/a>&lt;/li>
 &lt;li>&lt;a href="#problem">Problem&lt;/a>&lt;/li>
@@ -861,7 +788,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;h2 id="joining-sourcegraph">Joining Sourcegraph&lt;/h2>
 &lt;p>It was around this time that I was basically deciding: &lt;em>what would I do for a living?&lt;/em>&lt;/p>
 &lt;p>Luckily, someone in the Go community (whom I&amp;rsquo;d never talked to before) reached out to me and asked &amp;ldquo;hey, what are you doing?&amp;rdquo; - I told them I was in school, and left out the part where I was a college student living with parents, scraping by, and likely going grocery-store-part-time-job seeking soon.&lt;/p>
-&lt;img class="color" src="https://user-images.githubusercontent.com/3173176/114268396-b1707680-99b5-11eb-9038-c0b8d919b44f.png">
+&lt;img class="color" src="https://devlog.hexops.com/img/2021/bill-thanks.jpg">
 &lt;p>I didn&amp;rsquo;t come from a background that would lead me to believe I could make a living programming in Go, to the contrary my parents often warned me I couldn&amp;rsquo;t and that I would need to go into Cisco network infrastructure instead.&lt;/p>
 &lt;p>I was told in blunt terms, I could scrape by doing what I love - or make a killing doing something I hate. My parents were mechanical engineers at aerospace companies (I&amp;rsquo;ll let you guess which path they took.)&lt;/p>
 &lt;p>Bill&amp;rsquo;s short ~20 minute conversation with me, quite literally changed my life in ways I couldn&amp;rsquo;t have imagined. I often think about where I would be today had he not reached out to me, and I never quite knew how to reach back out and say thank you in a way that was as meaningful to him as what he did was for me.&lt;/p>
@@ -948,7 +875,7 @@ println!(&amp;quot;{:?}&amp;quot;, vec);
 &lt;h2 id="discovering-zig">Discovering Zig&lt;/h2>
 &lt;p>I continued to look for this mythical &amp;ldquo;better C&amp;rdquo; - and one name that kept arising in my sphere was &lt;a href="https://ziglang.org">Zig&lt;/a>.&lt;/p>
 &lt;p>I didn&amp;rsquo;t pay much attention to it, until I shared it with my brother for the 3rd time:&lt;/p>
-&lt;img class="color" src="https://user-images.githubusercontent.com/3173176/114257988-6be18880-9978-11eb-98e9-68027361bc1c.png">
+&lt;img class="color" src="https://devlog.hexops.com/img/2021/ando-thanks.jpg">
 &lt;blockquote>
 &lt;p>&amp;ldquo;&amp;hellip;I already shared this with you?&amp;rdquo;&lt;/p>
 &lt;p>&amp;ldquo;I am really excited about this. It&amp;rsquo;s literally the language I was trying to build before I think&amp;rdquo;&lt;/p>
