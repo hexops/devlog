@@ -133,18 +133,6 @@ There's a ton of material out there about WebGPU already, check out [this excell
 
 Join our [Matrix chat room](https://matrix.to/#/#hexops:matrix.org) to get help, discuss, etc.
 
-## A personal note
-
-<img class="color" style="float: left; margin-right: 2rem;" src="https://user-images.githubusercontent.com/3173176/160262520-6768c665-7127-4242-b77a-fd2340ed88cf.png"> No, it's not Tom from myspace - it's me, [@emidoots](https://twitter.com/emidoots)! It's cool that we reached this milestone, but let's be honest: it's still just a dumb red triangle!
-
-It's taken _9 brutal months to get here_ - staring at broken CI pipelines, C++ compiler errors, [buying hardware](https://twitter.com/emidoots/status/1507506138144681986) to test every OS+arch possible - and slugging through the depths of hell [where only a footnote from Raymond Chen himself will save you.](https://twitter.com/emidoots/status/1471986125296205825) All to get to a point where it all _just works the way you and I expect it to._
-
-Given the chance, I'd scream from a rooftop "f***ing finally! Now we build the cool part!" because I am so _ecstatic_ to have gotten to this point!
-
-There are few things in life that I am _more serious about_ than this. I dedicate ~48 hours/week to my dayjob, and ~50h/week to Zig building Mach and running [zigmonthly.org](https://zigmonthly.org). After three years of aggressively pushing for progress in this exact way, I have [no plans to slow down anytime soon](https://devlog.hexops.com/2021/I-write-code-100-hours-a-week).
-
-This is _literally_ just the beginning. Buckle up!
-
 ## What's next?
 
 <img class="color img-center" style="max-height: 250px;" src="https://user-images.githubusercontent.com/3173176/160262449-79adcd0a-dde7-46fe-8730-316419f25516.png">
